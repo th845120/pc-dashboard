@@ -427,6 +427,7 @@
     setTimeout(function() {
       splash.style.display = 'none';
       cancelAnimationFrame(animId);
+      animId = null;
     }, 800);
   });
 
