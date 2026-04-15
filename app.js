@@ -352,8 +352,8 @@ function renderSalesCharts(months) {
     },
     options: {
       responsive: true, maintainAspectRatio: false,
-      plugins: { legend: { display: false }, tooltip: { ...sharedTooltip, callbacks: { label: ctx => ` ${ctx.parsed.y}%` } } },
-      scales: { x: sharedScaleX, y: { ...sharedScaleY, ticks: { ...sharedScaleY.ticks, callback: v => v + '%' } } },
+      plugins: { legend: { display: false }, tooltip: { ...sharedTooltip, callbacks: { label: ctx => ` ${parseFloat(ctx.parsed.y.toFixed(2))}%` } } },
+      scales: { x: sharedScaleX, y: { ...sharedScaleY, ticks: { ...sharedScaleY.ticks, callback: v => parseFloat(v.toFixed(2)) + '%' } } },
       animation: { duration: 600, easing: 'easeInOutQuart' }
     }
   });
@@ -533,7 +533,7 @@ function renderSalesChartsFiltered(indices) {
     options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { ...sharedTooltip, callbacks: { label: function(ctx) { return ' ' + ctx.parsed.y + ' 人'; } } } }, scales: { x: sharedScaleX, y: sharedScaleY }, animation: { duration: 600, easing: 'easeInOutQuart' } }
   });
   upsertChart('salesRepurchaseChart', { type: 'line', data: { labels: labels, datasets: [mkLine(repurch)] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { ...sharedTooltip, callbacks: { label: function(ctx) { return ' ' + ctx.parsed.y + '%'; } } } }, scales: { x: sharedScaleX, y: { ...sharedScaleY, ticks: { ...sharedScaleY.ticks, callback: function(v) { return v + '%'; } } } }, animation: { duration: 600, easing: 'easeInOutQuart' } } });
-  upsertChart('salesCvrChart',        { type: 'line', data: { labels: labels, datasets: [mkLine(cvr)]    }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { ...sharedTooltip, callbacks: { label: function(ctx) { return ' ' + ctx.parsed.y + '%'; } } } }, scales: { x: sharedScaleX, y: { ...sharedScaleY, ticks: { ...sharedScaleY.ticks, callback: function(v) { return v + '%'; } } } }, animation: { duration: 600, easing: 'easeInOutQuart' } } });
+  upsertChart('salesCvrChart',        { type: 'line', data: { labels: labels, datasets: [mkLine(cvr)]    }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { ...sharedTooltip, callbacks: { label: function(ctx) { return ' ' + parseFloat(ctx.parsed.y.toFixed(2)) + '%'; } } } }, scales: { x: sharedScaleX, y: { ...sharedScaleY, ticks: { ...sharedScaleY.ticks, callback: function(v) { return parseFloat(v.toFixed(2)) + '%'; } } } }, animation: { duration: 600, easing: 'easeInOutQuart' } } });
   upsertChart('salesAovChart',        { type: 'line', data: { labels: labels, datasets: [mkLine(aov)]    }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { ...sharedTooltip, callbacks: { label: function(ctx) { return ' NT$' + ctx.parsed.y.toLocaleString(); } } } }, scales: { x: sharedScaleX, y: { ...sharedScaleY, ticks: { ...sharedScaleY.ticks, callback: function(v) { return 'NT$' + v.toLocaleString(); } } } }, animation: { duration: 600, easing: 'easeInOutQuart' } } });
 }
 
@@ -926,8 +926,8 @@ function renderServiceCharts(months) {
     },
     options: {
       responsive: true, maintainAspectRatio: false,
-      plugins: { legend: { display: false }, tooltip: { ...sharedTooltip, callbacks: { label: function(ctx) { return ' ' + ctx.parsed.y + '%'; } } } },
-      scales: { x: sharedScaleX, y: { ...sharedScaleY, ticks: { ...sharedScaleY.ticks, callback: function(v) { return v + '%'; } } } },
+      plugins: { legend: { display: false }, tooltip: { ...sharedTooltip, callbacks: { label: function(ctx) { return ' ' + parseFloat(ctx.parsed.y.toFixed(2)) + '%'; } } } },
+      scales: { x: sharedScaleX, y: { ...sharedScaleY, ticks: { ...sharedScaleY.ticks, callback: function(v) { return parseFloat(v.toFixed(2)) + '%'; } } } },
       animation: { duration: 600, easing: 'easeInOutQuart' }
     }
   });
@@ -951,8 +951,8 @@ function renderServiceCharts(months) {
     },
     options: {
       responsive: true, maintainAspectRatio: false,
-      plugins: { legend: { display: false }, tooltip: { ...sharedTooltip, callbacks: { label: function(ctx) { return ' ' + ctx.parsed.y + '%'; } } } },
-      scales: { x: sharedScaleX, y: { ...sharedScaleY, ticks: { ...sharedScaleY.ticks, callback: function(v) { return v + '%'; } } } },
+      plugins: { legend: { display: false }, tooltip: { ...sharedTooltip, callbacks: { label: function(ctx) { return ' ' + parseFloat(ctx.parsed.y.toFixed(2)) + '%'; } } } },
+      scales: { x: sharedScaleX, y: { ...sharedScaleY, ticks: { ...sharedScaleY.ticks, callback: function(v) { return parseFloat(v.toFixed(2)) + '%'; } } } },
       animation: { duration: 600, easing: 'easeInOutQuart' }
     }
   });
@@ -1003,8 +1003,8 @@ function renderServiceChartsFiltered(indices) {
       tension: 0.35, fill: true, pointRadius: linePtSize(data),
       pointBackgroundColor: linePtBg(data), pointBorderColor: linePtBg(data), borderWidth: 2 };
   }
-  upsertServiceChart('serviceInquiryChart', { type: 'line', data: { labels: labels, datasets: [mkLine(inquiry)] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { ...sharedTooltip, callbacks: { label: function(c) { return ' ' + c.parsed.y + '%'; } } } }, scales: { x: sharedScaleX, y: { ...sharedScaleY, ticks: { ...sharedScaleY.ticks, callback: function(v) { return v + '%'; } } } }, animation: { duration: 600, easing: 'easeInOutQuart' } } });
-  upsertServiceChart('serviceCvrChart',      { type: 'line', data: { labels: labels, datasets: [mkLine(cvr)]    }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { ...sharedTooltip, callbacks: { label: function(c) { return ' ' + c.parsed.y + '%'; } } } }, scales: { x: sharedScaleX, y: { ...sharedScaleY, ticks: { ...sharedScaleY.ticks, callback: function(v) { return v + '%'; } } } }, animation: { duration: 600, easing: 'easeInOutQuart' } } });
+  upsertServiceChart('serviceInquiryChart', { type: 'line', data: { labels: labels, datasets: [mkLine(inquiry)] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { ...sharedTooltip, callbacks: { label: function(c) { return ' ' + parseFloat(c.parsed.y.toFixed(2)) + '%'; } } } }, scales: { x: sharedScaleX, y: { ...sharedScaleY, ticks: { ...sharedScaleY.ticks, callback: function(v) { return parseFloat(v.toFixed(2)) + '%'; } } } }, animation: { duration: 600, easing: 'easeInOutQuart' } } });
+  upsertServiceChart('serviceCvrChart',      { type: 'line', data: { labels: labels, datasets: [mkLine(cvr)]    }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { ...sharedTooltip, callbacks: { label: function(c) { return ' ' + parseFloat(c.parsed.y.toFixed(2)) + '%'; } } } }, scales: { x: sharedScaleX, y: { ...sharedScaleY, ticks: { ...sharedScaleY.ticks, callback: function(v) { return parseFloat(v.toFixed(2)) + '%'; } } } }, animation: { duration: 600, easing: 'easeInOutQuart' } } });
   upsertServiceChart('serviceRevenueChart', {
     type: 'bar',
     data: { labels: labels, datasets: [{ data: revenue, backgroundColor: barBg(revenue), borderColor: barBorder(revenue), borderWidth: 1.5, borderRadius: 5, borderSkipped: false }] },
@@ -1088,6 +1088,286 @@ document.querySelectorAll('.tab-btn').forEach(function(btn) {
   btn.addEventListener('click', function() {
     if (btn.dataset.tab === 'service') {
       requestAnimationFrame(function() { setTimeout(initServiceCharts, 50); });
+    }
+  });
+});
+
+// ===== 蝦皮歷史營業額 =====
+var YEARLY_REVENUE = {
+  2024: [null, null, 839114, 419141, 1163383, 1168206, 1398145, 1279539, 417360, 709423, 723213, 785941],
+  2025: [699028, 1140141, 1033369, 1085720, 1299852, 1843769, 2152000, 1342820, 789236, 1024300, 1025103, 705297],
+  2026: [971098, 1562399, 782417, null, null, null, null, null, null, null, null, null]
+};
+
+var YEARLY_COLORS = {
+  2024: { line: '#e8a825', bg: 'rgba(232,168,37,0.08)' },
+  2025: { line: '#3dbf7a', bg: 'rgba(61,191,122,0.08)' },
+  2026: { line: '#c4b5dc', bg: 'rgba(196,181,220,0.15)' }
+};
+
+var MONTH_LABELS_SHORT = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+// 季度對應月份索引 (0-based)
+var QUARTER_MONTHS = {
+  Q1: [0, 1, 2],
+  Q2: [3, 4, 5],
+  Q3: [6, 7, 8],
+  Q4: [9, 10, 11]
+};
+
+var revenueHistoryChartInitialized = false;
+var revenueHistoryChartInstance = null;
+
+// 格式化金額
+function fmtNTD(v) {
+  if (v === null || v === undefined) return '—';
+  return 'NT$' + Math.round(v).toLocaleString('en-US');
+}
+
+// 建立/更新 revenueHistoryChart datasets
+function buildRevenueDatasets(activeYears) {
+  var datasets = [];
+  activeYears.forEach(function(year) {
+    var col = YEARLY_COLORS[year];
+    var rawData = YEARLY_REVENUE[year];
+    // Chart.js expects null for missing points (not undefined)
+    var data = rawData.map(function(v) { return v !== null && v !== undefined ? v : null; });
+    datasets.push({
+      label: String(year),
+      data: data,
+      borderColor: col.line,
+      backgroundColor: col.bg,
+      fill: true,
+      tension: 0.3,
+      pointRadius: 4,
+      pointHoverRadius: 6,
+      pointBackgroundColor: col.line,
+      pointBorderColor: col.line,
+      borderWidth: 2,
+      spanGaps: false
+    });
+  });
+  return datasets;
+}
+
+// 計算季度總額（若所有月份都是 null 則回傳 null）
+function calcQuarterRevenue(year, quarter) {
+  var monthIdx = QUARTER_MONTHS[quarter];
+  var data = YEARLY_REVENUE[year];
+  var total = 0;
+  var hasData = false;
+  monthIdx.forEach(function(i) {
+    if (data[i] !== null && data[i] !== undefined) {
+      total += data[i];
+      hasData = true;
+    }
+  });
+  return hasData ? total : null;
+}
+
+// 更新同比面板
+function updateYoyPanel(quarter) {
+  var panel = document.getElementById('yoyPanel');
+  var content = document.getElementById('yoyContent');
+  if (!panel || !content) return;
+
+  if (!quarter) {
+    panel.style.display = 'none';
+    return;
+  }
+
+  panel.style.display = 'block';
+
+  var years = [2024, 2025, 2026];
+  var html = '<div style="font-size:var(--text-sm);font-weight:600;color:var(--color-text);margin-bottom:10px;">' + quarter + ' 同比分析</div>';
+
+  // 2025 vs 2024, 2026 vs 2025
+  var comparisons = [
+    { curr: 2025, prev: 2024 },
+    { curr: 2026, prev: 2025 }
+  ];
+
+  comparisons.forEach(function(comp) {
+    var currVal = calcQuarterRevenue(comp.curr, quarter);
+    var prevVal = calcQuarterRevenue(comp.prev, quarter);
+
+    var currStr = currVal !== null ? fmtNTD(currVal) : '—';
+    var prevStr = prevVal !== null ? fmtNTD(prevVal) : '—';
+
+    var yoyStr = '';
+    if (currVal !== null && prevVal !== null && prevVal > 0) {
+      var pct = ((currVal - prevVal) / prevVal * 100);
+      var sign = pct >= 0 ? '▲' : '▼';
+      var cls = pct >= 0 ? 'yoy-up' : 'yoy-down';
+      yoyStr = '<span class="' + cls + '">' + sign + ' ' + Math.abs(pct).toFixed(2) + '%</span>';
+    } else {
+      yoyStr = '<span style="color:var(--color-text-faint);">--</span>';
+    }
+
+    html += '<div class="yoy-row">' +
+      '<strong style="color:var(--color-text);">' + comp.curr + ' ' + quarter + '</strong>' +
+      '：' + currStr +
+      '&nbsp;&nbsp;vs&nbsp;&nbsp;' +
+      '<strong style="color:var(--color-text);">' + comp.prev + ' ' + quarter + '</strong>' +
+      '：' + prevStr +
+      '&nbsp;&nbsp;→&nbsp;&nbsp;同比：' + yoyStr +
+      '</div>';
+  });
+
+  content.innerHTML = html;
+}
+
+// 填充年度數據表格
+function renderRevenueTable() {
+  var tbody = document.getElementById('revenueTableBody');
+  if (!tbody) return;
+
+  var years = [2024, 2025, 2026];
+  var html = '';
+
+  years.forEach(function(year) {
+    var data = YEARLY_REVENUE[year];
+    var isLatestYear = (year === 2026);
+
+    // 計算年度合計（只加有數據的月份）
+    var total = 0;
+    var hasAny = false;
+    data.forEach(function(v) {
+      if (v !== null && v !== undefined) {
+        total += v;
+        hasAny = true;
+      }
+    });
+
+    var rowClass = isLatestYear ? 'highlight-row' : '';
+    var cells = data.map(function(v) {
+      if (v === null || v === undefined) return '<td>—</td>';
+      return '<td>NT$' + Math.round(v).toLocaleString('en-US') + '</td>';
+    }).join('');
+
+    var totalCell = hasAny
+      ? '<td class="year-total">NT$' + Math.round(total).toLocaleString('en-US') + '</td>'
+      : '<td>—</td>';
+
+    html += '<tr class="' + rowClass + '">' +
+      '<td>' + year + '</td>' +
+      cells +
+      totalCell +
+      '</tr>';
+  });
+
+  tbody.innerHTML = html;
+}
+
+// 初始化走勢圖
+function initRevenueHistoryChart() {
+  if (revenueHistoryChartInitialized) return;
+  revenueHistoryChartInitialized = true;
+
+  renderRevenueTable();
+
+  var activeYears = [2024, 2025, 2026];
+  var datasets = buildRevenueDatasets(activeYears);
+
+  var canvas = document.getElementById('revenueHistoryChart');
+  if (!canvas) return;
+
+  var ctx = canvas.getContext('2d');
+  revenueHistoryChartInstance = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: MONTH_LABELS_SHORT,
+      datasets: datasets
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: {
+          display: true,
+          position: 'top',
+          labels: {
+            color: getCSSVar('--color-text-muted'),
+            font: { size: 11, family: getCSSVar('--font-body') },
+            usePointStyle: true,
+            pointStyleWidth: 10,
+            padding: 16
+          }
+        },
+        tooltip: {
+          backgroundColor: getCSSVar('--color-surface'),
+          borderColor: getCSSVar('--color-border'),
+          borderWidth: 1,
+          titleColor: getCSSVar('--color-text'),
+          bodyColor: getCSSVar('--color-text-muted'),
+          padding: 12,
+          callbacks: {
+            label: function(ctx) {
+              if (ctx.parsed.y === null) return ' ' + ctx.dataset.label + '：—';
+              return ' ' + ctx.dataset.label + '：NT$' + Math.round(ctx.parsed.y).toLocaleString('en-US');
+            }
+          }
+        }
+      },
+      scales: {
+        x: {
+          grid: { color: 'rgba(196,181,220,0.07)', drawBorder: false },
+          ticks: {
+            color: getCSSVar('--color-text-faint'),
+            font: { size: 11, family: getCSSVar('--font-body') }
+          }
+        },
+        y: {
+          grid: { color: 'rgba(196,181,220,0.07)', drawBorder: false },
+          ticks: {
+            color: getCSSVar('--color-text-faint'),
+            font: { size: 11, family: getCSSVar('--font-body') },
+            callback: function(v) {
+              if (v >= 1000000) return 'NT$' + (v / 1000000).toFixed(1) + 'M';
+              if (v >= 1000) return 'NT$' + (v / 1000).toFixed(0) + 'K';
+              return 'NT$' + v;
+            }
+          }
+        }
+      },
+      animation: { duration: 600, easing: 'easeInOutQuart' }
+    }
+  });
+
+  // 監聽年度 checkbox
+  var checkboxes = document.querySelectorAll('input[name="yearToggle"]');
+  checkboxes.forEach(function(cb) {
+    cb.addEventListener('change', function() {
+      var newActive = [];
+      checkboxes.forEach(function(c) {
+        if (c.checked) newActive.push(parseInt(c.value));
+      });
+      if (revenueHistoryChartInstance) {
+        revenueHistoryChartInstance.data.datasets = buildRevenueDatasets(newActive);
+        revenueHistoryChartInstance.update();
+      }
+    });
+  });
+
+  // 監聽同比季度下拉
+  var quarterSel = document.getElementById('yoyQuarterSelect');
+  if (quarterSel) {
+    quarterSel.addEventListener('change', function() {
+      updateYoyPanel(this.value);
+    });
+  }
+}
+
+// 監聽 Tab 切換，切到銷售數據時也初始化歷史營業額圖表
+document.querySelectorAll('.tab-btn').forEach(function(btn) {
+  btn.addEventListener('click', function() {
+    if (btn.dataset.tab === 'sales') {
+      requestAnimationFrame(function() {
+        setTimeout(function() {
+          initRevenueHistoryChart();
+        }, 80);
+      });
     }
   });
 });
