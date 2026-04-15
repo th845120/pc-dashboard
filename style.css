@@ -589,7 +589,6 @@ button { cursor: pointer; background: none; border: none; font: inherit; color: 
 .action-desc {
   font-size: var(--text-sm);
   color: var(--color-text-muted);
-  max-width: 60ch;
   line-height: 1.6;
   word-break: keep-all;
   overflow-wrap: break-word;
