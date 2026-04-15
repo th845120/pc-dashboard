@@ -266,11 +266,13 @@ button { cursor: pointer; background: none; border: none; font: inherit; color: 
 }
 .tab-btn:hover svg { opacity: 1; }
 .tab-btn.active {
-  color: var(--color-primary);
-  background: var(--color-primary-highlight);
+  color: #fff;
+  background: var(--color-primary-light);
   font-weight: 600;
+  border-bottom: 2px solid var(--color-primary);
+  box-shadow: 0 2px 8px rgba(83,64,110,0.35);
 }
-.tab-btn.active svg { opacity: 1; color: var(--color-primary); }
+.tab-btn.active svg { opacity: 1; color: #fff; }
 
 /* Tab panels */
 .tab-panel { display: none; }
@@ -668,6 +670,8 @@ button { cursor: pointer; background: none; border: none; font: inherit; color: 
   color: var(--color-text-faint);
   letter-spacing: 0.1em;
   text-transform: uppercase;
+  word-break: keep-all;
+  white-space: nowrap;
 }
 .footer-line {
   width: 40px;
@@ -815,6 +819,7 @@ button { cursor: pointer; background: none; border: none; font: inherit; color: 
 .data-table td.cell-bad  { color: var(--color-bad);  font-weight: 600; }
 .data-table td.cell-good { color: var(--color-good); font-weight: 600; }
 .data-table td.cell-neutral { color: var(--color-text-muted); }
+.data-table td.cell-top3 { color: var(--color-warn); font-weight: 700; }
 
 /* MoM 漲跌標籤（表格內） */
 .mom-delta {
@@ -1695,6 +1700,10 @@ button { cursor: pointer; background: none; border: none; font: inherit; color: 
 
 /* --- Tablet (<=768px) --- */
 @media (max-width: 768px) {
+  html, body {
+    overflow-x: hidden;
+    max-width: 100vw;
+  }
   :root, [data-theme='dark'], [data-theme='light'] {
     --text-2xl: 1.35rem;
     --text-xl: 1.15rem;
@@ -1738,6 +1747,10 @@ button { cursor: pointer; background: none; border: none; font: inherit; color: 
 
 /* --- Mobile (<=480px) --- */
 @media (max-width: 480px) {
+  html, body {
+    overflow-x: hidden;
+    max-width: 100vw;
+  }
   :root, [data-theme='dark'], [data-theme='light'] {
     --text-2xl: 1.15rem;
     --text-xl: 1rem;
@@ -1797,6 +1810,13 @@ button { cursor: pointer; background: none; border: none; font: inherit; color: 
   .section {
     padding: var(--space-3) var(--space-3) var(--space-4);
     gap: var(--space-3);
+    max-width: 100%;
+    box-sizing: border-box;
+    overflow-x: clip;
+  }
+  .tab-panel {
+    max-width: 100vw;
+    overflow-x: hidden;
   }
 
   .section-title {
@@ -1839,9 +1859,16 @@ button { cursor: pointer; background: none; border: none; font: inherit; color: 
   }
 
   /* Action items */
+  .action-list {
+    max-width: 100%;
+    overflow: hidden;
+  }
   .action-item {
     padding: var(--space-3);
     gap: var(--space-2);
+    max-width: 100%;
+    overflow: hidden;
+    box-sizing: border-box;
   }
   .action-priority {
     font-size: 0.6rem;
@@ -1849,10 +1876,21 @@ button { cursor: pointer; background: none; border: none; font: inherit; color: 
   }
   .action-title {
     font-size: 0.78rem;
+    word-break: break-all;
+    word-break: auto-phrase;
+    overflow-wrap: break-word;
   }
   .action-desc {
     font-size: 0.68rem;
-    line-height: 1.5;
+    line-height: 1.55;
+    word-break: break-all;
+    word-break: auto-phrase;
+    overflow-wrap: break-word;
+  }
+  .action-content {
+    min-width: 0;
+    max-width: 100%;
+    overflow: hidden;
   }
 
   /* Platform cards */
@@ -1861,6 +1899,11 @@ button { cursor: pointer; background: none; border: none; font: inherit; color: 
   }
 
   /* Tables */
+  .data-table-wrap {
+    max-width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
   .data-table {
     font-size: 0.7rem;
     min-width: 500px;
@@ -1905,10 +1948,16 @@ button { cursor: pointer; background: none; border: none; font: inherit; color: 
   .pg-milestone-area {
     padding: var(--space-3);
     min-height: 56px;
+    max-width: 100%;
+    overflow: hidden;
+    box-sizing: border-box;
   }
   .pg-milestone-text {
     font-size: 0.72rem;
     line-height: 1.6;
+    word-break: break-all;
+    word-break: auto-phrase;
+    overflow-wrap: break-word;
   }
 
   /* Race chart */

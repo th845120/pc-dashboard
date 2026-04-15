@@ -438,23 +438,42 @@ function renderTable(from, to) {
   const tbody = document.getElementById('salesTableBody');
   if (!tbody) return;
   const rows = filterTableData(from, to);
-  const html = rows.map(function(d) {
+
+  // 計算每欄前 3 名
+  var t3Fans   = topNIndices(rows.map(function(d) { return d.fans; }), 3);
+  var t3New    = topNIndices(rows.map(function(d) { return d.newbuyer; }), 3);
+  var t3Rep    = topNIndices(rows.map(function(d) { return parseNumStr(d.repurchase); }), 3);
+  var t3Cvr    = topNIndices(rows.map(function(d) { return parseNumStr(d.cvr); }), 3);
+  var t3Aov    = topNIndices(rows.map(function(d) { return parseNumStr(d.aov); }), 3);
+  // 跳出率越低越好，所以標前 3 低（用負值取 top）
+  var t3MB     = topNIndices(rows.map(function(d) { return -parseNumStr(d.mBounce); }), 3);
+  var t3PB     = topNIndices(rows.map(function(d) { var v = parseNumStr(d.pcBounce); return v === 0 ? Infinity : -v; }), 3);
+
+  const html = rows.map(function(d, idx) {
     const isLatest = !!d.isLatest;
     const fansVal = d.fans < 0 ? d.fans.toLocaleString() : '+' + d.fans.toLocaleString();
     const fansClass = d.fans < 0 ? 'cell-bad' : '';
     const rowClass = isLatest ? 'highlight-row' : '';
-    const cellCls = isLatest ? 'cell-bad' : '';
     const bold = function(v) { return isLatest ? '<strong>' + v + '</strong>' : v; };
     const monthCell = isLatest ? '<strong>' + d.month + '</strong>' : d.month;
+
+    var c3Fans = t3Fans[idx] ? ' cell-top3' : '';
+    var c3New  = t3New[idx]  ? ' cell-top3' : '';
+    var c3Rep  = t3Rep[idx]  ? ' cell-top3' : '';
+    var c3Cvr  = t3Cvr[idx]  ? ' cell-top3' : '';
+    var c3Aov  = t3Aov[idx]  ? ' cell-top3' : '';
+    var c3MB   = t3MB[idx]   ? ' cell-top3' : '';
+    var c3PB   = t3PB[idx]   ? ' cell-top3' : '';
+
     return '<tr class="' + rowClass + '">' +
       '<td>' + monthCell + '</td>' +
-      '<td class="' + fansClass + '">' + bold(fansVal) + '</td>' +
-      '<td class="' + cellCls + '">' + bold(d.newbuyer) + '</td>' +
-      '<td class="' + cellCls + '">' + bold(d.repurchase) + '</td>' +
-      '<td class="' + cellCls + '">' + bold(d.cvr) + '</td>' +
-      '<td class="' + cellCls + '">' + bold(d.aov) + '</td>' +
-      '<td>' + bold(d.mBounce) + '</td>' +
-      '<td>' + bold(d.pcBounce) + '</td>' +
+      '<td class="' + fansClass + c3Fans + '">' + bold(fansVal) + '</td>' +
+      '<td class="' + c3New + '">' + bold(d.newbuyer) + '</td>' +
+      '<td class="' + c3Rep + '">' + bold(d.repurchase) + '</td>' +
+      '<td class="' + c3Cvr + '">' + bold(d.cvr) + '</td>' +
+      '<td class="' + c3Aov + '">' + bold(d.aov) + '</td>' +
+      '<td class="' + c3MB + '">' + bold(d.mBounce) + '</td>' +
+      '<td class="' + c3PB + '">' + bold(d.pcBounce) + '</td>' +
       '</tr>';
   }).join('');
   tbody.innerHTML = html;
@@ -1032,6 +1051,15 @@ function momTag(curr, prev, isPercent, invertColor) {
   return '<br><span class="mom-delta ' + cls + '">' + arrow + ' ' + display + '</span>';
 }
 
+// 取某欄位前 N 名的索引集合（數字越大越「好」）
+function topNIndices(arr, n) {
+  var sorted = arr.map(function(v, i) { return { v: v, i: i }; })
+    .sort(function(a, b) { return b.v - a.v; });
+  var set = {};
+  for (var k = 0; k < Math.min(n, sorted.length); k++) set[sorted[k].i] = true;
+  return set;
+}
+
 // 渲染客服明細表
 function renderServiceTable(from, to) {
   var tbody = document.getElementById('serviceTableBody');
@@ -1040,20 +1068,29 @@ function renderServiceTable(from, to) {
     var m = parseInt(d.month);
     return m >= from && m <= to;
   });
+
+  // 計算每欄前 3 名
+  var top3Unreplied = topNIndices(rows.map(function(d) { return d.unreplied; }), 3);
+  var top3Inquiry   = topNIndices(rows.map(function(d) { return parseNumStr(d.inquiryRate); }), 3);
+  var top3Cvr       = topNIndices(rows.map(function(d) { return parseNumStr(d.cvr); }), 3);
+  var top3Revenue   = topNIndices(rows.map(function(d) { return parseNumStr(d.revenue); }), 3);
+  var top3Aov       = topNIndices(rows.map(function(d) { return parseNumStr(d.aov); }), 3);
+
   var html = rows.map(function(d, idx) {
     var isLatest = !!d.isLatest;
     var rowClass = isLatest ? 'highlight-row' : '';
     var bold = function(v) { return isLatest ? '<strong>' + v + '</strong>' : v; };
     var monthCell = isLatest ? '<strong>' + d.month + '</strong>' : d.month;
-    // 上一筆資料（用於 MoM 計算）
     var prev = idx > 0 ? rows[idx - 1] : null;
-    // unreplied color class
-    var uClass = '';
-    if (!isLatest) {
-      if (d.unreplied > 100) uClass = 'cell-bad';
-      else if (d.unreplied > 50) uClass = 'cell-warn';
-    }
-    // MoM: 未回覆和詢問率降低=好（invertColor），轉化率/營業額/客單價升高=好
+
+    // top3 黃字 class
+    var t3U = top3Unreplied[idx] ? ' cell-top3' : '';
+    var t3I = top3Inquiry[idx]   ? ' cell-top3' : '';
+    var t3C = top3Cvr[idx]       ? ' cell-top3' : '';
+    var t3R = top3Revenue[idx]   ? ' cell-top3' : '';
+    var t3A = top3Aov[idx]       ? ' cell-top3' : '';
+
+    // MoM
     var mUnreplied = prev ? momTag(d.unreplied, prev.unreplied, false, true) : '';
     var mInquiry = prev ? momTag(d.inquiryRate, prev.inquiryRate, true, true) : '';
     var mCvr = prev ? momTag(d.cvr, prev.cvr, true, false) : '';
@@ -1061,11 +1098,11 @@ function renderServiceTable(from, to) {
     var mAov = prev ? momTag(d.aov, prev.aov, false, false) : '';
     return '<tr class="' + rowClass + '">' +
       '<td>' + monthCell + '</td>' +
-      '<td class="' + uClass + '">' + bold(d.unreplied) + mUnreplied + '</td>' +
-      '<td>' + bold(d.inquiryRate) + mInquiry + '</td>' +
-      '<td>' + bold(d.cvr) + mCvr + '</td>' +
-      '<td>' + bold(d.revenue) + mRevenue + '</td>' +
-      '<td>' + bold(d.aov) + mAov + '</td>' +
+      '<td class="' + t3U + '">' + bold(d.unreplied) + mUnreplied + '</td>' +
+      '<td class="' + t3I + '">' + bold(d.inquiryRate) + mInquiry + '</td>' +
+      '<td class="' + t3C + '">' + bold(d.cvr) + mCvr + '</td>' +
+      '<td class="' + t3R + '">' + bold(d.revenue) + mRevenue + '</td>' +
+      '<td class="' + t3A + '">' + bold(d.aov) + mAov + '</td>' +
       '</tr>';
   }).join('');
   tbody.innerHTML = html;
