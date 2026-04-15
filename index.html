@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>聚寶水晶 品牌儀表板</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=DM+Serif+Display&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <!-- Header -->
+  <header class="header">
+    <div class="header-inner">
+      <div class="brand">
+        <svg class="logo" aria-label="聚寶水晶" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <polygon points="18,2 34,12 34,24 18,34 2,24 2,12" fill="none" stroke="currentColor" stroke-width="1.8"/>
+          <polygon points="18,8 28,14 28,22 18,28 8,22 8,14" fill="currentColor" opacity="0.15"/>
+          <circle cx="18" cy="18" r="4" fill="currentColor" opacity="0.7"/>
+          <line x1="18" y1="2" x2="18" y2="8" stroke="currentColor" stroke-width="1.5"/>
+          <line x1="18" y1="28" x2="18" y2="34" stroke="currentColor" stroke-width="1.5"/>
+          <line x1="2" y1="12" x2="8" y2="14" stroke="currentColor" stroke-width="1.5"/>
+          <line x1="28" y1="22" x2="34" y2="24" stroke="currentColor" stroke-width="1.5"/>
+          <line x1="2" y1="24" x2="8" y2="22" stroke="currentColor" stroke-width="1.5"/>
+          <line x1="28" y1="14" x2="34" y2="12" stroke="currentColor" stroke-width="1.5"/>
+        </svg>
+        <div>
+          <span class="brand-name">聚寶水晶</span>
+          <span class="brand-sub">Precious Crystal</span>
+        </div>
+      </div>
+      <div class="header-right">
+        <span class="update-badge">最後更新：2026-04-15</span>
+        <button class="theme-toggle" data-theme-toggle aria-label="切換深色模式">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="main">
+
+    <!-- Section: 蝦皮數據 -->
+    <section class="section">
+      <div class="section-header">
+        <h2 class="section-title">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+          蝦皮拍賣
+        </h2>
+        <span class="section-badge good">無風險</span>
+      </div>
+
+      <!-- KPI Cards -->
+      <div class="kpi-grid">
+        <div class="kpi-card accent">
+          <div class="kpi-label">整體評分</div>
+          <div class="kpi-value">4.99</div>
+          <div class="kpi-sub">滿分 5.00</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">好評率</div>
+          <div class="kpi-value">99.75%</div>
+          <div class="kpi-sub">4-5 星評價佔比</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">蝦皮粉絲</div>
+          <div class="kpi-value">141,988</div>
+          <div class="kpi-sub">累積追蹤人數</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">商品數</div>
+          <div class="kpi-value">366</div>
+          <div class="kpi-sub">上架商品總數</div>
+        </div>
+        <div class="kpi-card good">
+          <div class="kpi-label">取消率</div>
+          <div class="kpi-value">0%</div>
+          <div class="kpi-sub">訂單取消率</div>
+        </div>
+        <div class="kpi-card warn">
+          <div class="kpi-label">回覆率</div>
+          <div class="kpi-value">75%</div>
+          <div class="kpi-sub">平均回覆約 2 小時</div>
+        </div>
+      </div>
+
+      <!-- Charts Row -->
+      <div class="charts-row">
+        <div class="chart-card">
+          <h3 class="chart-title">評價分布</h3>
+          <div class="chart-wrap donut-wrap">
+            <canvas id="ratingDonut"></canvas>
+          </div>
+          <div class="donut-legend">
+            <span class="legend-dot good"></span><span>好評 16,510</span>
+            <span class="legend-dot warn"></span><span>普通 33</span>
+            <span class="legend-dot bad"></span><span>差評 8</span>
+          </div>
+        </div>
+
+        <div class="chart-card">
+          <h3 class="chart-title">評價總量</h3>
+          <div class="chart-wrap">
+            <canvas id="totalBar"></canvas>
+          </div>
+          <p class="chart-note">總評價數：<strong>16,551</strong> 則</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section: Meta -->
+    <section class="section">
+      <div class="section-header">
+        <h2 class="section-title">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
+          Meta（Facebook）
+        </h2>
+        <span class="section-badge good">無風險</span>
+      </div>
+      <div class="kpi-grid">
+        <div class="kpi-card accent">
+          <div class="kpi-label">粉絲數</div>
+          <div class="kpi-value">16,366</div>
+          <div class="kpi-sub">Facebook 粉絲頁</div>
+        </div>
+        <div class="kpi-card good">
+          <div class="kpi-label">推薦率</div>
+          <div class="kpi-value">100%</div>
+          <div class="kpi-sub">共 37 則評論</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">近期互動</div>
+          <div class="kpi-value">275</div>
+          <div class="kpi-sub">讚 + 留言 + 分享（2天）</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section: 輿情監測 -->
+    <section class="section">
+      <div class="section-header">
+        <h2 class="section-title">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          網路輿情監測
+        </h2>
+        <span class="section-badge good">整體正面</span>
+      </div>
+
+      <div class="platform-grid">
+        <div class="platform-card">
+          <div class="platform-header">
+            <span class="platform-name">PTT</span>
+            <span class="badge good">無風險</span>
+          </div>
+          <ul class="platform-list">
+            <li>無品牌直接討論</li>
+            <li>Crystal 板多為通用知識</li>
+            <li>無負評出現</li>
+          </ul>
+        </div>
+
+        <div class="platform-card warn">
+          <div class="platform-header">
+            <span class="platform-name">Dcard</span>
+            <span class="badge warn">聲量偏低</span>
+          </div>
+          <ul class="platform-list">
+            <li>無直接品牌討論</li>
+            <li>推薦文未收錄本品牌</li>
+            <li>競品：月色真美 luna 等</li>
+          </ul>
+        </div>
+
+        <div class="platform-card">
+          <div class="platform-header">
+            <span class="platform-name">Google Search</span>
+            <span class="badge good">無風險</span>
+          </div>
+          <ul class="platform-list">
+            <li>FB、直播影片正常索引</li>
+            <li>IG Reel 有收錄</li>
+            <li>無負面新聞或投訴</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section: 行動建議 -->
+    <section class="section">
+      <div class="section-header">
+        <h2 class="section-title">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+          本週行動建議
+        </h2>
+      </div>
+      <div class="action-list">
+        <div class="action-item high">
+          <div class="action-priority">優先</div>
+          <div class="action-content">
+            <div class="action-title">加強 Dcard 能見度</div>
+            <div class="action-desc">考慮在 Dcard 水晶板投稿開箱文或與 KOL 合作，目前競品推薦文未收錄聚寶水晶</div>
+          </div>
+        </div>
+        <div class="action-item mid">
+          <div class="action-priority">中等</div>
+          <div class="action-content">
+            <div class="action-title">優化蝦皮搜尋關鍵字</div>
+            <div class="action-desc">商品標題可加入更多搜尋關鍵字，提升站內與 Google 自然流量</div>
+          </div>
+        </div>
+        <div class="action-item low">
+          <div class="action-priority">持續</div>
+          <div class="action-content">
+            <div class="action-title">維持高好評率</div>
+            <div class="action-desc">目前 99.75% 好評率表現優異，建議持續追蹤並維持快速回覆</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="footer">
+    <p>聚寶水晶 Precious Crystal · 品牌輿情儀表板 · 每週一自動更新</p>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
