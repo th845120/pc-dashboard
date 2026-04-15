@@ -7,8 +7,6 @@
     initialized = true;
     initCounters();
     initRingChart();
-    initRaceChart();
-    initHeatmap();
     initParticles();
   }
 

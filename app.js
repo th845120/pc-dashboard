@@ -1358,11 +1358,185 @@ document.querySelectorAll('.tab-btn').forEach(function(btn) {
       requestAnimationFrame(function() {
         setTimeout(function() {
           initRevenueHistoryChart();
+          initRevRaceChart();
         }, 80);
       });
     }
   });
 });
+
+// ===== 營業額賽跑圖（銷售頁面） =====
+var revRaceInitialized = false;
+function initRevRaceChart() {
+  if (revRaceInitialized) return;
+  revRaceInitialized = true;
+
+  var container = document.getElementById('revRaceChart');
+  var timelineEl = document.getElementById('revRaceTimeline');
+  var playBtn = document.getElementById('revRacePlay');
+  if (!container || typeof d3 === 'undefined') return;
+
+  var MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  var colors = { 2024: '#e8a825', 2025: '#3dbf7a', 2026: '#9b59b6' };
+  var allFrames = [];
+
+  for (var m = 0; m < 12; m++) {
+    var frame = [];
+    [2024, 2025, 2026].forEach(function(y) {
+      var val = YEARLY_REVENUE[y][m];
+      if (val !== null && val !== undefined) {
+        frame.push({ year: String(y), value: val, color: colors[y] });
+      }
+    });
+    if (frame.length > 0) {
+      frame.sort(function(a, b) { return b.value - a.value; });
+      allFrames.push({ month: MONTHS[m], data: frame });
+    }
+  }
+
+  var margin = { top: 30, right: 90, bottom: 10, left: 50 };
+  var barHeight = 42;
+
+  function renderFrame(idx) {
+    var frame = allFrames[idx];
+    var maxBars = 3;
+    var data = frame.data.slice(0, maxBars);
+    var w = container.clientWidth || 700;
+    var h = margin.top + margin.bottom + data.length * (barHeight + 8);
+
+    container.innerHTML = '';
+    var svg = d3.select(container)
+      .append('svg')
+      .attr('width', w)
+      .attr('height', h);
+
+    var maxVal = d3.max(data, function(d) { return d.value; }) || 1;
+    var x = d3.scaleLinear().domain([0, maxVal * 1.15]).range([margin.left, w - margin.right]);
+
+    svg.append('text')
+      .attr('x', w - margin.right)
+      .attr('y', 22)
+      .attr('text-anchor', 'end')
+      .attr('class', 'pg-race-month')
+      .text(frame.month);
+
+    var bars = svg.selectAll('.pg-race-bar')
+      .data(data)
+      .enter()
+      .append('g')
+      .attr('transform', function(d, i) { return 'translate(0,' + (margin.top + i * (barHeight + 8)) + ')'; });
+
+    bars.append('text')
+      .attr('x', margin.left - 8)
+      .attr('y', barHeight / 2 + 4)
+      .attr('text-anchor', 'end')
+      .attr('class', 'pg-race-label')
+      .text(function(d) { return d.year; });
+
+    bars.append('rect')
+      .attr('x', margin.left)
+      .attr('y', 0)
+      .attr('height', barHeight)
+      .attr('rx', 6)
+      .attr('fill', function(d) { return d.color; })
+      .attr('width', 0)
+      .transition()
+      .duration(600)
+      .ease(d3.easeCubicOut)
+      .attr('width', function(d) { return Math.max(0, x(d.value) - margin.left); });
+
+    bars.append('rect')
+      .attr('x', margin.left)
+      .attr('y', 0)
+      .attr('height', barHeight)
+      .attr('rx', 6)
+      .attr('fill', function(d) { return d.color; })
+      .attr('opacity', 0.15)
+      .attr('filter', 'blur(8px)')
+      .attr('width', 0)
+      .transition()
+      .duration(600)
+      .ease(d3.easeCubicOut)
+      .attr('width', function(d) { return Math.max(0, x(d.value) - margin.left); });
+
+    bars.append('text')
+      .attr('y', barHeight / 2 + 5)
+      .attr('class', 'pg-race-value')
+      .attr('x', margin.left + 4)
+      .transition()
+      .duration(600)
+      .ease(d3.easeCubicOut)
+      .attr('x', function(d) { return x(d.value) + 6; })
+      .textTween(function(d) {
+        var i = d3.interpolateNumber(0, d.value);
+        return function(t) { return 'NT$' + Math.round(i(t)).toLocaleString('en-US'); };
+      });
+  }
+
+  timelineEl.innerHTML = '';
+  allFrames.forEach(function(f, i) {
+    var dot = document.createElement('button');
+    dot.className = 'pg-race-dot' + (i === 0 ? ' active' : '');
+    dot.textContent = f.month;
+    dot.addEventListener('click', function() {
+      timelineEl.querySelectorAll('.pg-race-dot').forEach(function(d) { d.classList.remove('active'); });
+      dot.classList.add('active');
+      renderFrame(i);
+    });
+    timelineEl.appendChild(dot);
+  });
+
+  renderFrame(0);
+
+  var playing = false;
+  var timer = null;
+  playBtn.addEventListener('click', function() {
+    if (playing) {
+      clearInterval(timer);
+      playing = false;
+      playBtn.textContent = '▶ 播放';
+      return;
+    }
+    playing = true;
+    playBtn.textContent = '⏸ 暫停';
+    var idx = 0;
+    var dots = timelineEl.querySelectorAll('.pg-race-dot');
+    timer = setInterval(function() {
+      dots.forEach(function(d) { d.classList.remove('active'); });
+      dots[idx].classList.add('active');
+      renderFrame(idx);
+      idx++;
+      if (idx >= allFrames.length) {
+        clearInterval(timer);
+        playing = false;
+        playBtn.textContent = '▶ 播放';
+      }
+    }, 900);
+  });
+}
+
+// 線條圖 / 賽跑圖切換
+(function() {
+  var btns = document.querySelectorAll('.rev-view-btn');
+  var lineView = document.getElementById('revLineView');
+  var raceView = document.getElementById('revRaceView');
+  if (!btns.length || !lineView || !raceView) return;
+
+  btns.forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      btns.forEach(function(b) { b.classList.remove('active'); });
+      btn.classList.add('active');
+      if (btn.dataset.view === 'line') {
+        lineView.style.display = '';
+        raceView.style.display = 'none';
+      } else {
+        lineView.style.display = 'none';
+        raceView.style.display = '';
+        initRevRaceChart();
+      }
+    });
+  });
+})();
 
 // ===== 年度表現 =====
 var YEARLY_PERFORMANCE = [

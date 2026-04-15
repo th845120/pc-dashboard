@@ -1538,6 +1538,35 @@ button { cursor: pointer; background: none; border: none; font: inherit; color: 
   margin-top: var(--space-2);
 }
 
+/* Revenue view toggle */
+.rev-view-toggle {
+  display: flex;
+  gap: 4px;
+  background: var(--color-surface-2);
+  border-radius: 8px;
+  padding: 3px;
+}
+.rev-view-btn {
+  background: transparent;
+  border: none;
+  color: var(--color-text-muted);
+  font-size: var(--text-xs);
+  padding: 6px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+}
+.rev-view-btn:hover {
+  color: var(--color-text);
+}
+.rev-view-btn.active {
+  background: var(--color-primary);
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(83,64,110,0.3);
+}
+
 /* Playground responsive */
 @media (max-width: 768px) {
   .pg-counter-grid { grid-template-columns: repeat(2, 1fr); }
