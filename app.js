@@ -1394,7 +1394,7 @@ function initRevRaceChart() {
     }
   }
 
-  var margin = { top: 30, right: 90, bottom: 10, left: 50 };
+  var margin = { top: 30, right: 120, bottom: 10, left: 50 };
   var barHeight = 42;
 
   function renderFrame(idx) {
@@ -1433,6 +1433,8 @@ function initRevRaceChart() {
       .attr('class', 'pg-race-label')
       .text(function(d) { return d.year; });
 
+    var raceDuration = 1200;
+
     bars.append('rect')
       .attr('x', margin.left)
       .attr('y', 0)
@@ -1441,7 +1443,7 @@ function initRevRaceChart() {
       .attr('fill', function(d) { return d.color; })
       .attr('width', 0)
       .transition()
-      .duration(600)
+      .duration(raceDuration)
       .ease(d3.easeCubicOut)
       .attr('width', function(d) { return Math.max(0, x(d.value) - margin.left); });
 
@@ -1455,18 +1457,30 @@ function initRevRaceChart() {
       .attr('filter', 'blur(8px)')
       .attr('width', 0)
       .transition()
-      .duration(600)
+      .duration(raceDuration)
       .ease(d3.easeCubicOut)
       .attr('width', function(d) { return Math.max(0, x(d.value) - margin.left); });
+
+    // Runner emoji at the end of each bar
+    bars.append('text')
+      .attr('y', barHeight / 2 + 6)
+      .attr('x', margin.left)
+      .attr('font-size', '20px')
+      .attr('class', 'pg-race-runner')
+      .text('🏃')
+      .transition()
+      .duration(raceDuration)
+      .ease(d3.easeCubicOut)
+      .attr('x', function(d) { return x(d.value) + 2; });
 
     bars.append('text')
       .attr('y', barHeight / 2 + 5)
       .attr('class', 'pg-race-value')
       .attr('x', margin.left + 4)
       .transition()
-      .duration(600)
+      .duration(raceDuration)
       .ease(d3.easeCubicOut)
-      .attr('x', function(d) { return x(d.value) + 6; })
+      .attr('x', function(d) { return x(d.value) + 26; })
       .textTween(function(d) {
         var i = d3.interpolateNumber(0, d.value);
         return function(t) { return 'NT$' + Math.round(i(t)).toLocaleString('en-US'); };
@@ -1511,7 +1525,7 @@ function initRevRaceChart() {
         playing = false;
         playBtn.textContent = '▶ 播放';
       }
-    }, 900);
+    }, 2200);
   });
 }
 
