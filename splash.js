@@ -13,6 +13,44 @@
   var mouseX = -999, mouseY = -999;
   var milkyWayCanvas = null; // off-screen pre-rendered galaxy band
 
+  // ===== MOBILE GYROSCOPE PARALLAX =====
+  var gyroOffsetX = 0, gyroOffsetY = 0;
+  var gyroTargetX = 0, gyroTargetY = 0;
+  var isTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+  var gyroMaxShift = 18; // max pixel shift
+
+  if (isTouch && window.DeviceOrientationEvent) {
+    // Request permission on iOS 13+
+    var addGyroListener = function() {
+      window.addEventListener('deviceorientation', function(e) {
+        // gamma: left-right tilt (-90..90), beta: front-back tilt (-180..180)
+        var gamma = e.gamma || 0; // left-right
+        var beta = e.beta || 0;   // front-back
+        // Clamp to reasonable range
+        gamma = Math.max(-45, Math.min(45, gamma));
+        beta = Math.max(-45, Math.min(45, beta));
+        // Normalize to -1..1
+        gyroTargetX = -(gamma / 45) * gyroMaxShift;
+        gyroTargetY = -(beta / 45) * gyroMaxShift;
+      }, true);
+    };
+
+    if (typeof DeviceOrientationEvent.requestPermission === 'function') {
+      // iOS 13+ — request permission alongside first splash click
+      var gyroRequested = false;
+      splash.addEventListener('click', function() {
+        if (gyroRequested) return;
+        gyroRequested = true;
+        DeviceOrientationEvent.requestPermission().then(function(state) {
+          if (state === 'granted') addGyroListener();
+        }).catch(function() {});
+      });
+    } else {
+      // Android / older iOS — just add listener
+      addGyroListener();
+    }
+  }
+
   function resize() {
     canvas.width = window.innerWidth * dpr;
     canvas.height = window.innerHeight * dpr;
@@ -236,12 +274,19 @@
     ctx.clearRect(0, 0, cw, ch);
     frame++;
 
-    // --- Draw pre-rendered Milky Way band ---
+    // --- Smooth gyroscope offset (lerp) ---
+    gyroOffsetX += (gyroTargetX - gyroOffsetX) * 0.06;
+    gyroOffsetY += (gyroTargetY - gyroOffsetY) * 0.06;
+
+    // --- Draw pre-rendered Milky Way band (shifted by gyro) ---
     if (milkyWayCanvas) {
+      ctx.save();
+      ctx.translate(gyroOffsetX * 0.5, gyroOffsetY * 0.5);
       ctx.drawImage(milkyWayCanvas, 0, 0);
+      ctx.restore();
     }
 
-    // --- Floating nebulae ---
+    // --- Floating nebulae (shifted by gyro) ---
     for (var ni = 0; ni < nebulae.length; ni++) {
       var nb = nebulae[ni];
       nb.x += nb.vx;
@@ -253,18 +298,24 @@
 
       var pulse = 1 + Math.sin(frame * nb.pulseSpeed + nb.pulsePhase) * 0.15;
       var rr = nb.radius * pulse;
-      var grad = ctx.createRadialGradient(nb.x, nb.y, 0, nb.x, nb.y, rr);
+      var nbDrawX = nb.x + gyroOffsetX * 0.4;
+      var nbDrawY = nb.y + gyroOffsetY * 0.4;
+      var grad = ctx.createRadialGradient(nbDrawX, nbDrawY, 0, nbDrawX, nbDrawY, rr);
       var c = nb.color;
       grad.addColorStop(0, 'rgba(' + c.r + ',' + c.g + ',' + c.b + ',' + (nb.opacity * 1.6) + ')');
       grad.addColorStop(0.35, 'rgba(' + c.r + ',' + c.g + ',' + c.b + ',' + (nb.opacity * 0.7) + ')');
       grad.addColorStop(1, 'rgba(' + c.r + ',' + c.g + ',' + c.b + ',0)');
       ctx.fillStyle = grad;
-      ctx.fillRect(nb.x - rr, nb.y - rr, rr * 2, rr * 2);
+      ctx.fillRect(nbDrawX - rr, nbDrawY - rr, rr * 2, rr * 2);
     }
 
-    // --- Stars ---
+    // --- Stars (shifted by gyro for parallax depth) ---
     for (var si = 0; si < stars.length; si++) {
       var s = stars[si];
+      // Parallax depth factor: larger stars shift more
+      var depthFactor = s.r > 1.5 ? 1.2 : s.r > 0.8 ? 0.7 : 0.3;
+      var starDrawX = s.x + gyroOffsetX * depthFactor;
+      var starDrawY = s.y + gyroOffsetY * depthFactor;
       var dx = s.x - mouseX;
       var dy = s.y - mouseY;
       var dist = Math.sqrt(dx * dx + dy * dy);
@@ -294,13 +345,13 @@
 
       if (s.r > 0.9) {
         ctx.beginPath();
-        ctx.arc(s.x, s.y, s.r * 3, 0, Math.PI * 2);
+        ctx.arc(starDrawX, starDrawY, s.r * 3, 0, Math.PI * 2);
         ctx.fillStyle = 'rgba(' + c[0] + ',' + c[1] + ',' + c[2] + ',' + (op * 0.08) + ')';
         ctx.fill();
       }
 
       ctx.beginPath();
-      ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+      ctx.arc(starDrawX, starDrawY, s.r, 0, Math.PI * 2);
       ctx.fillStyle = 'rgba(' + c[0] + ',' + c[1] + ',' + c[2] + ',' + op + ')';
       ctx.fill();
 
@@ -309,28 +360,30 @@
         ctx.strokeStyle = 'rgba(' + c[0] + ',' + c[1] + ',' + c[2] + ',' + (op * 0.25) + ')';
         ctx.lineWidth = 0.5;
         ctx.beginPath();
-        ctx.moveTo(s.x - crossLen, s.y);
-        ctx.lineTo(s.x + crossLen, s.y);
+        ctx.moveTo(starDrawX - crossLen, starDrawY);
+        ctx.lineTo(starDrawX + crossLen, starDrawY);
         ctx.stroke();
         ctx.beginPath();
-        ctx.moveTo(s.x, s.y - crossLen);
-        ctx.lineTo(s.x, s.y + crossLen);
+        ctx.moveTo(starDrawX, starDrawY - crossLen);
+        ctx.lineTo(starDrawX, starDrawY + crossLen);
         ctx.stroke();
       }
     }
 
-    // --- Constellation lines ---
+    // --- Constellation lines (with gyro offset) ---
     for (var i = 0; i < stars.length; i++) {
       if (stars[i].r < 1.5) continue;
+      var dfi = stars[i].r > 1.5 ? 1.2 : 0.7;
       for (var j = i + 1; j < stars.length; j++) {
         if (stars[j].r < 1.5) continue;
+        var dfj = stars[j].r > 1.5 ? 1.2 : 0.7;
         var dx2 = stars[i].x - stars[j].x;
         var dy2 = stars[i].y - stars[j].y;
         var d = Math.sqrt(dx2 * dx2 + dy2 * dy2);
         if (d < 90) {
           ctx.beginPath();
-          ctx.moveTo(stars[i].x, stars[i].y);
-          ctx.lineTo(stars[j].x, stars[j].y);
+          ctx.moveTo(stars[i].x + gyroOffsetX * dfi, stars[i].y + gyroOffsetY * dfi);
+          ctx.lineTo(stars[j].x + gyroOffsetX * dfj, stars[j].y + gyroOffsetY * dfj);
           ctx.strokeStyle = 'rgba(180, 175, 220, ' + (0.045 * (1 - d / 90)) + ')';
           ctx.lineWidth = 0.3;
           ctx.stroke();
