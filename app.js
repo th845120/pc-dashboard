@@ -160,9 +160,9 @@ const kpiData = [
   { el: kpiValues[7], val: 100, suffix: '%' },
   { el: kpiValues[8], val: 275 },
   // Instagram (9-11)
-  { el: kpiValues[9], val: 4173 },
-  { el: kpiValues[10], val: 200 },
-  { el: kpiValues[11], val: 158 },
+  { el: kpiValues[9], val: 4213 },
+  { el: kpiValues[10], val: 245 },
+  { el: kpiValues[11], val: 155 },
   // Google Business Profile (12-13) — 14 is address, skip animation
   { el: kpiValues[12], val: 5.0, float: true },
   { el: kpiValues[13], val: 55 },
