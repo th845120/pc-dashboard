@@ -1004,6 +1004,34 @@ function renderServiceChartsFiltered(indices) {
   });
 }
 
+// 解析字串數字（支援 'NT$170,188' 和 '0.74%' 格式）
+function parseNumStr(s) {
+  if (typeof s === 'number') return s;
+  return parseFloat(String(s).replace(/[^\d.\-]/g, '')) || 0;
+}
+
+// MoM 漲跌標籤
+function momTag(curr, prev, isPercent, invertColor) {
+  if (prev === null || prev === undefined) return '';
+  var c = parseNumStr(curr);
+  var p = parseNumStr(prev);
+  if (p === 0 && c === 0) return '';
+  var diff, display;
+  if (isPercent) {
+    diff = c - p;
+    display = Math.abs(diff).toFixed(2) + '%';
+  } else if (p !== 0) {
+    diff = (c - p) / Math.abs(p) * 100;
+    display = Math.abs(diff).toFixed(1) + '%';
+  } else {
+    return '';
+  }
+  if (Math.abs(diff) < 0.01) return '';
+  var arrow = diff >= 0 ? '▲' : '▼';
+  var cls = invertColor ? (diff <= 0 ? 'cell-good' : 'cell-bad') : (diff >= 0 ? 'cell-good' : 'cell-bad');
+  return '<br><span class="mom-delta ' + cls + '">' + arrow + ' ' + display + '</span>';
+}
+
 // 渲染客服明細表
 function renderServiceTable(from, to) {
   var tbody = document.getElementById('serviceTableBody');
@@ -1012,24 +1040,32 @@ function renderServiceTable(from, to) {
     var m = parseInt(d.month);
     return m >= from && m <= to;
   });
-  var html = rows.map(function(d) {
+  var html = rows.map(function(d, idx) {
     var isLatest = !!d.isLatest;
     var rowClass = isLatest ? 'highlight-row' : '';
     var bold = function(v) { return isLatest ? '<strong>' + v + '</strong>' : v; };
     var monthCell = isLatest ? '<strong>' + d.month + '</strong>' : d.month;
+    // 上一筆資料（用於 MoM 計算）
+    var prev = idx > 0 ? rows[idx - 1] : null;
     // unreplied color class
     var uClass = '';
     if (!isLatest) {
       if (d.unreplied > 100) uClass = 'cell-bad';
       else if (d.unreplied > 50) uClass = 'cell-warn';
     }
+    // MoM: 未回覆和詢問率降低=好（invertColor），轉化率/營業額/客單價升高=好
+    var mUnreplied = prev ? momTag(d.unreplied, prev.unreplied, false, true) : '';
+    var mInquiry = prev ? momTag(d.inquiryRate, prev.inquiryRate, true, true) : '';
+    var mCvr = prev ? momTag(d.cvr, prev.cvr, true, false) : '';
+    var mRevenue = prev ? momTag(d.revenue, prev.revenue, false, false) : '';
+    var mAov = prev ? momTag(d.aov, prev.aov, false, false) : '';
     return '<tr class="' + rowClass + '">' +
       '<td>' + monthCell + '</td>' +
-      '<td class="' + uClass + '">' + bold(d.unreplied) + '</td>' +
-      '<td>' + bold(d.inquiryRate) + '</td>' +
-      '<td>' + bold(d.cvr) + '</td>' +
-      '<td>' + bold(d.revenue) + '</td>' +
-      '<td>' + bold(d.aov) + '</td>' +
+      '<td class="' + uClass + '">' + bold(d.unreplied) + mUnreplied + '</td>' +
+      '<td>' + bold(d.inquiryRate) + mInquiry + '</td>' +
+      '<td>' + bold(d.cvr) + mCvr + '</td>' +
+      '<td>' + bold(d.revenue) + mRevenue + '</td>' +
+      '<td>' + bold(d.aov) + mAov + '</td>' +
       '</tr>';
   }).join('');
   tbody.innerHTML = html;
@@ -1378,26 +1414,42 @@ function initRevRaceChart() {
 
   var MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
   var colors = { 2024: '#e8a825', 2025: '#3dbf7a', 2026: '#9b59b6' };
-  var allFrames = [];
 
-  for (var m = 0; m < 12; m++) {
-    var frame = [];
-    [2024, 2025, 2026].forEach(function(y) {
-      var val = YEARLY_REVENUE[y][m];
-      if (val !== null && val !== undefined) {
-        frame.push({ year: String(y), value: val, color: colors[y] });
-      }
+  // 讀取目前勾選的年份
+  function getCheckedYears() {
+    var checked = [];
+    document.querySelectorAll('input[name="yearToggle"]').forEach(function(cb) {
+      if (cb.checked) checked.push(parseInt(cb.value));
     });
-    if (frame.length > 0) {
-      frame.sort(function(a, b) { return b.value - a.value; });
-      allFrames.push({ month: MONTHS[m], data: frame });
-    }
+    return checked.length > 0 ? checked : [2024, 2025, 2026];
   }
+
+  function buildFrames() {
+    var checkedYears = getCheckedYears();
+    var frames = [];
+    for (var m = 0; m < 12; m++) {
+      var frame = [];
+      checkedYears.forEach(function(y) {
+        var val = YEARLY_REVENUE[y] && YEARLY_REVENUE[y][m];
+        if (val !== null && val !== undefined) {
+          frame.push({ year: String(y), value: val, color: colors[y] });
+        }
+      });
+      if (frame.length > 0) {
+        frame.sort(function(a, b) { return b.value - a.value; });
+        frames.push({ month: MONTHS[m], data: frame });
+      }
+    }
+    return frames;
+  }
+
+  var allFrames = buildFrames();
 
   var margin = { top: 30, right: 120, bottom: 10, left: 50 };
   var barHeight = 42;
 
   function renderFrame(idx) {
+    if (idx >= allFrames.length) return;
     var frame = allFrames[idx];
     var maxBars = 3;
     var data = frame.data.slice(0, maxBars);
@@ -1526,6 +1578,33 @@ function initRevRaceChart() {
         playBtn.textContent = '▶ 播放';
       }
     }, 2200);
+  });
+
+  // 監聽年度 checkbox 變化，重建賽跑圖
+  document.querySelectorAll('input[name="yearToggle"]').forEach(function(cb) {
+    cb.addEventListener('change', function() {
+      // 重建 frames
+      allFrames = buildFrames();
+      // 重建 timeline dots
+      timelineEl.innerHTML = '';
+      allFrames.forEach(function(f, i) {
+        var dot = document.createElement('button');
+        dot.className = 'pg-race-dot' + (i === 0 ? ' active' : '');
+        dot.textContent = f.month;
+        dot.addEventListener('click', function() {
+          timelineEl.querySelectorAll('.pg-race-dot').forEach(function(d) { d.classList.remove('active'); });
+          dot.classList.add('active');
+          renderFrame(i);
+        });
+        timelineEl.appendChild(dot);
+      });
+      // 渲染第一幀
+      if (allFrames.length > 0) {
+        renderFrame(0);
+      } else {
+        container.innerHTML = '';
+      }
+    });
   });
 }
 

@@ -320,7 +320,7 @@ button { cursor: pointer; background: none; border: none; font: inherit; color: 
   flex-direction: column;
   gap: var(--space-5);
   position: relative;
-  overflow: hidden;
+  overflow: visible;
 }
 .section::before {
   content: '';
@@ -330,6 +330,7 @@ button { cursor: pointer; background: none; border: none; font: inherit; color: 
   right: 0;
   height: 2px;
   background: linear-gradient(90deg, var(--color-primary), var(--color-primary-light), transparent);
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
 }
 
 .section-header {
@@ -814,6 +815,23 @@ button { cursor: pointer; background: none; border: none; font: inherit; color: 
 .data-table td.cell-bad  { color: var(--color-bad);  font-weight: 600; }
 .data-table td.cell-good { color: var(--color-good); font-weight: 600; }
 .data-table td.cell-neutral { color: var(--color-text-muted); }
+
+/* MoM 漲跌標籤（表格內） */
+.mom-delta {
+  display: inline-block;
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.mom-delta.cell-good { color: var(--color-good); }
+.mom-delta.cell-bad { color: var(--color-bad); }
+
+/* 允許含 MoM 標籤的儲存格換行 */
+.data-table td:has(.mom-delta) {
+  white-space: normal;
+}
 
 /* 月份對比表 zebra stripes */
 .data-table tbody tr:nth-child(even) {
@@ -1669,5 +1687,299 @@ button { cursor: pointer; background: none; border: none; font: inherit; color: 
 @media (max-width: 480px) {
   .pg-counter-grid { grid-template-columns: 1fr 1fr; }
   .pg-ring-row { flex-direction: column; align-items: center; }
+}
+
+/* ============================================================
+   COMPREHENSIVE MOBILE RESPONSIVE
+   ============================================================ */
+
+/* --- Tablet (<=768px) --- */
+@media (max-width: 768px) {
+  :root, [data-theme='dark'], [data-theme='light'] {
+    --text-2xl: 1.35rem;
+    --text-xl: 1.15rem;
+    --text-3xl: 1.75rem;
+  }
+
+  .tab-nav {
+    padding: var(--space-2) var(--space-3) 0;
+    gap: 0;
+  }
+  .tab-btn {
+    padding: var(--space-2) var(--space-3);
+    font-size: 0.75rem;
+  }
+
+  .section {
+    padding: var(--space-4) var(--space-4) var(--space-5);
+  }
+
+  .kpi-card {
+    padding: var(--space-4);
+  }
+
+  .action-item {
+    padding: var(--space-3) var(--space-4);
+  }
+  .action-title {
+    font-size: var(--text-sm);
+  }
+  .action-desc {
+    font-size: var(--text-xs);
+  }
+
+  .pg-counter-card {
+    padding: var(--space-4) var(--space-3);
+  }
+  .pg-milestone-area {
+    padding: var(--space-4);
+  }
+}
+
+/* --- Mobile (<=480px) --- */
+@media (max-width: 480px) {
+  :root, [data-theme='dark'], [data-theme='light'] {
+    --text-2xl: 1.15rem;
+    --text-xl: 1rem;
+    --text-3xl: 1.4rem;
+    --text-base: 0.85rem;
+    --text-sm: 0.75rem;
+    --text-xs: 0.68rem;
+  }
+
+  body {
+    line-height: 1.55;
+  }
+
+  .header-inner {
+    padding: var(--space-2) var(--space-3);
+  }
+  .brand-logo {
+    width: 32px;
+    height: 32px;
+  }
+  .brand-name {
+    font-size: 0.9rem;
+  }
+  .brand-sub {
+    font-size: 0.6rem;
+  }
+  .brand {
+    gap: var(--space-2);
+  }
+
+  .tab-nav {
+    padding: var(--space-1) var(--space-2) 0;
+    gap: 0;
+  }
+  .tab-btn {
+    padding: 6px 8px;
+    font-size: 0.7rem;
+    gap: 4px;
+  }
+  .tab-btn svg {
+    width: 12px;
+    height: 12px;
+  }
+
+  .page-subtitle {
+    padding: var(--space-3) var(--space-3) 0;
+  }
+  .page-subtitle h1 {
+    font-size: 1rem;
+  }
+
+  .main {
+    padding: var(--space-3) var(--space-3) var(--space-5);
+    gap: var(--space-4);
+  }
+
+  .section {
+    padding: var(--space-3) var(--space-3) var(--space-4);
+    gap: var(--space-3);
+  }
+
+  .section-title {
+    font-size: 0.8rem;
+  }
+  .section-badge {
+    font-size: 0.6rem;
+    padding: 2px 6px;
+  }
+
+  /* KPI */
+  .kpi-grid {
+    gap: var(--space-2);
+  }
+  .kpi-card {
+    padding: var(--space-3);
+    gap: 1px;
+  }
+  .kpi-label {
+    font-size: 0.6rem;
+  }
+  .kpi-value {
+    font-size: 1.1rem;
+  }
+  .kpi-sub {
+    font-size: 0.62rem;
+  }
+  .kpi-delta {
+    font-size: 0.6rem;
+  }
+  .sales-kpi-3 { grid-template-columns: 1fr 1fr !important; }
+  .service-kpi-3 { grid-template-columns: 1fr 1fr !important; }
+
+  /* Charts */
+  .chart-card {
+    padding: var(--space-3);
+  }
+  .chart-title {
+    font-size: 0.6rem;
+  }
+
+  /* Action items */
+  .action-item {
+    padding: var(--space-3);
+    gap: var(--space-2);
+  }
+  .action-priority {
+    font-size: 0.6rem;
+    padding: 2px 8px;
+  }
+  .action-title {
+    font-size: 0.78rem;
+  }
+  .action-desc {
+    font-size: 0.68rem;
+    line-height: 1.5;
+  }
+
+  /* Platform cards */
+  .platform-card {
+    padding: var(--space-3) var(--space-4);
+  }
+
+  /* Tables */
+  .data-table {
+    font-size: 0.7rem;
+    min-width: 500px;
+  }
+  .data-table th {
+    padding: 8px 10px;
+    font-size: 0.62rem;
+  }
+  .data-table td {
+    padding: 7px 10px;
+  }
+  .data-table td:first-child {
+    font-size: 0.68rem;
+  }
+
+  /* Popover */
+  .ym-popover {
+    width: 290px;
+  }
+  .ym-shortcut {
+    font-size: 0.7rem;
+    padding: 6px 8px;
+  }
+  .ym-shortcuts {
+    min-width: 76px;
+    padding: 10px 6px;
+  }
+
+  /* Playground / Milestone */
+  .pg-counter-grid {
+    gap: var(--space-2);
+  }
+  .pg-counter-card {
+    padding: var(--space-3) var(--space-2);
+  }
+  .pg-counter-value {
+    font-size: 1.1rem;
+  }
+  .pg-counter-label {
+    font-size: 0.62rem;
+  }
+  .pg-milestone-area {
+    padding: var(--space-3);
+    min-height: 56px;
+  }
+  .pg-milestone-text {
+    font-size: 0.72rem;
+    line-height: 1.6;
+  }
+
+  /* Race chart */
+  .pg-race-dot {
+    font-size: 0.58rem;
+    padding: 2px 6px;
+  }
+  .pg-play-btn {
+    font-size: 0.7rem;
+    padding: 3px 12px;
+  }
+
+  /* Revenue controls */
+  .revenue-controls {
+    gap: 8px;
+  }
+  .year-checkbox-group label {
+    font-size: 0.7rem;
+    padding: 3px 8px 3px 5px;
+    gap: 4px;
+  }
+  .rev-view-toggle {
+    padding: 2px;
+  }
+  .rev-view-btn {
+    font-size: 0.65rem;
+    padding: 4px 10px;
+  }
+
+  /* YoY panel */
+  .yoy-panel {
+    padding: 12px 14px;
+  }
+  .quarter-select {
+    font-size: 0.7rem;
+    padding: 4px 22px 4px 8px;
+  }
+
+  /* Range trigger */
+  .range-trigger-btn {
+    font-size: 0.68rem;
+    padding: 4px 8px;
+    gap: 4px;
+  }
+
+  /* Info note */
+  .info-note {
+    font-size: 0.62rem;
+    padding: var(--space-2) var(--space-3);
+  }
+
+  /* Reviews */
+  .review-card {
+    padding: var(--space-3);
+  }
+
+  /* Splash */
+  .splash-brand-img {
+    width: clamp(140px, 50vw, 240px);
+  }
+  .splash-slogan {
+    font-size: clamp(0.72rem, 3vw, 0.9rem);
+  }
+  .splash-hint {
+    font-size: 0.68rem;
+  }
+
+  /* Theme toggle */
+  .theme-toggle {
+    width: 30px;
+    height: 30px;
+  }
 }
 
