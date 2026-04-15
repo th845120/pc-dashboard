@@ -43,20 +43,29 @@
 
     // Layer 1: broad diffuse glow
     var g1 = mctx.createRadialGradient(0, 0, 0, 0, 0, bandH * 0.8);
-    g1.addColorStop(0, 'rgba(70, 55, 100, 0.12)');
-    g1.addColorStop(0.3, 'rgba(55, 45, 90, 0.07)');
-    g1.addColorStop(0.6, 'rgba(40, 35, 80, 0.03)');
+    g1.addColorStop(0, 'rgba(75, 60, 110, 0.28)');
+    g1.addColorStop(0.25, 'rgba(60, 50, 100, 0.18)');
+    g1.addColorStop(0.5, 'rgba(45, 40, 85, 0.09)');
     g1.addColorStop(1, 'rgba(20, 15, 40, 0)');
     mctx.fillStyle = g1;
     mctx.fillRect(-bandW / 2, -bandH, bandW, bandH * 2);
 
     // Layer 2: brighter core along the band center
     var g2 = mctx.createRadialGradient(0, 0, 0, 0, 0, bandH * 0.35);
-    g2.addColorStop(0, 'rgba(100, 80, 140, 0.1)');
-    g2.addColorStop(0.4, 'rgba(80, 65, 120, 0.06)');
+    g2.addColorStop(0, 'rgba(110, 85, 150, 0.22)');
+    g2.addColorStop(0.3, 'rgba(90, 70, 130, 0.14)');
+    g2.addColorStop(0.6, 'rgba(70, 55, 110, 0.06)');
     g2.addColorStop(1, 'rgba(50, 40, 90, 0)');
     mctx.fillStyle = g2;
     mctx.fillRect(-bandW / 2, -bandH * 0.5, bandW, bandH);
+
+    // Layer 2b: warm highlight streak in core
+    var g2b = mctx.createRadialGradient(0, 0, 0, 0, 0, bandH * 0.18);
+    g2b.addColorStop(0, 'rgba(130, 100, 170, 0.12)');
+    g2b.addColorStop(0.5, 'rgba(100, 80, 140, 0.05)');
+    g2b.addColorStop(1, 'rgba(70, 55, 110, 0)');
+    mctx.fillStyle = g2b;
+    mctx.fillRect(-bandW / 2, -bandH * 0.25, bandW, bandH * 0.5);
 
     // Layer 3: scattered nebula knots along the band
     var knotCount = 12;
@@ -73,7 +82,7 @@
         [45, 55, 110]    // deep blue
       ];
       var cc = colorChoices[Math.floor(Math.random() * colorChoices.length)];
-      var kOp = Math.random() * 0.06 + 0.03;
+      var kOp = Math.random() * 0.1 + 0.05;
       var gk = mctx.createRadialGradient(kx, ky, 0, kx, ky, kr);
       gk.addColorStop(0, 'rgba(' + cc[0] + ',' + cc[1] + ',' + cc[2] + ',' + (kOp * 2) + ')');
       gk.addColorStop(0.4, 'rgba(' + cc[0] + ',' + cc[1] + ',' + cc[2] + ',' + kOp + ')');
@@ -83,12 +92,12 @@
     }
 
     // Layer 4: dense star dust — tiny bright dots in the band
-    for (var d = 0; d < 300; d++) {
+    for (var d = 0; d < 500; d++) {
       var dx = (Math.random() - 0.5) * bandW * 0.85;
       // Gaussian-ish distribution toward center
       var dy = (Math.random() + Math.random() + Math.random() - 1.5) / 1.5 * bandH * 0.3;
       var dr = Math.random() * 0.6 + 0.2;
-      var dop = Math.random() * 0.35 + 0.1;
+      var dop = Math.random() * 0.5 + 0.15;
       mctx.beginPath();
       mctx.arc(dx, dy, dr, 0, Math.PI * 2);
       mctx.fillStyle = 'rgba(200, 195, 230, ' + dop + ')';
