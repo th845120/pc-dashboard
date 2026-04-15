@@ -18,13 +18,13 @@
   --color-text-muted: #b0a6c0;
   --color-text-faint: #7d7294;
 
-  /* Semantic — brighter for dark bg */
-  --color-good: #6ecf8a;
-  --color-good-bg: rgba(110,207,138,0.12);
-  --color-warn: #e8c05a;
-  --color-warn-bg: rgba(232,192,90,0.12);
-  --color-bad: #e87070;
-  --color-bad-bg: rgba(232,112,112,0.12);
+  /* Semantic — vivid for dark bg */
+  --color-good: #22c55e;
+  --color-good-bg: rgba(34,197,94,0.15);
+  --color-warn: #f59e0b;
+  --color-warn-bg: rgba(245,158,11,0.15);
+  --color-bad: #ef4444;
+  --color-bad-bg: rgba(239,68,68,0.15);
 
   /* Luxury gold accent */
   --color-gold: #d4b65c;
