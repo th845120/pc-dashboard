@@ -408,18 +408,135 @@ function renderSalesCharts(months) {
   });
 }
 
+// ── 完整資料陣列（給表格用）──
+const ALL_TABLE_DATA = [
+  { month:'202412', fans:4733,  newbuyer:139, repurchase:'11.48%', cvr:'0.52%', aov:'NT$3,173', mBounce:'22.82%', pcBounce:'74.21%' },
+  { month:'202501', fans:6214,  newbuyer:153, repurchase:'12.55%', cvr:'0.54%', aov:'NT$3,351', mBounce:'22.09%', pcBounce:'74.63%' },
+  { month:'202502', fans:2310,  newbuyer:229, repurchase:'14.70%', cvr:'0.71%', aov:'NT$3,869', mBounce:'21.61%', pcBounce:'72.75%' },
+  { month:'202503', fans:749,   newbuyer:189, repurchase:'21.71%', cvr:'1.01%', aov:'NT$3,896', mBounce:'20.36%', pcBounce:'68.28%' },
+  { month:'202504', fans:1600,  newbuyer:193, repurchase:'21.72%', cvr:'1.04%', aov:'NT$3,962', mBounce:'16.35%', pcBounce:'69.84%' },
+  { month:'202505', fans:9610,  newbuyer:213, repurchase:'20.73%', cvr:'0.72%', aov:'NT$4,312', mBounce:'19.37%', pcBounce:'63.67%' },
+  { month:'202506', fans:3979,  newbuyer:248, repurchase:'28.38%', cvr:'0.52%', aov:'NT$4,930', mBounce:'19.25%', pcBounce:'62.75%' },
+  { month:'202507', fans:3237,  newbuyer:159, repurchase:'28.76%', cvr:'0.50%', aov:'NT$8,135', mBounce:'18.70%', pcBounce:'63.84%' },
+  { month:'202508', fans:3139,  newbuyer:150, repurchase:'25.71%', cvr:'0.58%', aov:'NT$5,597', mBounce:'21.60%', pcBounce:'61.96%' },
+  { month:'202509', fans:1845,  newbuyer:122, repurchase:'16.03%', cvr:'0.40%', aov:'NT$3,994', mBounce:'26.93%', pcBounce:'72.65%' },
+  { month:'202510', fans:685,   newbuyer:129, repurchase:'23.81%', cvr:'0.33%', aov:'NT$4,909', mBounce:'29.60%', pcBounce:'72.81%' },
+  { month:'202511', fans:2038,  newbuyer:113, repurchase:'18.95%', cvr:'0.44%', aov:'NT$5,280', mBounce:'27.23%', pcBounce:'67.65%' },
+  { month:'202512', fans:2673,  newbuyer:84,  repurchase:'24.54%', cvr:'0.42%', aov:'NT$5,209', mBounce:'26.84%', pcBounce:'66.45%' },
+  { month:'202601', fans:2215,  newbuyer:95,  repurchase:'22.43%', cvr:'0.47%', aov:'NT$5,904', mBounce:'26.71%', pcBounce:'72.03%' },
+  { month:'202602', fans:4712,  newbuyer:98,  repurchase:'34.07%', cvr:'0.65%', aov:'NT$4,041', mBounce:'26.16%', pcBounce:'－'    },
+  { month:'202603', fans:-253,  newbuyer:87,  repurchase:'29.53%', cvr:'0.44%', aov:'NT$3,837', mBounce:'26.92%', pcBounce:'73.80%', isLatest: true },
+];
+
+// 月份字串 "202412" → yyyymm 數字，方便比較
+function toNum(yyyymm) { return parseInt(yyyymm); }
+
+// 從四個 select 讀取起迄範圍，回傳 { from: 202412, to: 202603 }
+function readRange(yFromId, mFromId, yToId, mToId) {
+  const yf = document.getElementById(yFromId)?.value;
+  const mf = document.getElementById(mFromId)?.value;
+  const yt = document.getElementById(yToId)?.value;
+  const mt = document.getElementById(mToId)?.value;
+  const from = (yf && mf) ? parseInt(yf + mf.padStart(2,'0')) : 0;
+  const to   = (yt && mt) ? parseInt(yt + mt.padStart(2,'0')) : 999999;
+  return { from, to };
+}
+
+// 過濾資料陣列
+function filterByRange(arr, from, to) {
+  return arr.filter((_,i) => {
+    const m = toNum(ALL_MONTHS[i]);
+    return m >= from && m <= to;
+  });
+}
+
+function filterTableData(from, to) {
+  return ALL_TABLE_DATA.filter(d => {
+    const m = toNum(d.month);
+    return m >= from && m <= to;
+  });
+}
+
+// ── 重繪表格 ──
+function renderTable(from, to) {
+  const tbody = document.getElementById('salesTableBody');
+  if (!tbody) return;
+  const rows = filterTableData(from, to);
+  const html = rows.map(function(d) {
+    const isLatest = !!d.isLatest;
+    const fansVal = d.fans < 0 ? d.fans.toLocaleString() : '+' + d.fans.toLocaleString();
+    const fansClass = d.fans < 0 ? 'cell-bad' : '';
+    const rowClass = isLatest ? 'highlight-row' : '';
+    const cellCls = isLatest ? 'cell-bad' : '';
+    const bold = function(v) { return isLatest ? '<strong>' + v + '</strong>' : v; };
+    const monthCell = isLatest ? '<strong>' + d.month + '</strong>' : d.month;
+    return '<tr class="' + rowClass + '">' +
+      '<td>' + monthCell + '</td>' +
+      '<td class="' + fansClass + '">' + bold(fansVal) + '</td>' +
+      '<td class="' + cellCls + '">' + bold(d.newbuyer) + '</td>' +
+      '<td class="' + cellCls + '">' + bold(d.repurchase) + '</td>' +
+      '<td class="' + cellCls + '">' + bold(d.cvr) + '</td>' +
+      '<td class="' + cellCls + '">' + bold(d.aov) + '</td>' +
+      '<td>' + bold(d.mBounce) + '</td>' +
+      '<td>' + bold(d.pcBounce) + '</td>' +
+      '</tr>';
+  }).join('');
+  tbody.innerHTML = html;
+}
+
 function initSalesCharts() {
   if (salesChartsInitialized) return;
   salesChartsInitialized = true;
 
-  const sel = document.getElementById('monthRange');
-  renderSalesCharts(sel ? parseInt(sel.value) : 24);
+  // 預設：顯示全部
+  renderSalesCharts(ALL_MONTHS.length);
+  renderTable(0, 999999);
 
-  if (sel) {
-    sel.addEventListener('change', () => {
-      renderSalesCharts(parseInt(sel.value));
-    });
+  // 圖表套用按鈕
+  document.getElementById('chartRangeApply')?.addEventListener('click', () => {
+    const { from, to } = readRange('chartYearFrom','chartMonthFrom','chartYearTo','chartMonthTo');
+    const filtered = ALL_MONTHS.reduce((acc, m, i) => {
+      const n = toNum(m);
+      if (n >= from && n <= to) { acc.labels.push(m); acc.indices.push(i); }
+      return acc;
+    }, { labels: [], indices: [] });
+    // re-render with filtered subset
+    const count = filtered.indices.length || ALL_MONTHS.length;
+    // Use index filtering approach
+    renderSalesChartsFiltered(filtered.indices);
+  });
+
+  // 表格套用按鈕
+  document.getElementById('tableRangeApply')?.addEventListener('click', () => {
+    const { from, to } = readRange('tableYearFrom','tableMonthFrom','tableYearTo','tableMonthTo');
+    renderTable(from, to);
+  });
+}
+
+function renderSalesChartsFiltered(indices) {
+  if (!indices || indices.length === 0) {
+    renderSalesCharts(ALL_MONTHS.length);
+    return;
   }
+  const labels  = indices.map(i => ALL_MONTHS[i]);
+  const fans    = indices.map(i => ALL_FANS[i]);
+  const newb    = indices.map(i => ALL_NEWBUYER[i]);
+  const repurch = indices.map(i => ALL_REPURCHASE[i]);
+  const cvr     = indices.map(i => ALL_CVR[i]);
+  const aov     = indices.map(i => ALL_AOV[i]);
+
+  upsertChart('salesFansChart', {
+    type:'bar', data:{ labels, datasets:[{ data:fans, backgroundColor:barBg(fans), borderColor:barBorder(fans), borderWidth:1.5, borderRadius:5, borderSkipped:false }] },
+    options:{ responsive:true, maintainAspectRatio:false, plugins:{ legend:{display:false}, tooltip:{...sharedTooltip, callbacks:{label:ctx=>` ${ctx.parsed.y>=0?'+':''}${ctx.parsed.y.toLocaleString()} 人`}} }, scales:{ x:sharedScaleX, y:{...sharedScaleY, ticks:{...sharedScaleY.ticks,callback:v=>(v>0?'+':'')+v.toLocaleString()}} }, animation:{duration:600,easing:'easeInOutQuart'} }
+  });
+  upsertChart('salesNewBuyerChart', {
+    type:'bar', data:{ labels, datasets:[{ data:newb, backgroundColor:barBg(newb), borderColor:barBorder(newb), borderWidth:1.5, borderRadius:5, borderSkipped:false }] },
+    options:{ responsive:true, maintainAspectRatio:false, plugins:{ legend:{display:false}, tooltip:{...sharedTooltip, callbacks:{label:ctx=>` ${ctx.parsed.y} 人`}} }, scales:{ x:sharedScaleX, y:sharedScaleY }, animation:{duration:600,easing:'easeInOutQuart'} }
+  });
+  const mkLine = (data) => ({ data, borderColor:'#c4b5dc', backgroundColor:'rgba(196,181,220,0.08)', tension:0.35, fill:true, pointRadius:linePtSize(data), pointBackgroundColor:linePtBg(data), pointBorderColor:linePtBg(data), borderWidth:2 });
+  upsertChart('salesRepurchaseChart', { type:'line', data:{ labels, datasets:[mkLine(repurch)] }, options:{ responsive:true, maintainAspectRatio:false, plugins:{ legend:{display:false}, tooltip:{...sharedTooltip, callbacks:{label:ctx=>` ${ctx.parsed.y}%`}} }, scales:{ x:sharedScaleX, y:{...sharedScaleY, ticks:{...sharedScaleY.ticks,callback:v=>v+'%'}} }, animation:{duration:600,easing:'easeInOutQuart'} } });
+  upsertChart('salesCvrChart',        { type:'line', data:{ labels, datasets:[mkLine(cvr)]    }, options:{ responsive:true, maintainAspectRatio:false, plugins:{ legend:{display:false}, tooltip:{...sharedTooltip, callbacks:{label:ctx=>` ${ctx.parsed.y}%`}} }, scales:{ x:sharedScaleX, y:{...sharedScaleY, ticks:{...sharedScaleY.ticks,callback:v=>v+'%'}} }, animation:{duration:600,easing:'easeInOutQuart'} } });
+  upsertChart('salesAovChart',        { type:'line', data:{ labels, datasets:[mkLine(aov)]    }, options:{ responsive:true, maintainAspectRatio:false, plugins:{ legend:{display:false}, tooltip:{...sharedTooltip, callbacks:{label:ctx=>` NT$${ctx.parsed.y.toLocaleString()}`}} }, scales:{ x:sharedScaleX, y:{...sharedScaleY, ticks:{...sharedScaleY.ticks,callback:v=>'NT$'+v.toLocaleString()}} }, animation:{duration:600,easing:'easeInOutQuart'} } });
 }
 
 // 監聽 Tab 切換，切到銷售數據時才初始化
