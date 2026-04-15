@@ -1,4 +1,4 @@
-// ===== SPLASH SCREEN — Galaxy Starfield =====
+// ===== SPLASH SCREEN — Galaxy Starfield + Milky Way =====
 (function() {
   var splash = document.getElementById('splashScreen');
   var mainApp = document.getElementById('mainApp');
@@ -11,6 +11,7 @@
   var nebulae = [];
   var shootingStars = [];
   var mouseX = -999, mouseY = -999;
+  var milkyWayCanvas = null; // off-screen pre-rendered galaxy band
 
   function resize() {
     canvas.width = window.innerWidth * dpr;
@@ -18,9 +19,84 @@
     canvas.style.width = window.innerWidth + 'px';
     canvas.style.height = window.innerHeight + 'px';
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    renderMilkyWay(); // re-render on resize
   }
-  resize();
-  window.addEventListener('resize', resize);
+
+  // ===== PRE-RENDER MILKY WAY BAND =====
+  function renderMilkyWay() {
+    var w = window.innerWidth;
+    var h = window.innerHeight;
+    milkyWayCanvas = document.createElement('canvas');
+    milkyWayCanvas.width = w;
+    milkyWayCanvas.height = h;
+    var mctx = milkyWayCanvas.getContext('2d');
+
+    // Diagonal band from top-left to bottom-right
+    // Use multiple elliptical gradients along a diagonal path
+    mctx.save();
+    mctx.translate(w * 0.5, h * 0.5);
+    mctx.rotate(-0.45); // ~25 degree tilt
+
+    // Main galactic band — wide, soft
+    var bandW = Math.max(w, h) * 1.8;
+    var bandH = h * 0.35;
+
+    // Layer 1: broad diffuse glow
+    var g1 = mctx.createRadialGradient(0, 0, 0, 0, 0, bandH * 0.8);
+    g1.addColorStop(0, 'rgba(70, 55, 100, 0.12)');
+    g1.addColorStop(0.3, 'rgba(55, 45, 90, 0.07)');
+    g1.addColorStop(0.6, 'rgba(40, 35, 80, 0.03)');
+    g1.addColorStop(1, 'rgba(20, 15, 40, 0)');
+    mctx.fillStyle = g1;
+    mctx.fillRect(-bandW / 2, -bandH, bandW, bandH * 2);
+
+    // Layer 2: brighter core along the band center
+    var g2 = mctx.createRadialGradient(0, 0, 0, 0, 0, bandH * 0.35);
+    g2.addColorStop(0, 'rgba(100, 80, 140, 0.1)');
+    g2.addColorStop(0.4, 'rgba(80, 65, 120, 0.06)');
+    g2.addColorStop(1, 'rgba(50, 40, 90, 0)');
+    mctx.fillStyle = g2;
+    mctx.fillRect(-bandW / 2, -bandH * 0.5, bandW, bandH);
+
+    // Layer 3: scattered nebula knots along the band
+    var knotCount = 12;
+    for (var k = 0; k < knotCount; k++) {
+      var kx = (Math.random() - 0.5) * bandW * 0.8;
+      var ky = (Math.random() - 0.5) * bandH * 0.5;
+      var kr = Math.random() * 120 + 60;
+      var colorChoices = [
+        [90, 60, 130],   // purple
+        [60, 50, 120],   // deep purple
+        [50, 65, 130],   // blue-purple
+        [100, 55, 95],   // magenta tint
+        [70, 75, 140],   // lavender
+        [45, 55, 110]    // deep blue
+      ];
+      var cc = colorChoices[Math.floor(Math.random() * colorChoices.length)];
+      var kOp = Math.random() * 0.06 + 0.03;
+      var gk = mctx.createRadialGradient(kx, ky, 0, kx, ky, kr);
+      gk.addColorStop(0, 'rgba(' + cc[0] + ',' + cc[1] + ',' + cc[2] + ',' + (kOp * 2) + ')');
+      gk.addColorStop(0.4, 'rgba(' + cc[0] + ',' + cc[1] + ',' + cc[2] + ',' + kOp + ')');
+      gk.addColorStop(1, 'rgba(' + cc[0] + ',' + cc[1] + ',' + cc[2] + ',0)');
+      mctx.fillStyle = gk;
+      mctx.fillRect(kx - kr, ky - kr, kr * 2, kr * 2);
+    }
+
+    // Layer 4: dense star dust — tiny bright dots in the band
+    for (var d = 0; d < 300; d++) {
+      var dx = (Math.random() - 0.5) * bandW * 0.85;
+      // Gaussian-ish distribution toward center
+      var dy = (Math.random() + Math.random() + Math.random() - 1.5) / 1.5 * bandH * 0.3;
+      var dr = Math.random() * 0.6 + 0.2;
+      var dop = Math.random() * 0.35 + 0.1;
+      mctx.beginPath();
+      mctx.arc(dx, dy, dr, 0, Math.PI * 2);
+      mctx.fillStyle = 'rgba(200, 195, 230, ' + dop + ')';
+      mctx.fill();
+    }
+
+    mctx.restore();
+  }
 
   function initField() {
     stars = [];
@@ -29,7 +105,7 @@
     var h = window.innerHeight;
 
     // --- Stars: 3 layers ---
-    // Layer 1: tiny distant stars (most numerous)
+    // Layer 1: tiny distant stars
     for (var i = 0; i < 400; i++) {
       stars.push({
         x: Math.random() * w,
@@ -47,12 +123,12 @@
       var willTwinkle = Math.random() < 0.6;
       var colorRoll = Math.random();
       var col = colorRoll < 0.35
-        ? [200, 215, 255]  // blue-white
+        ? [200, 215, 255]
         : colorRoll < 0.65
-          ? [255, 255, 255] // pure white
+          ? [255, 255, 255]
           : colorRoll < 0.85
-            ? [255, 235, 210] // warm
-            : [210, 190, 255]; // lavender
+            ? [255, 235, 210]
+            : [210, 190, 255];
       stars.push({
         x: Math.random() * w,
         y: Math.random() * h,
@@ -67,7 +143,7 @@
         vy: (Math.random() - 0.5) * 0.1
       });
     }
-    // Layer 3: bright prominent stars (strong twinkle)
+    // Layer 3: bright prominent stars
     for (var i = 0; i < 35; i++) {
       var colorRoll2 = Math.random();
       var col2 = colorRoll2 < 0.3
@@ -89,35 +165,37 @@
         color: col2,
         vx: (Math.random() - 0.5) * 0.12,
         vy: (Math.random() - 0.5) * 0.12,
-        hasCross: Math.random() < 0.4 // diffraction spike cross
+        hasCross: Math.random() < 0.4
       });
     }
 
-    // --- Nebula clouds ---
+    // --- Floating nebula clouds (animated, on top of milky way) ---
     var nebulaColors = [
-      { r: 83, g: 64, b: 110 },
-      { r: 55, g: 45, b: 115 },
-      { r: 35, g: 55, b: 125 },
-      { r: 95, g: 45, b: 85 },
-      { r: 30, g: 65, b: 105 },
-      { r: 70, g: 40, b: 100 }
+      { r: 90, g: 65, b: 120 },
+      { r: 60, g: 50, b: 125 },
+      { r: 45, g: 60, b: 130 },
+      { r: 100, g: 50, b: 90 },
+      { r: 35, g: 70, b: 115 }
     ];
-    for (var n = 0; n < 6; n++) {
-      var nc = nebulaColors[n % nebulaColors.length];
+    for (var n = 0; n < 5; n++) {
+      var nc = nebulaColors[n];
       nebulae.push({
         x: Math.random() * w,
         y: Math.random() * h,
-        radius: Math.random() * 280 + 180,
+        radius: Math.random() * 200 + 120,
         color: nc,
-        opacity: Math.random() * 0.055 + 0.025,
-        vx: (Math.random() - 0.5) * 0.06,
-        vy: (Math.random() - 0.5) * 0.06,
+        opacity: Math.random() * 0.045 + 0.02,
+        vx: (Math.random() - 0.5) * 0.05,
+        vy: (Math.random() - 0.5) * 0.05,
         pulseSpeed: Math.random() * 0.003 + 0.001,
         pulsePhase: Math.random() * Math.PI * 2
       });
     }
   }
+
+  resize();
   initField();
+  window.addEventListener('resize', resize);
 
   // --- Shooting star ---
   function spawnShootingStar() {
@@ -149,7 +227,12 @@
     ctx.clearRect(0, 0, cw, ch);
     frame++;
 
-    // --- Nebulae ---
+    // --- Draw pre-rendered Milky Way band ---
+    if (milkyWayCanvas) {
+      ctx.drawImage(milkyWayCanvas, 0, 0);
+    }
+
+    // --- Floating nebulae ---
     for (var ni = 0; ni < nebulae.length; ni++) {
       var nb = nebulae[ni];
       nb.x += nb.vx;
@@ -173,8 +256,6 @@
     // --- Stars ---
     for (var si = 0; si < stars.length; si++) {
       var s = stars[si];
-
-      // Mouse repulsion
       var dx = s.x - mouseX;
       var dy = s.y - mouseY;
       var dist = Math.sqrt(dx * dx + dy * dy);
@@ -192,11 +273,9 @@
       if (s.y < 0) s.y = ch;
       if (s.y > ch) s.y = 0;
 
-      // Twinkle calculation
       var op;
       if (s.twinkle) {
         var t = Math.sin(frame * s.twinkleSpeed + s.twinklePhase);
-        // Map sin [-1,1] to [twinkleMin, 1]
         var factor = s.twinkleMin + (1 - s.twinkleMin) * (t * 0.5 + 0.5);
         op = s.baseOpacity * factor;
       } else {
@@ -204,7 +283,6 @@
       }
       var c = s.color;
 
-      // Star glow (for medium+ stars)
       if (s.r > 0.9) {
         ctx.beginPath();
         ctx.arc(s.x, s.y, s.r * 3, 0, Math.PI * 2);
@@ -212,13 +290,11 @@
         ctx.fill();
       }
 
-      // Star core
       ctx.beginPath();
       ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
       ctx.fillStyle = 'rgba(' + c[0] + ',' + c[1] + ',' + c[2] + ',' + op + ')';
       ctx.fill();
 
-      // Diffraction cross for bright stars
       if (s.hasCross && op > 0.4) {
         var crossLen = s.r * 4 * op;
         ctx.strokeStyle = 'rgba(' + c[0] + ',' + c[1] + ',' + c[2] + ',' + (op * 0.25) + ')';
@@ -234,7 +310,7 @@
       }
     }
 
-    // --- Faint constellation lines (only between nearby bright stars) ---
+    // --- Constellation lines ---
     for (var i = 0; i < stars.length; i++) {
       if (stars[i].r < 1.5) continue;
       for (var j = i + 1; j < stars.length; j++) {
@@ -272,7 +348,6 @@
       ctx.strokeStyle = grad2;
       ctx.lineWidth = 1.5;
       ctx.stroke();
-      // Head glow
       ctx.beginPath();
       ctx.arc(sh.x, sh.y, 2, 0, Math.PI * 2);
       ctx.fillStyle = 'rgba(255,255,255,' + (sh.life * 0.6) + ')';
