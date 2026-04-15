@@ -828,3 +828,33 @@ button { cursor: pointer; background: none; border: none; font: inherit; color: 
   .sales-kpi-3 { grid-template-columns: 1fr 1fr !important; }
   .sales-kpi-2 { grid-template-columns: 1fr 1fr !important; }
 }
+
+/* ===== 月份範圍選擇器 ===== */
+.month-range-control {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+  white-space: nowrap;
+}
+.month-select {
+  background: var(--color-surface-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  color: var(--color-text);
+  font-size: var(--text-sm);
+  font-family: var(--font-body);
+  padding: 4px 28px 4px 10px;
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23b0a6c0' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 8px center;
+  transition: border-color var(--transition);
+}
+.month-select:hover, .month-select:focus {
+  border-color: var(--color-primary);
+  outline: none;
+}

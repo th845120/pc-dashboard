@@ -198,170 +198,234 @@ if (firstKpi) observer.observe(firstKpi);
 
 // ===== 銷售數據圖表（延遲初始化，避免 hidden tab canvas bug）=====
 let salesChartsInitialized = false;
+let salesChartInstances = {};  // 儲存 chart 實例供更新用
+
+// 完整歷史資料（16 個月，最舊到最新）
+const ALL_MONTHS       = ['202412','202501','202502','202503','202504','202505','202506','202507','202508','202509','202510','202511','202512','202601','202602','202603'];
+const ALL_FANS         = [4733, 6214, 2310, 749, 1600, 9610, 3979, 3237, 3139, 1845, 685, 2038, 2673, 2215, 4712, -253];
+const ALL_NEWBUYER     = [139, 153, 229, 189, 193, 213, 248, 159, 150, 122, 129, 113, 84, 95, 98, 87];
+const ALL_REPURCHASE   = [11.48, 12.55, 14.70, 21.71, 21.72, 20.73, 28.38, 28.76, 25.71, 16.03, 23.81, 18.95, 24.54, 22.43, 34.07, 29.53];
+const ALL_CVR          = [0.52, 0.54, 0.71, 1.01, 1.04, 0.72, 0.52, 0.50, 0.58, 0.40, 0.33, 0.44, 0.42, 0.47, 0.65, 0.44];
+const ALL_AOV          = [3173, 3351, 3869, 3896, 3962, 4312, 4930, 8135, 5597, 3994, 4909, 5280, 5209, 5904, 4041, 3837];
+
+// 根據月數截取最後 N 筆
+function sliceData(arr, months) {
+  const n = Math.min(months, arr.length);
+  return arr.slice(-n);
+}
+
+// 顏色：最後一筆紅，其餘品牌紫
+function barBg(data) {
+  return data.map((_, i) => i === data.length - 1 ? '#e05555' : 'rgba(196,181,220,0.55)');
+}
+function barBorder(data) {
+  return data.map((_, i) => i === data.length - 1 ? '#e05555' : '#c4b5dc');
+}
+function linePtBg(data) {
+  return data.map((_, i) => i === data.length - 1 ? '#e05555' : '#c4b5dc');
+}
+function linePtSize(data) {
+  return data.map((_, i) => i === data.length - 1 ? 7 : 3);
+}
+
+const sharedTooltip = {
+  bodyFont: { family: "'Noto Sans TC', sans-serif", size: 13 },
+  padding: 10,
+};
+const sharedScaleX = {
+  grid: { display: false },
+  ticks: { font: { family: "'Noto Sans TC', sans-serif", size: 10 }, color: '#b0a6c0', maxRotation: 45 },
+  border: { display: false },
+};
+const sharedScaleY = {
+  grid: { color: 'rgba(180,170,200,0.1)' },
+  ticks: { font: { family: "'Noto Sans TC', sans-serif", size: 11 }, color: '#b0a6c0' },
+  border: { display: false },
+};
+
+// 建立或更新一個 Chart
+function upsertChart(id, config) {
+  const ctx = document.getElementById(id);
+  if (!ctx) return;
+  if (salesChartInstances[id]) {
+    salesChartInstances[id].destroy();
+  }
+  salesChartInstances[id] = new Chart(ctx, config);
+}
+
+function renderSalesCharts(months) {
+  const labels    = sliceData(ALL_MONTHS, months);
+  const fans      = sliceData(ALL_FANS, months);
+  const newbuyer  = sliceData(ALL_NEWBUYER, months);
+  const repurch   = sliceData(ALL_REPURCHASE, months);
+  const cvr       = sliceData(ALL_CVR, months);
+  const aov       = sliceData(ALL_AOV, months);
+
+  // ── 粉絲增長（bar）──
+  upsertChart('salesFansChart', {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [{
+        data: fans,
+        backgroundColor: barBg(fans),
+        borderColor: barBorder(fans),
+        borderWidth: 1.5,
+        borderRadius: 5,
+        borderSkipped: false,
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false }, tooltip: { ...sharedTooltip, callbacks: { label: ctx => ` ${ctx.parsed.y >= 0 ? '+' : ''}${ctx.parsed.y.toLocaleString()} 人` } } },
+      scales: {
+        x: sharedScaleX,
+        y: { ...sharedScaleY, ticks: { ...sharedScaleY.ticks, callback: v => (v > 0 ? '+' : '') + v.toLocaleString() } }
+      },
+      animation: { duration: 600, easing: 'easeInOutQuart' }
+    }
+  });
+
+  // ── 新客增長（bar）──
+  upsertChart('salesNewBuyerChart', {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [{
+        data: newbuyer,
+        backgroundColor: barBg(newbuyer),
+        borderColor: barBorder(newbuyer),
+        borderWidth: 1.5,
+        borderRadius: 5,
+        borderSkipped: false,
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false }, tooltip: { ...sharedTooltip, callbacks: { label: ctx => ` ${ctx.parsed.y} 人` } } },
+      scales: { x: sharedScaleX, y: sharedScaleY },
+      animation: { duration: 600, easing: 'easeInOutQuart' }
+    }
+  });
+
+  // ── 複購率（line）──
+  upsertChart('salesRepurchaseChart', {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [{
+        data: repurch,
+        borderColor: '#c4b5dc',
+        backgroundColor: 'rgba(196,181,220,0.08)',
+        tension: 0.35,
+        fill: true,
+        pointRadius: linePtSize(repurch),
+        pointBackgroundColor: linePtBg(repurch),
+        pointBorderColor: linePtBg(repurch),
+        borderWidth: 2,
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false }, tooltip: { ...sharedTooltip, callbacks: { label: ctx => ` ${ctx.parsed.y}%` } } },
+      scales: { x: sharedScaleX, y: { ...sharedScaleY, ticks: { ...sharedScaleY.ticks, callback: v => v + '%' } } },
+      animation: { duration: 600, easing: 'easeInOutQuart' }
+    }
+  });
+
+  // ── 轉換率（line）──
+  upsertChart('salesCvrChart', {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [{
+        data: cvr,
+        borderColor: '#c4b5dc',
+        backgroundColor: 'rgba(196,181,220,0.08)',
+        tension: 0.35,
+        fill: true,
+        pointRadius: linePtSize(cvr),
+        pointBackgroundColor: linePtBg(cvr),
+        pointBorderColor: linePtBg(cvr),
+        borderWidth: 2,
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false }, tooltip: { ...sharedTooltip, callbacks: { label: ctx => ` ${ctx.parsed.y}%` } } },
+      scales: { x: sharedScaleX, y: { ...sharedScaleY, ticks: { ...sharedScaleY.ticks, callback: v => v + '%' } } },
+      animation: { duration: 600, easing: 'easeInOutQuart' }
+    }
+  });
+
+  // ── 平均客單價（line）──
+  upsertChart('salesAovChart', {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [{
+        data: aov,
+        borderColor: '#c4b5dc',
+        backgroundColor: 'rgba(196,181,220,0.08)',
+        tension: 0.35,
+        fill: true,
+        pointRadius: linePtSize(aov),
+        pointBackgroundColor: linePtBg(aov),
+        pointBorderColor: linePtBg(aov),
+        borderWidth: 2,
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false }, tooltip: { ...sharedTooltip, callbacks: { label: ctx => ` NT$${ctx.parsed.y.toLocaleString()}` } } },
+      scales: { x: sharedScaleX, y: { ...sharedScaleY, ticks: { ...sharedScaleY.ticks, callback: v => 'NT$' + v.toLocaleString() } } },
+      animation: { duration: 600, easing: 'easeInOutQuart' }
+    }
+  });
+
+  // ── 跳出率 donut（固定，不隨月份變）──
+  upsertChart('salesBounceChart', {
+    type: 'doughnut',
+    data: {
+      labels: ['手機 26.92%', '電腦 73.80%'],
+      datasets: [{
+        data: [26.92, 73.80],
+        backgroundColor: ['#3dbf7a', '#e05555'],
+        borderColor: 'transparent',
+        borderWidth: 0,
+        hoverOffset: 6,
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      cutout: '68%',
+      plugins: {
+        legend: { display: true, position: 'bottom', labels: { color: '#b0a6c0', font: { family: "'Noto Sans TC', sans-serif", size: 12 }, padding: 12 } },
+        tooltip: { ...sharedTooltip, callbacks: { label: ctx => ` ${ctx.label}` } }
+      },
+      animation: { duration: 600, easing: 'easeInOutQuart' }
+    }
+  });
+}
 
 function initSalesCharts() {
   if (salesChartsInitialized) return;
   salesChartsInitialized = true;
 
-const salesMonths = ['202412','202501','202502','202503','202504','202505','202506','202507','202508','202509','202510','202511','202512','202601','202602','202603'];
+  const sel = document.getElementById('monthRange');
+  renderSalesCharts(sel ? parseInt(sel.value) : 24);
 
-const salesFansData     = [4733, 6214, 2310, 749, 1600, 9610, 3979, 3237, 3139, 1845, 685, 2038, 2673, 2215, 4712, -253];
-const salesNewBuyerData = [139, 153, 229, 189, 193, 213, 248, 159, 150, 122, 129, 113, 84, 95, 98, 87];
-const salesRepurchase   = [11.48, 12.55, 14.70, 21.71, 21.72, 20.73, 28.38, 28.76, 25.71, 16.03, 23.81, 18.95, 24.54, 22.43, 34.07, 29.53];
-const salesCvr          = [0.52, 0.54, 0.71, 1.01, 1.04, 0.72, 0.52, 0.50, 0.58, 0.40, 0.33, 0.44, 0.42, 0.47, 0.65, 0.44];
-const salesAov          = [3173, 3351, 3869, 3896, 3962, 4312, 4930, 8135, 5597, 3994, 4909, 5280, 5209, 5904, 4041, 3837];
-
-// 共用顏色函式：最後一筆（202603）標紅，其餘用品牌紫/藍
-function barColors(data, goodUp = true) {
-  return data.map((v, i) => {
-    if (i === data.length - 1) return 'rgba(224,85,85,0.85)';
-    return 'rgba(196,181,220,0.55)';
-  });
-}
-function barBorderColors(data) {
-  return data.map((v, i) => i === data.length - 1 ? '#e05555' : '#c4b5dc');
-}
-
-// 共用 line dataset
-function lineDataset(data) {
-  const colors = data.map((v, i) => i === data.length - 1 ? '#e05555' : '#c4b5dc');
-  return {
-    data,
-    borderColor: '#c4b5dc',
-    backgroundColor: 'rgba(196,181,220,0.08)',
-    tension: 0.35,
-    fill: true,
-    pointRadius: data.map((_, i) => i === data.length - 1 ? 6 : 3),
-    pointBackgroundColor: colors,
-    pointBorderColor: colors,
-    borderWidth: 2,
-  };
-}
-
-// 共用 scale 設定
-const sharedScales = {
-  x: {
-    grid: { display: false },
-    ticks: { font: { family: "'Noto Sans TC', sans-serif", size: 10 }, color: '#b0a6c0', maxRotation: 45 },
-    border: { display: false },
-  },
-  y: {
-    grid: { color: 'rgba(180,170,200,0.1)' },
-    ticks: { font: { family: "'Noto Sans TC', sans-serif", size: 11 }, color: '#b0a6c0' },
-    border: { display: false },
+  if (sel) {
+    sel.addEventListener('change', () => {
+      renderSalesCharts(parseInt(sel.value));
+    });
   }
-};
-
-const sharedOptions = (yLabel = '') => ({
-  responsive: true,
-  maintainAspectRatio: false,
-  plugins: {
-    legend: { display: false },
-    tooltip: {
-      bodyFont: { family: "'Noto Sans TC', sans-serif", size: 13 },
-      padding: 10,
-    }
-  },
-  scales: {
-    ...sharedScales,
-    y: {
-      ...sharedScales.y,
-      title: yLabel ? { display: true, text: yLabel, color: '#b0a6c0', font: { size: 11 } } : undefined,
-    }
-  },
-  animation: { duration: 900, easing: 'easeInOutQuart' }
-});
-
-// 粉絲增長（包含負值 → bar chart）
-const fansBars = salesFansData.map((v, i) => i === salesFansData.length - 1 ? '#e05555' : (v >= 0 ? '#c4b5dc' : '#e05555'));
-const salesFansCtx = document.getElementById('salesFansChart');
-if (salesFansCtx) {
-  new Chart(salesFansCtx, {
-    type: 'bar',
-    data: {
-      labels: salesMonths,
-      datasets: [{ data: salesFansData, backgroundColor: fansBars, borderRadius: 5, borderSkipped: false }]
-    },
-    options: {
-      ...sharedOptions(),
-      plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => ` ${ctx.parsed.y > 0 ? '+' : ''}${ctx.parsed.y.toLocaleString()} 人` }, bodyFont: { family: "'Noto Sans TC', sans-serif", size: 13 }, padding: 10 } },
-      scales: { ...sharedOptions().scales, y: { ...sharedOptions().scales.y, ticks: { ...sharedOptions().scales.y.ticks, callback: v => (v > 0 ? '+' : '') + v.toLocaleString() } } }
-    }
-  });
-}
-
-// 新客增長（bar）
-const salesNewBuyerCtx = document.getElementById('salesNewBuyerChart');
-if (salesNewBuyerCtx) {
-  new Chart(salesNewBuyerCtx, {
-    type: 'bar',
-    data: {
-      labels: salesMonths,
-      datasets: [{ data: salesNewBuyerData, backgroundColor: barColors(salesNewBuyerData), borderColor: barBorderColors(salesNewBuyerData), borderWidth: 1.5, borderRadius: 5, borderSkipped: false }]
-    },
-    options: { ...sharedOptions('人'), plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => ` ${ctx.parsed.y} 人` }, bodyFont: { family: "'Noto Sans TC', sans-serif", size: 13 }, padding: 10 } } }
-  });
-}
-
-// 複購率（line）
-const salesRepurchaseCtx = document.getElementById('salesRepurchaseChart');
-if (salesRepurchaseCtx) {
-  new Chart(salesRepurchaseCtx, {
-    type: 'line',
-    data: { labels: salesMonths, datasets: [lineDataset(salesRepurchase)] },
-    options: { ...sharedOptions('%'), plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => ` ${ctx.parsed.y}%` }, bodyFont: { family: "'Noto Sans TC', sans-serif", size: 13 }, padding: 10 } } }
-  });
-}
-
-// 轉換率（line）
-const salesCvrCtx = document.getElementById('salesCvrChart');
-if (salesCvrCtx) {
-  new Chart(salesCvrCtx, {
-    type: 'line',
-    data: { labels: salesMonths, datasets: [lineDataset(salesCvr)] },
-    options: { ...sharedOptions('%'), plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => ` ${ctx.parsed.y}%` }, bodyFont: { family: "'Noto Sans TC', sans-serif", size: 13 }, padding: 10 } } }
-  });
-}
-
-// 平均客單價（line）
-const salesAovCtx = document.getElementById('salesAovChart');
-if (salesAovCtx) {
-  new Chart(salesAovCtx, {
-    type: 'line',
-    data: { labels: salesMonths, datasets: [lineDataset(salesAov)] },
-    options: { ...sharedOptions('NT$'), plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => ` NT$${ctx.parsed.y.toLocaleString()}` }, bodyFont: { family: "'Noto Sans TC', sans-serif", size: 13 }, padding: 10 } } }
-  });
-}
-
-// 跳出率對比 donut（手機 vs 電腦）
-const salesBounceCtx = document.getElementById('salesBounceChart');
-if (salesBounceCtx) {
-  new Chart(salesBounceCtx, {
-    type: 'doughnut',
-    data: {
-      labels: ['手機跳出率', '電腦跳出率'],
-      datasets: [{ data: [26.92, 73.80], backgroundColor: ['#3dbf7a', '#e05555'], borderColor: 'transparent', borderWidth: 0, hoverOffset: 6 }]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      cutout: '68%',
-      plugins: {
-        legend: { display: true, position: 'bottom', labels: { color: '#b0a6c0', font: { family: "'Noto Sans TC', sans-serif", size: 12 }, padding: 12 } },
-        tooltip: { callbacks: { label: ctx => ` ${ctx.label}：${ctx.parsed}%` }, bodyFont: { family: "'Noto Sans TC', sans-serif", size: 13 }, padding: 10 }
-      },
-      animation: { duration: 900, easing: 'easeInOutQuart' }
-    }
-  });
-}
-
 }
 
 // 監聽 Tab 切換，切到銷售數據時才初始化
 document.querySelectorAll('.tab-btn').forEach(btn => {
   btn.addEventListener('click', () => {
     if (btn.dataset.tab === 'sales') {
-      // 給 DOM 一個 frame 時間讓 canvas 出現
       requestAnimationFrame(() => setTimeout(initSalesCharts, 50));
     }
   });
