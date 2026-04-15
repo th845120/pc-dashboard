@@ -40,10 +40,11 @@
     if (existingMsg) existingMsg.remove();
     var milestoneArea = document.createElement('div');
     milestoneArea.className = 'pg-milestone-area';
-    milestoneArea.innerHTML = '<div class="pg-milestone-text">將游標移到上方卡片，查看裡程碑感言 ✨</div>';
+    var isTouchHint = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
+    var defaultHint = isTouchHint ? '點擊上方卡片，查看裡程碑感言 ✨' : '將游標移到上方卡片，查看裡程碑感言 ✨';
+    milestoneArea.innerHTML = '<div class="pg-milestone-text">' + defaultHint + '</div>';
     section.appendChild(milestoneArea);
     var milestoneText = milestoneArea.querySelector('.pg-milestone-text');
-    var defaultHint = '將游標移到上方卡片，查看裡程碑感言 ✨';
 
     // Shared timer for all cards — prevents text overlap
     var msTimer = null;
@@ -59,6 +60,8 @@
       }, 200);
     }
 
+    var isTouchDevice = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
+
     counters.forEach(function(c, idx) {
       var card = document.createElement('div');
       card.className = 'pg-counter-card';
@@ -68,14 +71,16 @@
         '<div class="pg-counter-label">' + c.label + '</div>';
       grid.appendChild(card);
 
-      // Desktop hover
-      card.addEventListener('mouseenter', function() {
-        showMessage(c.message, true);
-      });
-      card.addEventListener('mouseleave', function() {
-        showMessage(defaultHint, false);
-      });
-      // Mobile tap toggle
+      if (!isTouchDevice) {
+        // Desktop: hover to show, leave to hide
+        card.addEventListener('mouseenter', function() {
+          showMessage(c.message, true);
+        });
+        card.addEventListener('mouseleave', function() {
+          showMessage(defaultHint, false);
+        });
+      }
+      // Tap/click toggle (works on both, but on desktop hover already handles it)
       card.addEventListener('click', function() {
         if (milestoneText.textContent === c.message) {
           showMessage(defaultHint, false);

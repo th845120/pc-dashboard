@@ -1739,10 +1739,13 @@ var YEARLY_PERFORMANCE = [
   tbody.innerHTML = html;
 })();
 
-// ===== CURSOR GLOW =====
+// ===== CURSOR GLOW (desktop only) =====
 (function() {
   var glow = document.getElementById('cursorGlow');
   if (!glow) return;
+  // Disable on touch devices — only show on real mouse pointer
+  var isTouchDevice = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
+  if (isTouchDevice) { glow.style.display = 'none'; return; }
   var visible = false;
   document.addEventListener('mousemove', function(e) {
     if (!visible) { glow.classList.add('visible'); visible = true; }
