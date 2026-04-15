@@ -1090,12 +1090,12 @@ function renderServiceTable(from, to) {
     var t3R = top3Revenue[idx]   ? ' cell-top3' : '';
     var t3A = top3Aov[idx]       ? ' cell-top3' : '';
 
-    // MoM
-    var mUnreplied = prev ? momTag(d.unreplied, prev.unreplied, false, true) : '';
-    var mInquiry = prev ? momTag(d.inquiryRate, prev.inquiryRate, true, true) : '';
-    var mCvr = prev ? momTag(d.cvr, prev.cvr, true, false) : '';
-    var mRevenue = prev ? momTag(d.revenue, prev.revenue, false, false) : '';
-    var mAov = prev ? momTag(d.aov, prev.aov, false, false) : '';
+    // MoM — only show on latest row
+    var mUnreplied = (isLatest && prev) ? momTag(d.unreplied, prev.unreplied, false, true) : '';
+    var mInquiry = (isLatest && prev) ? momTag(d.inquiryRate, prev.inquiryRate, true, true) : '';
+    var mCvr = (isLatest && prev) ? momTag(d.cvr, prev.cvr, true, false) : '';
+    var mRevenue = (isLatest && prev) ? momTag(d.revenue, prev.revenue, false, false) : '';
+    var mAov = (isLatest && prev) ? momTag(d.aov, prev.aov, false, false) : '';
     return '<tr class="' + rowClass + '">' +
       '<td>' + monthCell + '</td>' +
       '<td class="' + t3U + '">' + bold(d.unreplied) + mUnreplied + '</td>' +
