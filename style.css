@@ -1238,23 +1238,15 @@ button { cursor: pointer; background: none; border: none; font: inherit; color: 
   overflow: hidden;
 }
 .sales-lock-overlay.hidden { display: none; }
-/* 浮水印 */
+/* 浮水印 logo */
 .sales-lock-watermark {
   position: absolute;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-family: var(--font-display);
-  font-size: clamp(100px, 18vw, 260px);
-  font-weight: 800;
-  color: var(--color-text);
-  opacity: 0.03;
-  letter-spacing: 0.06em;
-  white-space: nowrap;
+  width: clamp(280px, 50vw, 500px);
+  height: auto;
+  opacity: 0.04;
   pointer-events: none;
   user-select: none;
-  word-break: keep-all;
+  filter: grayscale(1) brightness(2);
 }
 .sales-lock-card {
   position: relative;
@@ -1277,20 +1269,13 @@ button { cursor: pointer; background: none; border: none; font: inherit; color: 
   margin-bottom: var(--space-3);
   letter-spacing: 0.05em;
 }
-.sales-lock-desc {
-  font-size: var(--text-sm);
-  color: var(--color-text-muted);
-  margin-bottom: var(--space-2);
-  min-height: 1.2em;
-}
 .sales-lock-warning {
-  font-size: 11px;
+  font-size: 12px;
   color: #8b3a4a;
   margin-bottom: var(--space-6);
-  line-height: 1.6;
+  line-height: 1.8;
   letter-spacing: 0.02em;
-  word-break: keep-all;
-  overflow-wrap: break-word;
+  text-align: center;
 }
 .sales-lock-input-wrap {
   display: flex;

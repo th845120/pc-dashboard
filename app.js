@@ -1427,6 +1427,7 @@ var YEARLY_PERFORMANCE = [
   var btn = document.getElementById('salesPasswordBtn');
   var errEl = document.getElementById('salesLockError');
   var descEl = document.getElementById('salesLockDesc');
+  var defaultWarningHTML = descEl ? descEl.innerHTML : '';
   if (!overlay || !input || !btn) return;
 
   function formatTime(sec) {
@@ -1440,7 +1441,7 @@ var YEARLY_PERFORMANCE = [
     input.style.display = 'none';
     btn.style.display = 'none';
     errEl.textContent = '';
-    descEl.textContent = '密碼輸入錯誤已過 3 次，請等待 ' + formatTime(remaining) + ' 後再試';
+    descEl.innerHTML = '密碼輸入錯誤已過 3 次，<br>請等待 ' + formatTime(remaining) + ' 後再試';
     descEl.style.color = '#e05555';
   }
 
@@ -1453,7 +1454,7 @@ var YEARLY_PERFORMANCE = [
     input.style.display = '';
     btn.style.display = '';
     btn.disabled = false;
-    descEl.textContent = '';
+    descEl.innerHTML = defaultWarningHTML;
     descEl.style.color = '';
     if (attemptsLeft < 3 && attemptsLeft > 0) {
       errEl.textContent = '還剩 ' + attemptsLeft + ' 次機會';
