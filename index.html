@@ -227,7 +227,6 @@
                 <span class="review-date">2026-04-14</span>
               </div>
               <p class="review-text">跟老闆買的水晶品質很好，感謝老闆和聚寶主播真誠介紹美麗的水晶。</p>
-              <p class="review-reply">── 老闆回覆：感謝您的支持 ヾ(´︶`*)ﾉ♬</p>
             </div>
             <div class="review-item">
               <div class="review-header">
@@ -347,71 +346,224 @@
     </div>
     <main class="main">
 
+      <!-- ── Section 1: 聊聊概覽（本月 KPI）── -->
       <section class="section">
         <div class="section-header">
           <h2 class="section-title">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-            回覆效率
+            2026年3月 聊聊概覽
           </h2>
-          <span class="section-badge warn">待改善</span>
+          <span class="section-badge" style="background:rgba(196,181,220,0.15);color:#c4b5dc;">聊聊數據</span>
         </div>
-        <div class="kpi-grid">
-          <div class="kpi-card warn">
-            <div class="kpi-label">訊息回覆率</div>
-            <div class="kpi-value">75%</div>
-            <div class="kpi-sub">API 即時數據<br>（截至 04/15）</div>
+
+        <!-- 第一排：訪客 / 諮詢 / 詢問率 -->
+        <div class="kpi-grid service-kpi-3">
+          <div class="kpi-card">
+            <div class="kpi-label">不重複訪客數</div>
+            <div class="kpi-value">118,198</div>
+            <div class="kpi-delta bad">▼ 35.60%</div>
           </div>
-          <div class="kpi-card good">
-            <div class="kpi-label">訂單取消率</div>
-            <div class="kpi-value">0%</div>
-            <div class="kpi-sub">API 即時數據<br>（截至 04/15）</div>
+          <div class="kpi-card">
+            <div class="kpi-label">聊聊諮詢</div>
+            <div class="kpi-value">347</div>
+            <div class="kpi-delta good-delta">▲ 4.52%</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">詢問率</div>
+            <div class="kpi-value">0.15%</div>
+            <div class="kpi-sub">訪客 → 諮詢比率</div>
+          </div>
+        </div>
+
+        <!-- 第二排：已回覆 / 未回覆 / 諮詢至回覆轉化 -->
+        <div class="kpi-grid service-kpi-3" style="margin-top:12px;">
+          <div class="kpi-card">
+            <div class="kpi-label">已回覆聊聊</div>
+            <div class="kpi-value">314</div>
+            <div class="kpi-delta good-delta">▲ 14.18%</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">未回覆聊聊</div>
+            <div class="kpi-value">33</div>
+            <div class="kpi-delta good-delta">▼ 42.11%</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">轉化率（諮詢至回覆）</div>
+            <div class="kpi-value">90.49%</div>
+            <div class="kpi-sub">聊聊回應轉化</div>
+          </div>
+        </div>
+
+        <!-- 第三排：平均回應速度 / 滿意度 / 回覆至下單轉化 -->
+        <div class="kpi-grid service-kpi-3" style="margin-top:12px;">
+          <div class="kpi-card">
+            <div class="kpi-label">平均回應速度</div>
+            <div class="kpi-value" style="font-size:var(--text-xl);">01:23:35</div>
+            <div class="kpi-delta good-delta">▼ 6.99%（速度改善）</div>
           </div>
           <div class="kpi-card accent">
-            <div class="kpi-label">整體評分</div>
-            <div class="kpi-value">4.99</div>
-            <div class="kpi-sub">買家滿意度</div>
-            <div class="kpi-delta neutral">── 首次記錄</div>
+            <div class="kpi-label">聊聊滿意度</div>
+            <div class="kpi-value">99.38%</div>
+            <div class="kpi-delta bad">▼ 0.03%</div>
           </div>
-          <div class="kpi-card good">
-            <div class="kpi-label">好評率</div>
-            <div class="kpi-value">99.75%</div>
-            <div class="kpi-sub">4-5 星評價佔比</div>
-            <div class="kpi-delta neutral">── 首次記錄</div>
+          <div class="kpi-card">
+            <div class="kpi-label">轉化率（回覆至下單）</div>
+            <div class="kpi-value">16.56%</div>
+            <div class="kpi-sub">從回覆到下單</div>
           </div>
-        </div>
-        <div class="info-note">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
-          回覆率低於 80% 可能影響蝦皮搜尋排名，建議提升至 90% 以上
         </div>
       </section>
 
+      <!-- ── Section 2: 聊聊銷售表現（本月 KPI）── -->
       <section class="section">
         <div class="section-header">
           <h2 class="section-title">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 1.27h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 9a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
-            Google 評論客服
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="20" x2="12" y2="10"/><line x1="18" y1="20" x2="18" y2="4"/><line x1="6" y1="20" x2="6" y2="16"/></svg>
+            聊聊銷售表現
           </h2>
-          <span class="section-badge good">表現優異</span>
         </div>
-        <div class="kpi-grid">
-          <div class="kpi-card good">
-            <div class="kpi-label">Google 評分</div>
-            <div class="kpi-value">5.0</div>
-            <div class="kpi-sub">55 則全 5 星</div>
+        <div class="kpi-grid service-kpi-4">
+          <div class="kpi-card">
+            <div class="kpi-label">買家數</div>
+            <div class="kpi-value">52</div>
+            <div class="kpi-delta bad">▼ 29.73%</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">訂單數</div>
+            <div class="kpi-value">62</div>
+            <div class="kpi-delta bad">▼ 38.61%</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">聊聊銷售額</div>
+            <div class="kpi-value" style="font-size:var(--text-xl);">NT$267,428</div>
+            <div class="kpi-delta bad">▼ 49.02%</div>
           </div>
           <div class="kpi-card accent">
-            <div class="kpi-label">Facebook 推薦率</div>
-            <div class="kpi-value">100%</div>
-            <div class="kpi-sub">共 37 則評論</div>
-          </div>
-          <div class="kpi-card good">
-            <div class="kpi-label">差評數</div>
-            <div class="kpi-value">8</div>
-            <div class="kpi-sub">蝦皮 1-2 星（共 16,551 則）</div>
+            <div class="kpi-label">聊聊平均客單價</div>
+            <div class="kpi-value">NT$5,143</div>
+            <div class="kpi-sub">銷售 ÷ 買家數</div>
           </div>
         </div>
       </section>
 
+      <!-- ── Section 3: 歷史趨勢 ── -->
+      <section class="section">
+        <div class="section-header">
+          <h2 class="section-title">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+            歷史趨勢
+          </h2>
+          <div class="month-range-control">
+            <button class="range-trigger-btn" id="serviceChartPickerTrigger">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+              <span id="serviceChartPickerLabel">全部期間</span>
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+            </button>
+          </div>
+
+          <!-- Service Chart Picker Popover -->
+          <div class="ym-popover" id="serviceChartPickerPopover">
+            <div class="ym-popover-inner">
+              <div class="ym-shortcuts">
+                <button class="ym-shortcut active" data-preset="all">全部</button>
+                <button class="ym-shortcut" data-preset="6m">近 6 個月</button>
+                <button class="ym-shortcut" data-preset="12m">近 12 個月</button>
+                <button class="ym-shortcut" data-preset="custom">自訂</button>
+              </div>
+              <div class="ym-picker-area" id="serviceChartPickerArea">
+                <!-- 動態填入 -->
+              </div>
+            </div>
+            <div class="ym-popover-footer">
+              <span class="ym-selected-label" id="serviceChartSelectedLabel">已選：全部</span>
+              <button class="range-btn" id="serviceChartRangeApply">套用</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 未回覆聊聊 + 詢問率 -->
+        <div class="charts-row service-charts-2col">
+          <div class="chart-card">
+            <h3 class="chart-title">未回覆聊聊 / 月</h3>
+            <div class="chart-wrap" style="height:200px;"><canvas id="serviceUnrepliedChart"></canvas></div>
+          </div>
+          <div class="chart-card">
+            <h3 class="chart-title">詢問率趨勢 (%)</h3>
+            <div class="chart-wrap" style="height:200px;"><canvas id="serviceInquiryChart"></canvas></div>
+          </div>
+        </div>
+
+        <!-- 轉化率 + 聊聊營業額 -->
+        <div class="charts-row service-charts-2col" style="margin-top:16px;">
+          <div class="chart-card">
+            <h3 class="chart-title">轉化率趨勢 — 回覆至下單 (%)</h3>
+            <div class="chart-wrap" style="height:200px;"><canvas id="serviceCvrChart"></canvas></div>
+          </div>
+          <div class="chart-card">
+            <h3 class="chart-title">聊聊營業額趨勢 (NT$)</h3>
+            <div class="chart-wrap" style="height:200px;"><canvas id="serviceRevenueChart"></canvas></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── Section 4: 月份對比明細表 ── -->
+      <section class="section">
+        <div class="section-header">
+          <h2 class="section-title">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+            月份對比明細
+          </h2>
+          <div class="month-range-control">
+            <button class="range-trigger-btn" id="serviceTablePickerTrigger">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+              <span id="serviceTablePickerLabel">全部期間</span>
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+            </button>
+          </div>
+
+          <!-- Service Table Picker Popover -->
+          <div class="ym-popover" id="serviceTablePickerPopover">
+            <div class="ym-popover-inner">
+              <div class="ym-shortcuts">
+                <button class="ym-shortcut active" data-preset="all">全部</button>
+                <button class="ym-shortcut" data-preset="6m">近 6 個月</button>
+                <button class="ym-shortcut" data-preset="12m">近 12 個月</button>
+                <button class="ym-shortcut" data-preset="custom">自訂</button>
+              </div>
+              <div class="ym-picker-area" id="serviceTablePickerArea">
+                <!-- 動態填入 -->
+              </div>
+            </div>
+            <div class="ym-popover-footer">
+              <span class="ym-selected-label" id="serviceTableSelectedLabel">已選：全部</span>
+              <button class="range-btn" id="serviceTableRangeApply">套用</button>
+            </div>
+          </div>
+        </div>
+        <div class="data-table-wrap">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>月份</th>
+                <th>未回覆聊聊</th>
+                <th>詢問率</th>
+                <th>轉化率</th>
+                <th>營業額</th>
+                <th>平均客單價</th>
+              </tr>
+            </thead>
+            <tbody id="serviceTableBody">
+              <!-- 動態填入 -->
+            </tbody>
+          </table>
+        </div>
+        <div class="info-note" style="margin-top:12px;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+          數據來源：蝦皮賣場後台聊聊報表匯出（202412–202603）
+        </div>
+      </section>
+
+      <!-- ── Section 5: 客服改善建議 ── -->
       <section class="section">
         <div class="section-header">
           <h2 class="section-title">
@@ -423,15 +575,22 @@
           <div class="action-item high">
             <div class="action-priority">優先</div>
             <div class="action-content">
-              <div class="action-title">提升訊息回覆率至 90%+</div>
-              <div class="action-desc">目前 75% 低於蝦皮建議標準，可設定自動回覆或固定回覆時段，避免影響搜尋排名</div>
+              <div class="action-title">降低未回覆聊聊數量</div>
+              <div class="action-desc">目前 33 筆未回覆聊聊，雖較上月已改善 42%，仍建議設定自動回覆或固定回覆時段，持續壓低至 20 筆以下，避免影響買家體驗與蝦皮搜尋排名</div>
+            </div>
+          </div>
+          <div class="action-item mid">
+            <div class="action-priority">中等</div>
+            <div class="action-content">
+              <div class="action-title">提升回覆至下單轉化率</div>
+              <div class="action-desc">目前轉化率 16.56%，歷史高峰曾達 26.62%（202602）。可優化回覆話術、提供個人化商品推薦及限時優惠，拉升聊聊下單比例</div>
             </div>
           </div>
           <div class="action-item low">
             <div class="action-priority">持續</div>
             <div class="action-content">
-              <div class="action-title">維持零取消率</div>
-              <div class="action-desc">目前取消率 0%，表現完美，建議持續確保備貨充足與訂單確認流程</div>
+              <div class="action-title">維持聊聊滿意度</div>
+              <div class="action-desc">目前滿意度 99.38%，表現優異。建議持續維持專業、親切的回覆品質，穩定高滿意度水準</div>
             </div>
           </div>
         </div>

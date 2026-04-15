@@ -795,3 +795,277 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
     }
   });
 });
+
+// ===== 客服數據圖表（延遲初始化）=====
+let serviceChartsInitialized = false;
+let serviceChartInstances = {};
+
+// 聊聊歷史數據（16 個月，與 ALL_MONTHS 對應）
+const CHAT_UNREPLIED     = [25, 24, 33, 27, 63, 43, 48, 28, 9, 13, 65, 86, 23, 26, 57, 33];
+const CHAT_INQUIRY_RATE  = [0.74, 0.24, 0.28, 0.34, 0.21, 0.19, 0.23, 0.17, 0.16, 0.17, 0.18, 0.16, 0.13, 0.13, 0.10, 0.15];
+const CHAT_CVR           = [12.75, 12.74, 14.90, 15.18, 22.83, 17.68, 19.22, 19.88, 19.01, 14.17, 17.40, 13.25, 16.56, 21.74, 26.62, 16.56];
+const CHAT_REVENUE       = [170188, 109791, 250833, 235624, 217444, 366068, 439750, 462293, 393235, 254487, 263654, 296604, 222605, 311334, 524550, 267428];
+const CHAT_AOV           = [3418, 2240, 3216, 2772, 2111, 3936, 2819, 3640, 3818, 3856, 3296, 5816, 3649, 4448, 5194, 5143];
+
+// 聊聊表格數據
+const CHAT_TABLE_DATA = [
+  { month:'202412', unreplied:25,  inquiryRate:'0.74%', cvr:'12.75%', revenue:'NT$170,188', aov:'NT$3,418' },
+  { month:'202501', unreplied:24,  inquiryRate:'0.24%', cvr:'12.74%', revenue:'NT$109,791', aov:'NT$2,240' },
+  { month:'202502', unreplied:33,  inquiryRate:'0.28%', cvr:'14.90%', revenue:'NT$250,833', aov:'NT$3,216' },
+  { month:'202503', unreplied:27,  inquiryRate:'0.34%', cvr:'15.18%', revenue:'NT$235,624', aov:'NT$2,772' },
+  { month:'202504', unreplied:63,  inquiryRate:'0.21%', cvr:'22.83%', revenue:'NT$217,444', aov:'NT$2,111' },
+  { month:'202505', unreplied:43,  inquiryRate:'0.19%', cvr:'17.68%', revenue:'NT$366,068', aov:'NT$3,936' },
+  { month:'202506', unreplied:48,  inquiryRate:'0.23%', cvr:'19.22%', revenue:'NT$439,750', aov:'NT$2,819' },
+  { month:'202507', unreplied:28,  inquiryRate:'0.17%', cvr:'19.88%', revenue:'NT$462,293', aov:'NT$3,640' },
+  { month:'202508', unreplied:9,   inquiryRate:'0.16%', cvr:'19.01%', revenue:'NT$393,235', aov:'NT$3,818' },
+  { month:'202509', unreplied:13,  inquiryRate:'0.17%', cvr:'14.17%', revenue:'NT$254,487', aov:'NT$3,856' },
+  { month:'202510', unreplied:65,  inquiryRate:'0.18%', cvr:'17.40%', revenue:'NT$263,654', aov:'NT$3,296' },
+  { month:'202511', unreplied:86,  inquiryRate:'0.16%', cvr:'13.25%', revenue:'NT$296,604', aov:'NT$5,816' },
+  { month:'202512', unreplied:23,  inquiryRate:'0.13%', cvr:'16.56%', revenue:'NT$222,605', aov:'NT$3,649' },
+  { month:'202601', unreplied:26,  inquiryRate:'0.13%', cvr:'21.74%', revenue:'NT$311,334', aov:'NT$4,448' },
+  { month:'202602', unreplied:57,  inquiryRate:'0.10%', cvr:'26.62%', revenue:'NT$524,550', aov:'NT$5,194' },
+  { month:'202603', unreplied:33,  inquiryRate:'0.15%', cvr:'16.56%', revenue:'NT$267,428', aov:'NT$5,143', isLatest: true },
+];
+
+// 未回覆聊聊 bar 特殊顏色（>100 紅，>50 黃，其餘品牌紫）
+function chatUnrepliedBg(data) {
+  return data.map(function(v, i) {
+    if (i === data.length - 1) return '#e05555';
+    if (v > 100) return '#e05555';
+    if (v > 50)  return '#e8a825';
+    return 'rgba(196,181,220,0.55)';
+  });
+}
+function chatUnrepliedBorder(data) {
+  return data.map(function(v, i) {
+    if (i === data.length - 1) return '#e05555';
+    if (v > 100) return '#e05555';
+    if (v > 50)  return '#e8a825';
+    return '#c4b5dc';
+  });
+}
+
+// 建立或更新客服圖表實例
+function upsertServiceChart(id, config) {
+  var ctx = document.getElementById(id);
+  if (!ctx) return;
+  if (serviceChartInstances[id]) {
+    serviceChartInstances[id].destroy();
+  }
+  serviceChartInstances[id] = new Chart(ctx, config);
+}
+
+// 渲染客服圖表（全量資料）
+function renderServiceCharts(months) {
+  var labels    = sliceData(ALL_MONTHS, months);
+  var unreplied = sliceData(CHAT_UNREPLIED, months);
+  var inquiry   = sliceData(CHAT_INQUIRY_RATE, months);
+  var cvr       = sliceData(CHAT_CVR, months);
+  var revenue   = sliceData(CHAT_REVENUE, months);
+
+  // 未回覆聊聊（bar）
+  upsertServiceChart('serviceUnrepliedChart', {
+    type: 'bar',
+    data: {
+      labels: labels,
+      datasets: [{
+        data: unreplied,
+        backgroundColor: chatUnrepliedBg(unreplied),
+        borderColor: chatUnrepliedBorder(unreplied),
+        borderWidth: 1.5,
+        borderRadius: 5,
+        borderSkipped: false,
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false }, tooltip: { ...sharedTooltip, callbacks: { label: function(ctx) { return ' ' + ctx.parsed.y + ' 筆'; } } } },
+      scales: { x: sharedScaleX, y: { ...sharedScaleY, ticks: { ...sharedScaleY.ticks, callback: function(v) { return v; } } } },
+      animation: { duration: 600, easing: 'easeInOutQuart' }
+    }
+  });
+
+  // 詢問率（line）
+  upsertServiceChart('serviceInquiryChart', {
+    type: 'line',
+    data: {
+      labels: labels,
+      datasets: [{
+        data: inquiry,
+        borderColor: '#c4b5dc',
+        backgroundColor: 'rgba(196,181,220,0.08)',
+        tension: 0.35,
+        fill: true,
+        pointRadius: linePtSize(inquiry),
+        pointBackgroundColor: linePtBg(inquiry),
+        pointBorderColor: linePtBg(inquiry),
+        borderWidth: 2,
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false }, tooltip: { ...sharedTooltip, callbacks: { label: function(ctx) { return ' ' + ctx.parsed.y + '%'; } } } },
+      scales: { x: sharedScaleX, y: { ...sharedScaleY, ticks: { ...sharedScaleY.ticks, callback: function(v) { return v + '%'; } } } },
+      animation: { duration: 600, easing: 'easeInOutQuart' }
+    }
+  });
+
+  // 轉化率回覆至下單（line）
+  upsertServiceChart('serviceCvrChart', {
+    type: 'line',
+    data: {
+      labels: labels,
+      datasets: [{
+        data: cvr,
+        borderColor: '#c4b5dc',
+        backgroundColor: 'rgba(196,181,220,0.08)',
+        tension: 0.35,
+        fill: true,
+        pointRadius: linePtSize(cvr),
+        pointBackgroundColor: linePtBg(cvr),
+        pointBorderColor: linePtBg(cvr),
+        borderWidth: 2,
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false }, tooltip: { ...sharedTooltip, callbacks: { label: function(ctx) { return ' ' + ctx.parsed.y + '%'; } } } },
+      scales: { x: sharedScaleX, y: { ...sharedScaleY, ticks: { ...sharedScaleY.ticks, callback: function(v) { return v + '%'; } } } },
+      animation: { duration: 600, easing: 'easeInOutQuart' }
+    }
+  });
+
+  // 聊聊營業額（bar）
+  upsertServiceChart('serviceRevenueChart', {
+    type: 'bar',
+    data: {
+      labels: labels,
+      datasets: [{
+        data: revenue,
+        backgroundColor: barBg(revenue),
+        borderColor: barBorder(revenue),
+        borderWidth: 1.5,
+        borderRadius: 5,
+        borderSkipped: false,
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false }, tooltip: { ...sharedTooltip, callbacks: { label: function(ctx) { return ' NT$' + ctx.parsed.y.toLocaleString(); } } } },
+      scales: { x: sharedScaleX, y: { ...sharedScaleY, ticks: { ...sharedScaleY.ticks, callback: function(v) { return 'NT$' + (v >= 1000 ? (v/1000).toFixed(0) + 'K' : v); } } } },
+      animation: { duration: 600, easing: 'easeInOutQuart' }
+    }
+  });
+}
+
+// 依索引陣列過濾後重繪客服圖表
+function renderServiceChartsFiltered(indices) {
+  if (!indices || indices.length === 0) {
+    renderServiceCharts(ALL_MONTHS.length);
+    return;
+  }
+  var labels    = indices.map(function(i) { return ALL_MONTHS[i]; });
+  var unreplied = indices.map(function(i) { return CHAT_UNREPLIED[i]; });
+  var inquiry   = indices.map(function(i) { return CHAT_INQUIRY_RATE[i]; });
+  var cvr       = indices.map(function(i) { return CHAT_CVR[i]; });
+  var revenue   = indices.map(function(i) { return CHAT_REVENUE[i]; });
+
+  upsertServiceChart('serviceUnrepliedChart', {
+    type: 'bar',
+    data: { labels: labels, datasets: [{ data: unreplied, backgroundColor: chatUnrepliedBg(unreplied), borderColor: chatUnrepliedBorder(unreplied), borderWidth: 1.5, borderRadius: 5, borderSkipped: false }] },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { ...sharedTooltip, callbacks: { label: function(c) { return ' ' + c.parsed.y + ' 筆'; } } } }, scales: { x: sharedScaleX, y: sharedScaleY }, animation: { duration: 600, easing: 'easeInOutQuart' } }
+  });
+
+  function mkLine(data) {
+    return { data: data, borderColor: '#c4b5dc', backgroundColor: 'rgba(196,181,220,0.08)',
+      tension: 0.35, fill: true, pointRadius: linePtSize(data),
+      pointBackgroundColor: linePtBg(data), pointBorderColor: linePtBg(data), borderWidth: 2 };
+  }
+  upsertServiceChart('serviceInquiryChart', { type: 'line', data: { labels: labels, datasets: [mkLine(inquiry)] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { ...sharedTooltip, callbacks: { label: function(c) { return ' ' + c.parsed.y + '%'; } } } }, scales: { x: sharedScaleX, y: { ...sharedScaleY, ticks: { ...sharedScaleY.ticks, callback: function(v) { return v + '%'; } } } }, animation: { duration: 600, easing: 'easeInOutQuart' } } });
+  upsertServiceChart('serviceCvrChart',      { type: 'line', data: { labels: labels, datasets: [mkLine(cvr)]    }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { ...sharedTooltip, callbacks: { label: function(c) { return ' ' + c.parsed.y + '%'; } } } }, scales: { x: sharedScaleX, y: { ...sharedScaleY, ticks: { ...sharedScaleY.ticks, callback: function(v) { return v + '%'; } } } }, animation: { duration: 600, easing: 'easeInOutQuart' } } });
+  upsertServiceChart('serviceRevenueChart', {
+    type: 'bar',
+    data: { labels: labels, datasets: [{ data: revenue, backgroundColor: barBg(revenue), borderColor: barBorder(revenue), borderWidth: 1.5, borderRadius: 5, borderSkipped: false }] },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { ...sharedTooltip, callbacks: { label: function(c) { return ' NT$' + c.parsed.y.toLocaleString(); } } } }, scales: { x: sharedScaleX, y: { ...sharedScaleY, ticks: { ...sharedScaleY.ticks, callback: function(v) { return 'NT$' + (v >= 1000 ? (v/1000).toFixed(0) + 'K' : v); } } } }, animation: { duration: 600, easing: 'easeInOutQuart' } }
+  });
+}
+
+// 渲染客服明細表
+function renderServiceTable(from, to) {
+  var tbody = document.getElementById('serviceTableBody');
+  if (!tbody) return;
+  var rows = CHAT_TABLE_DATA.filter(function(d) {
+    var m = parseInt(d.month);
+    return m >= from && m <= to;
+  });
+  var html = rows.map(function(d) {
+    var isLatest = !!d.isLatest;
+    var rowClass = isLatest ? 'highlight-row' : '';
+    var bold = function(v) { return isLatest ? '<strong>' + v + '</strong>' : v; };
+    var monthCell = isLatest ? '<strong>' + d.month + '</strong>' : d.month;
+    // unreplied color class
+    var uClass = '';
+    if (!isLatest) {
+      if (d.unreplied > 100) uClass = 'cell-bad';
+      else if (d.unreplied > 50) uClass = 'cell-warn';
+    }
+    return '<tr class="' + rowClass + '">' +
+      '<td>' + monthCell + '</td>' +
+      '<td class="' + uClass + '">' + bold(d.unreplied) + '</td>' +
+      '<td>' + bold(d.inquiryRate) + '</td>' +
+      '<td>' + bold(d.cvr) + '</td>' +
+      '<td>' + bold(d.revenue) + '</td>' +
+      '<td>' + bold(d.aov) + '</td>' +
+      '</tr>';
+  }).join('');
+  tbody.innerHTML = html;
+}
+
+function initServiceCharts() {
+  if (serviceChartsInitialized) return;
+  serviceChartsInitialized = true;
+
+  renderServiceCharts(ALL_MONTHS.length);
+  renderServiceTable(0, 999999);
+
+  // 圖表 Picker
+  createPicker({
+    triggerId: 'serviceChartPickerTrigger',
+    popoverId: 'serviceChartPickerPopover',
+    areaId:    'serviceChartPickerArea',
+    labelId:   'serviceChartPickerLabel',
+    selectedLabelId: 'serviceChartSelectedLabel',
+    applyId:   'serviceChartRangeApply',
+    onApply: function(from, to) {
+      var indices = [];
+      ALL_MONTHS.forEach(function(m, i) {
+        var n = parseInt(m);
+        if (n >= from && n <= to) indices.push(i);
+      });
+      if (indices.length === 0) indices = ALL_MONTHS.map(function(_, i) { return i; });
+      renderServiceChartsFiltered(indices);
+    }
+  });
+
+  // 表格 Picker
+  createPicker({
+    triggerId: 'serviceTablePickerTrigger',
+    popoverId: 'serviceTablePickerPopover',
+    areaId:    'serviceTablePickerArea',
+    labelId:   'serviceTablePickerLabel',
+    selectedLabelId: 'serviceTableSelectedLabel',
+    applyId:   'serviceTableRangeApply',
+    onApply: function(from, to) {
+      renderServiceTable(from, to);
+    }
+  });
+}
+
+// 監聽 Tab 切換，切到客服數據時才初始化
+document.querySelectorAll('.tab-btn').forEach(function(btn) {
+  btn.addEventListener('click', function() {
+    if (btn.dataset.tab === 'service') {
+      requestAnimationFrame(function() { setTimeout(initServiceCharts, 50); });
+    }
+  });
+});
