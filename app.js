@@ -162,24 +162,23 @@ function animateCounter(el, target, duration = 1200, suffix = '') {
 // Trigger counters on load
 const kpiValues = document.querySelectorAll('.kpi-value');
 const kpiData = [
-  // 蝦皮 (0-5)
+  // 蝦皮 (0-4)
   { el: kpiValues[0], val: 4.99, float: true },
   { el: kpiValues[1], val: 99.75, float: true, suffix: '%' },
   { el: kpiValues[2], val: 141988 },
   { el: kpiValues[3], val: 366 },
-  { el: kpiValues[4], val: 0, suffix: '%' },
-  { el: kpiValues[5], val: 75, suffix: '%' },
-  // Meta (6-8)
-  { el: kpiValues[6], val: 16366 },
-  { el: kpiValues[7], val: 100, suffix: '%' },
-  { el: kpiValues[8], val: 275 },
-  // Instagram (9-11)
-  { el: kpiValues[9], val: 4213 },
-  { el: kpiValues[10], val: 245 },
-  { el: kpiValues[11], val: 155 },
-  // Google Business Profile (12-13) — 14 is address, skip animation
-  { el: kpiValues[12], val: 5.0, float: true },
-  { el: kpiValues[13], val: 55 },
+  { el: kpiValues[4], val: 75, suffix: '%' },
+  // Meta (5-7)
+  { el: kpiValues[5], val: 16366 },
+  { el: kpiValues[6], val: 100, suffix: '%' },
+  { el: kpiValues[7], val: 275 },
+  // Instagram (8-10)
+  { el: kpiValues[8], val: 4213 },
+  { el: kpiValues[9], val: 245 },
+  { el: kpiValues[10], val: 155 },
+  // Google Business Profile (11-12) — 13 is address, skip animation
+  { el: kpiValues[11], val: 5.0, float: true },
+  { el: kpiValues[12], val: 55 },
 ];
 
 const observer = new IntersectionObserver((entries) => {
@@ -1348,3 +1347,167 @@ document.querySelectorAll('.tab-btn').forEach(function(btn) {
     }
   });
 });
+
+// ===== 年度表現 =====
+var YEARLY_PERFORMANCE = [
+  {
+    year: 2024,
+    revenue: 22889003,
+    orders: 5068,
+    cvr: 0.48,
+    avgOrder: 4516.38,
+    invalidOrders: 506,
+    invalidAmount: 1768094,
+    returnOrders: 46,
+    returnRate: 0.91
+  },
+  {
+    year: 2025,
+    revenue: 30933808,
+    orders: 11366,
+    cvr: 0.44,
+    avgOrder: 2721.61,
+    invalidOrders: 678,
+    invalidAmount: 2372539,
+    returnOrders: 73,
+    returnRate: 0.64
+  }
+];
+
+(function renderYearlyPerformance() {
+  var tbody = document.getElementById('yearlyPerfBody');
+  if (!tbody) return;
+
+  function fmtNT(v) { return 'NT$' + Math.round(v).toLocaleString('en-US'); }
+  function fmtNTDec(v) { return 'NT$' + v.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
+
+  // 計算 YoY 差異。invertColor=true 表示增加是壞事（如退貨率、不成立）
+  function yoyTag(curr, prev, isPercent, invertColor) {
+    if (prev === undefined || prev === null) return '';
+    if (isPercent) {
+      var diff = curr - prev;
+      var sign = diff >= 0 ? '▲' : '▼';
+      var cls = invertColor ? (diff <= 0 ? 'good' : 'bad') : (diff >= 0 ? 'good' : 'bad');
+      return ' <span class="kpi-delta ' + cls + '" style="display:inline;font-size:0.75rem;">' + sign + ' ' + Math.abs(diff).toFixed(2) + '%</span>';
+    } else {
+      if (prev === 0) return '';
+      var pct = ((curr - prev) / prev * 100);
+      var sign2 = pct >= 0 ? '▲' : '▼';
+      var cls2 = invertColor ? (pct <= 0 ? 'good' : 'bad') : (pct >= 0 ? 'good' : 'bad');
+      return ' <span class="kpi-delta ' + cls2 + '" style="display:inline;font-size:0.75rem;">' + sign2 + ' ' + Math.abs(pct).toFixed(1) + '%</span>';
+    }
+  }
+
+  var html = '';
+  for (var i = 0; i < YEARLY_PERFORMANCE.length; i++) {
+    var d = YEARLY_PERFORMANCE[i];
+    var prev = i > 0 ? YEARLY_PERFORMANCE[i - 1] : null;
+
+    html += '<tr>';
+    html += '<td style="font-weight:600;">' + d.year + '</td>';
+    html += '<td>' + fmtNT(d.revenue) + (prev ? yoyTag(d.revenue, prev.revenue) : '') + '</td>';
+    html += '<td>' + d.orders.toLocaleString('en-US') + (prev ? yoyTag(d.orders, prev.orders) : '') + '</td>';
+    html += '<td>' + d.cvr.toFixed(2) + '%' + (prev ? yoyTag(d.cvr, prev.cvr, true) : '') + '</td>';
+    html += '<td>' + fmtNTDec(d.avgOrder) + (prev ? yoyTag(d.avgOrder, prev.avgOrder) : '') + '</td>';
+    html += '<td>' + d.invalidOrders.toLocaleString('en-US') + (prev ? yoyTag(d.invalidOrders, prev.invalidOrders, false, true) : '') + '</td>';
+    html += '<td>' + fmtNT(d.invalidAmount) + (prev ? yoyTag(d.invalidAmount, prev.invalidAmount, false, true) : '') + '</td>';
+    html += '<td>' + d.returnOrders.toLocaleString('en-US') + (prev ? yoyTag(d.returnOrders, prev.returnOrders, false, true) : '') + '</td>';
+    html += '<td>' + d.returnRate.toFixed(2) + '%' + (prev ? yoyTag(d.returnRate, prev.returnRate, true, true) : '') + '</td>';
+    html += '</tr>';
+  }
+
+  tbody.innerHTML = html;
+})();
+
+// ===== SALES TAB PASSWORD PROTECTION =====
+(function initSalesAuth() {
+  var API = '__PORT_8000__'.startsWith('__') ? 'http://localhost:8000' : '__PORT_8000__';
+  var overlay = document.getElementById('salesLockOverlay');
+  var input = document.getElementById('salesPasswordInput');
+  var btn = document.getElementById('salesPasswordBtn');
+  var errEl = document.getElementById('salesLockError');
+  var descEl = document.getElementById('salesLockDesc');
+  if (!overlay || !input || !btn) return;
+
+  function formatTime(sec) {
+    var h = Math.floor(sec / 3600);
+    var m = Math.floor((sec % 3600) / 60);
+    if (h > 0) return h + ' 小時 ' + m + ' 分鐘';
+    return m + ' 分鐘';
+  }
+
+  function showLocked(remaining) {
+    input.style.display = 'none';
+    btn.style.display = 'none';
+    errEl.textContent = '';
+    descEl.textContent = '密碼輸入錯誤已過 3 次，請等待 ' + formatTime(remaining) + ' 後再試';
+    descEl.style.color = '#e05555';
+  }
+
+  function showUnlocked() {
+    overlay.classList.add('hidden');
+  }
+
+  function showNeedPassword(attemptsLeft) {
+    input.style.display = '';
+    btn.style.display = '';
+    btn.disabled = false;
+    descEl.textContent = '請輸入密碼以瀏覽銷售數據';
+    descEl.style.color = '';
+    if (attemptsLeft < 3 && attemptsLeft > 0) {
+      errEl.textContent = '還剩 ' + attemptsLeft + ' 次機會';
+    }
+  }
+
+  // Check status on load
+  fetch(API + '/api/sales-auth/status').then(function(r) { return r.json(); }).then(function(data) {
+    if (data.status === 'unlocked') showUnlocked();
+    else if (data.status === 'locked') showLocked(data.remaining_seconds);
+    else showNeedPassword(data.attempts_left);
+  }).catch(function() {
+    // If backend unreachable, show password form anyway (fallback)
+    showNeedPassword(3);
+  });
+
+  function doVerify() {
+    var pw = input.value.trim();
+    if (!pw) { input.focus(); return; }
+    btn.disabled = true;
+    errEl.textContent = '';
+
+    fetch(API + '/api/sales-auth/verify', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ password: pw })
+    }).then(function(r) { return r.json(); }).then(function(data) {
+      if (data.status === 'unlocked') {
+        showUnlocked();
+        // 解鎖後初始化圖表
+        requestAnimationFrame(function() {
+          setTimeout(function() { initRevenueHistoryChart(); }, 80);
+        });
+      } else if (data.status === 'locked') {
+        showLocked(data.remaining_seconds);
+      } else {
+        // wrong_password
+        input.value = '';
+        input.classList.add('shake');
+        setTimeout(function() { input.classList.remove('shake'); }, 400);
+        btn.disabled = false;
+        if (data.attempts_left > 0) {
+          errEl.textContent = '密碼錯誤，還剩 ' + data.attempts_left + ' 次機會';
+        } else {
+          errEl.textContent = '密碼錯誤';
+        }
+      }
+    }).catch(function() {
+      btn.disabled = false;
+      errEl.textContent = '驗證失敗，請稍後再試';
+    });
+  }
+
+  btn.addEventListener('click', doVerify);
+  input.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') doVerify();
+  });
+})();

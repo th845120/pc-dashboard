@@ -90,11 +90,6 @@
             <div class="kpi-sub">上架商品總數</div>
             <div class="kpi-delta neutral">── 首次記錄</div>
           </div>
-          <div class="kpi-card good">
-            <div class="kpi-label">取消率</div>
-            <div class="kpi-value">0%</div>
-            <div class="kpi-sub">API 即時數據<br>（截至 04/15）</div>
-          </div>
           <div class="kpi-card warn">
             <div class="kpi-label">回覆率</div>
             <div class="kpi-value">75%</div>
@@ -205,7 +200,7 @@
           </div>
           <div class="kpi-card">
             <div class="kpi-label">商家地址</div>
-            <div class="kpi-value" style="font-size:var(--text-base);">板橋區華江一路550號</div>
+            <div class="kpi-value" style="font-size:var(--text-base);white-space:nowrap;">板橋區華江一路550號</div>
             <div class="kpi-sub">新北市板橋區</div>
           </div>
         </div>
@@ -581,6 +576,21 @@
 
   <!-- ===== TAB: 銷售數據 ===== -->
   <div class="tab-panel" id="tab-sales">
+    <!-- 密碼鎖過濾層 -->
+    <div class="sales-lock-overlay" id="salesLockOverlay">
+      <div class="sales-lock-card">
+        <div class="sales-lock-icon">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/><circle cx="12" cy="16" r="1"/></svg>
+        </div>
+        <h2 class="sales-lock-title">銷售數據已加密</h2>
+        <p class="sales-lock-desc" id="salesLockDesc">請輸入密碼以瀏覽銷售數據</p>
+        <div class="sales-lock-input-wrap">
+          <input type="password" class="sales-lock-input" id="salesPasswordInput" placeholder="輸入密碼" autocomplete="off" />
+          <button class="sales-lock-btn" id="salesPasswordBtn">解鎖</button>
+        </div>
+        <div class="sales-lock-error" id="salesLockError"></div>
+      </div>
+    </div>
     <div class="page-subtitle">
       <h1>銷售數據</h1>
       <div class="accent-line"></div>
@@ -897,6 +907,84 @@
           <div class="info-note" style="margin-top:10px;">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
             顯示原始營業額（全部訂單維度），含不成立+退貨金額。淨營業額請參考核心指標區
+          </div>
+        </div>
+      </section>
+
+      <!-- ── 年度表現 ── -->
+      <section class="section">
+        <div class="section-header">
+          <h2 class="section-title">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20V10"/><path d="M18 20V4"/><path d="M6 20v-4"/></svg>
+            年度表現
+          </h2>
+          <span class="section-badge" style="background:rgba(196,181,220,0.15);color:#c4b5dc;">全年度統計</span>
+        </div>
+        <div class="data-table-wrap">
+          <table class="data-table" id="yearlyPerformanceTable">
+            <thead>
+              <tr>
+                <th>年度</th>
+                <th>營業額</th>
+                <th>訂單數</th>
+                <th>下單轉換率</th>
+                <th>平均訂單金額</th>
+                <th>不成立訂單</th>
+                <th>不成立訂單金額</th>
+                <th>退貨訂單</th>
+                <th>退貨率</th>
+              </tr>
+            </thead>
+            <tbody id="yearlyPerfBody">
+              <!-- 動態填入 -->
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ── 銷售行動建議 ── -->
+      <section class="section">
+        <div class="section-header">
+          <h2 class="section-title">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+            銷售行動建議
+          </h2>
+        </div>
+        <div class="action-list">
+          <div class="action-item high">
+            <div class="action-priority">優先</div>
+            <div class="action-content">
+              <div class="action-title">恢復粉絲增長動能，止血負成長</div>
+              <div class="action-desc">3 月粉絲流失 253 人，較上月 +4,712 人大幅衰退。建議檢視蝦皮廣告投放是否中斷或預算縮減，並搭配直播活動與社群互動（抽獎、限時優惠）重新拉回粉絲關注。歷史高峰曾達 +9,610 人（202505），目前原因需緊急排查</div>
+            </div>
+          </div>
+          <div class="action-item high">
+            <div class="action-priority">優先</div>
+            <div class="action-content">
+              <div class="action-title">拉高訂單轉換率，目前僅 0.44%</div>
+              <div class="action-desc">轉換率從上月 0.65% 下降至 0.44%，歷史高峰為 1.04%（202504）。建議優化商品詳情頁資訊豐富度、加強購買誘因（限時折扣、滾動滴砂），並針對高跳出率的電腦版（73.80%）優化頁面體驗與視覺引導</div>
+            </div>
+          </div>
+          <div class="action-item mid">
+            <div class="action-priority">中等</div>
+            <div class="action-content">
+              <div class="action-title">降低不成立訂單比例</div>
+              <div class="action-desc">3 月不成立 40 筆（NT$120,747）+ 退貨 5 筆（NT$67,674），合計 NT$188,421 損失，佔總營業額 19.4%。年度趨勢也顯示 2025 年不成立單量較 2024 年增加 34%。建議分析不成立主因（未付款、取消、地址問題），針對性改善付款提醒與訂單確認流程</div>
+            </div>
+          </div>
+          <div class="action-item mid">
+            <div class="action-priority">中等</div>
+            <div class="action-content">
+              <div class="action-title">提升新客獲取與回購穩定性</div>
+              <div class="action-desc">新客 87 人較上月 98 人下降 11%，複購率 29.53% 也從上月 34.07% 回落。可探索首購優惠券吸引新客，同時運用會員專屬折扣、回購提醒、新品優先通知等手段穩住熟客回購。歷史複購高峰達 34.07%（202602），證明客群有回購潛力</div>
+            </div>
+          </div>
+          <div class="action-item low">
+            <div class="action-priority">持續</div>
+            <div class="action-content">
+              <div class="action-title">維持營業額成長動能</div>
+              <div class="action-desc">2026 Q1 營業額 NT$3,315,914，同比 2025 Q1 成長 15.43%，年度營業額從 2024 年 NT$22.9M 成長至 2025 年 NT$30.9M（+35.1%）。但平均客單價從 NT$4,516 降至 NT$2,721（-39.7%），營收成長主要靠訂單量放大。建議在維持單量的同時，透過組合優惠、高單價商品推薦拉回客單價</div>
+            </div>
           </div>
         </div>
       </section>

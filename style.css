@@ -1220,3 +1220,95 @@ button { cursor: pointer; background: none; border: none; font: inherit; color: 
     gap: 8px;
   }
 }
+
+/* ===== SALES PASSWORD LOCK ===== */
+.sales-lock-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-bg);
+  backdrop-filter: blur(20px);
+  min-height: 60vh;
+}
+.sales-lock-overlay.hidden { display: none; }
+.sales-lock-card {
+  text-align: center;
+  max-width: 380px;
+  width: 100%;
+  padding: var(--space-8);
+}
+.sales-lock-icon {
+  color: var(--color-primary);
+  margin-bottom: var(--space-4);
+  opacity: 0.7;
+}
+.sales-lock-title {
+  font-family: var(--font-display);
+  font-size: var(--text-lg);
+  font-weight: 600;
+  color: var(--color-text);
+  margin-bottom: var(--space-2);
+  letter-spacing: 0.04em;
+}
+.sales-lock-desc {
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+  margin-bottom: var(--space-6);
+}
+.sales-lock-input-wrap {
+  display: flex;
+  gap: var(--space-2);
+  margin-bottom: var(--space-3);
+}
+.sales-lock-input {
+  flex: 1;
+  padding: 10px 14px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+  background: var(--color-surface-2);
+  color: var(--color-text);
+  font-size: var(--text-sm);
+  font-family: var(--font-body);
+  outline: none;
+  transition: border-color 0.2s;
+}
+.sales-lock-input:focus {
+  border-color: var(--color-primary);
+}
+.sales-lock-input.shake {
+  animation: shakeInput 0.4s ease;
+}
+@keyframes shakeInput {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-6px); }
+  40%, 80% { transform: translateX(6px); }
+}
+.sales-lock-btn {
+  padding: 10px 20px;
+  border-radius: var(--radius-md);
+  border: none;
+  background: var(--color-primary);
+  color: var(--color-bg);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  font-family: var(--font-body);
+  cursor: pointer;
+  transition: opacity 0.2s;
+  white-space: nowrap;
+}
+.sales-lock-btn:hover { opacity: 0.85; }
+.sales-lock-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+.sales-lock-error {
+  font-size: var(--text-xs);
+  color: #e05555;
+  min-height: 1.4em;
+}
+#tab-sales {
+  position: relative;
+}
