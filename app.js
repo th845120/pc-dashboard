@@ -32,7 +32,7 @@ if (donutCtx) {
       labels: ['好評 (4-5★)', '普通 (3★)', '差評 (1-2★)'],
       datasets: [{
         data: [16510, 33, 8],
-        backgroundColor: ['#4ade80', '#fbbf24', '#f87171'],
+        backgroundColor: ['#3dbf7a', '#e8a825', '#e05555'],
         borderColor: 'transparent',
         borderWidth: 0,
         hoverOffset: 6,
@@ -75,8 +75,8 @@ if (barCtx) {
       datasets: [{
         label: '評價數量',
         data: [16510, 33, 8],
-        backgroundColor: ['rgba(74,222,128,0.8)', 'rgba(251,191,36,0.8)', 'rgba(248,113,113,0.8)'],
-        borderColor: ['#4ade80', '#fbbf24', '#f87171'],
+        backgroundColor: ['rgba(61,191,122,0.75)', 'rgba(232,168,37,0.75)', 'rgba(224,85,85,0.75)'],
+        borderColor: ['#3dbf7a', '#e8a825', '#e05555'],
         borderWidth: 2,
         borderRadius: 8,
         borderSkipped: false,

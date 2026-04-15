@@ -18,13 +18,13 @@
   --color-text-muted: #b0a6c0;
   --color-text-faint: #7d7294;
 
-  /* Semantic — vivid for dark bg */
-  --color-good: #22c55e;
-  --color-good-bg: rgba(34,197,94,0.15);
-  --color-warn: #f59e0b;
-  --color-warn-bg: rgba(245,158,11,0.15);
-  --color-bad: #ef4444;
-  --color-bad-bg: rgba(239,68,68,0.15);
+  /* Semantic — stock-app tone (teal green / muted red) */
+  --color-good: #3dbf7a;
+  --color-good-bg: rgba(61,191,122,0.13);
+  --color-warn: #e8a825;
+  --color-warn-bg: rgba(232,168,37,0.13);
+  --color-bad: #e05555;
+  --color-bad-bg: rgba(224,85,85,0.13);
 
   /* Luxury gold accent */
   --color-gold: #d4b65c;
