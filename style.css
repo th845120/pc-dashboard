@@ -225,6 +225,51 @@ button { cursor: pointer; background: none; border: none; font: inherit; color: 
   color: var(--color-text);
 }
 
+/* ===== TAB NAV — Apple pill style ===== */
+.tab-nav {
+  display: flex;
+  justify-content: center;
+  padding: var(--space-3) var(--space-6) 0;
+  gap: var(--space-1);
+  border-top: 1px solid rgba(255,255,255,0.06);
+  background: var(--color-surface);
+}
+.tab-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-5);
+  border-radius: var(--radius-full);
+  font-size: var(--text-sm);
+  font-weight: 500;
+  color: var(--color-text-muted);
+  letter-spacing: 0.03em;
+  transition: background var(--transition), color var(--transition);
+  position: relative;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  white-space: nowrap;
+}
+.tab-btn svg {
+  opacity: 0.6;
+  transition: opacity var(--transition);
+}
+.tab-btn:hover {
+  color: var(--color-text);
+  background: rgba(255,255,255,0.05);
+}
+.tab-btn:hover svg { opacity: 1; }
+.tab-btn.active {
+  color: var(--color-primary);
+  background: var(--color-primary-highlight);
+  font-weight: 600;
+}
+.tab-btn.active svg { opacity: 1; color: var(--color-primary); }
+
+/* Tab panels */
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+
 /* ===== HERO SUBTITLE ===== */
 .page-subtitle {
   max-width: 1120px;
