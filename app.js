@@ -33,7 +33,7 @@ if (donutCtx) {
       labels: ['好評 (4-5★)', '普通 (3★)', '差評 (1-2★)'],
       datasets: [{
         data: [16510, 33, 8],
-        backgroundColor: ['#4ade80', '#fbbf24', '#f87171'],
+        backgroundColor: ['#2d6a4f', '#b8952e', '#a62626'],
         borderColor: 'transparent',
         borderWidth: 0,
         hoverOffset: 6,
@@ -76,8 +76,8 @@ if (barCtx) {
       datasets: [{
         label: '評價數量',
         data: [16510, 33, 8],
-        backgroundColor: ['#4ade80cc', '#fbbf24cc', '#f87171cc'],
-        borderColor: ['#4ade80', '#fbbf24', '#f87171'],
+        backgroundColor: ['rgba(45,106,79,0.75)', 'rgba(184,149,46,0.75)', 'rgba(166,38,38,0.75)'],
+        borderColor: ['#2d6a4f', '#b8952e', '#a62626'],
         borderWidth: 2,
         borderRadius: 8,
         borderSkipped: false,
@@ -127,7 +127,7 @@ if (barCtx) {
 }
 
 // ===== COUNTER ANIMATION =====
-function animateCounter(el, target, duration = 1200) {
+function animateCounter(el, target, duration = 1200, suffix = '') {
   const start = performance.now();
   const isFloat = String(target).includes('.');
   const decimals = isFloat ? String(target).split('.')[1].length : 0;
@@ -137,9 +137,9 @@ function animateCounter(el, target, duration = 1200) {
     const progress = Math.min(elapsed / duration, 1);
     const ease = 1 - Math.pow(1 - progress, 4);
     const current = target * ease;
-    el.textContent = isFloat
+    el.textContent = (isFloat
       ? current.toFixed(decimals)
-      : Math.round(current).toLocaleString();
+      : Math.round(current).toLocaleString()) + suffix;
     if (progress < 1) requestAnimationFrame(update);
   }
   requestAnimationFrame(update);
@@ -148,22 +148,31 @@ function animateCounter(el, target, duration = 1200) {
 // Trigger counters on load
 const kpiValues = document.querySelectorAll('.kpi-value');
 const kpiData = [
+  // 蝦皮 (0-5)
   { el: kpiValues[0], val: 4.99, float: true },
-  { el: kpiValues[1], val: 99.75, float: true },
+  { el: kpiValues[1], val: 99.75, float: true, suffix: '%' },
   { el: kpiValues[2], val: 141988 },
   { el: kpiValues[3], val: 366 },
-  { el: kpiValues[4], val: 0 },
-  { el: kpiValues[5], val: 75 },
+  { el: kpiValues[4], val: 0, suffix: '%' },
+  { el: kpiValues[5], val: 75, suffix: '%' },
+  // Meta (6-8)
   { el: kpiValues[6], val: 16366 },
-  { el: kpiValues[7], val: 100 },
+  { el: kpiValues[7], val: 100, suffix: '%' },
   { el: kpiValues[8], val: 275 },
+  // Instagram (9-11)
+  { el: kpiValues[9], val: 4173 },
+  { el: kpiValues[10], val: 200 },
+  { el: kpiValues[11], val: 158 },
+  // Google Business Profile (12-13) — 14 is address, skip animation
+  { el: kpiValues[12], val: 5.0, float: true },
+  { el: kpiValues[13], val: 55 },
 ];
 
 const observer = new IntersectionObserver((entries) => {
   entries.forEach(entry => {
     if (entry.isIntersecting) {
-      kpiData.forEach(({ el, val, float }) => {
-        if (el) animateCounter(el, val, 1000);
+      kpiData.forEach(({ el, val, float, suffix }) => {
+        if (el) animateCounter(el, val, 1000, suffix || '');
       });
       observer.disconnect();
     }
