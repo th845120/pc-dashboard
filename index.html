@@ -734,15 +734,11 @@
           </div>
         </div>
 
-        <!-- 平均客單價 -->
-        <div class="charts-row" style="margin-top:16px;">
-          <div class="chart-card" style="flex:2;">
+        <!-- 平均客單價（全寬） -->
+        <div style="margin-top:16px;">
+          <div class="chart-card">
             <h3 class="chart-title">平均客單價趨勢 (NT$)</h3>
             <div class="chart-wrap" style="height:200px;"><canvas id="salesAovChart"></canvas></div>
-          </div>
-          <div class="chart-card" style="flex:1;">
-            <h3 class="chart-title">跳出率對比（202603）</h3>
-            <div class="chart-wrap" style="height:200px;"><canvas id="salesBounceChart"></canvas></div>
           </div>
         </div>
       </section>
@@ -853,16 +849,6 @@
               <span>2026</span>
             </label>
           </div>
-          <div style="display:flex;align-items:center;gap:8px;">
-            <label style="font-size:var(--text-xs);color:var(--color-text-muted);white-space:nowrap;">同比基準季</label>
-            <select class="quarter-select" id="yoyQuarterSelect">
-              <option value="">—選擇季度—</option>
-              <option value="Q1">Q1 (Jan–Mar)</option>
-              <option value="Q2">Q2 (Apr–Jun)</option>
-              <option value="Q3">Q3 (Jul–Sep)</option>
-              <option value="Q4">Q4 (Oct–Dec)</option>
-            </select>
-          </div>
         </div>
 
         <!-- 走勢圖 -->
@@ -872,9 +858,21 @@
         </div>
 
         <!-- 同比分析面板 -->
-        <div class="yoy-panel" id="yoyPanel" style="display:none;">
-          <div class="chart-title" style="margin-bottom:10px;">同比分析</div>
-          <div id="yoyContent"></div>
+        <div class="yoy-panel" id="yoyPanel">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+            <div class="chart-title">同比分析</div>
+            <div style="display:flex;align-items:center;gap:8px;">
+              <label style="font-size:var(--text-xs);color:var(--color-text-muted);white-space:nowrap;">同比基準季</label>
+              <select class="quarter-select" id="yoyQuarterSelect">
+                <option value="">—選擇季度—</option>
+                <option value="Q1">Q1 (Jan–Mar)</option>
+                <option value="Q2">Q2 (Apr–Jun)</option>
+                <option value="Q3">Q3 (Jul–Sep)</option>
+                <option value="Q4">Q4 (Oct–Dec)</option>
+              </select>
+            </div>
+          </div>
+          <div id="yoyContent" style="display:none;"></div>
         </div>
 
         <!-- 數據表格 -->

@@ -383,29 +383,6 @@ function renderSalesCharts(months) {
     }
   });
 
-  // ── 跳出率 donut（固定，不隨月份變）──
-  upsertChart('salesBounceChart', {
-    type: 'doughnut',
-    data: {
-      labels: ['手機 26.92%', '電腦 73.80%'],
-      datasets: [{
-        data: [26.92, 73.80],
-        backgroundColor: ['#3dbf7a', '#e05555'],
-        borderColor: 'transparent',
-        borderWidth: 0,
-        hoverOffset: 6,
-      }]
-    },
-    options: {
-      responsive: true, maintainAspectRatio: false,
-      cutout: '68%',
-      plugins: {
-        legend: { display: true, position: 'bottom', labels: { color: '#b0a6c0', font: { family: "'Noto Sans TC', sans-serif", size: 12 }, padding: 12 } },
-        tooltip: { ...sharedTooltip, callbacks: { label: ctx => ` ${ctx.label}` } }
-      },
-      animation: { duration: 600, easing: 'easeInOutQuart' }
-    }
-  });
 }
 
 // ── 完整資料陣列（給表格用）──
@@ -1172,11 +1149,11 @@ function updateYoyPanel(quarter) {
   if (!panel || !content) return;
 
   if (!quarter) {
-    panel.style.display = 'none';
+    content.style.display = 'none';
     return;
   }
 
-  panel.style.display = 'block';
+  content.style.display = 'block';
 
   var years = [2024, 2025, 2026];
   var html = '<div style="font-size:var(--text-sm);font-weight:600;color:var(--color-text);margin-bottom:10px;">' + quarter + ' 同比分析</div>';
