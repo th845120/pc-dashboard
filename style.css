@@ -212,7 +212,6 @@ button { cursor: pointer; background: none; border: none; font: inherit; color: 
   object-fit: contain;
   flex-shrink: 1;
   min-width: 0;
-  mix-blend-mode: screen;
 }
 .header-right {
   display: flex;
