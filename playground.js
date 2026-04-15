@@ -24,12 +24,12 @@
   // ===== 1. ANIMATED COUNTERS =====
   function initCounters() {
     var counters = [
-      { label: '累計營業額', value: 30933808, prefix: 'NT$', suffix: '', color: 'var(--color-primary)' },
-      { label: '累計訂單數', value: 11366, prefix: '', suffix: ' 筆', color: '#3dbf7a' },
+      { label: '累計營業額', value: 61181971, prefix: 'NT$', suffix: '', color: 'var(--color-primary)' },
+      { label: '累計訂單數', value: 26269, prefix: '', suffix: ' 筆', color: '#3dbf7a' },
       { label: '平均好評率', value: 98.55, prefix: '', suffix: '%', color: '#e8a825' },
       { label: 'Google 評分', value: 5.0, prefix: '', suffix: ' / 5', color: '#3dbf7a' },
       { label: '商品數', value: 362, prefix: '', suffix: ' 件', color: 'var(--color-primary)' },
-      { label: '粉絲總數', value: 140273, prefix: '', suffix: ' 人', color: '#e8a825' },
+      { label: '粉絲總數', value: 162573, prefix: '', suffix: ' 人', color: '#e8a825' },
     ];
 
     var grid = document.getElementById('pgCounterGrid');
