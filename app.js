@@ -484,6 +484,72 @@ function renderTable(from, to) {
   tbody.innerHTML = html;
 }
 
+// ── 可用月份清單（從 ALL_MONTHS 自動產生）──
+const AVAILABLE_MONTHS_MAP = {}; // { "2024": ["12"], "2025": ["01",..,"12"], "2026": ["01","02","03"] }
+ALL_MONTHS.forEach(function(m) {
+  var y = m.slice(0, 4);
+  var mo = m.slice(4);
+  if (!AVAILABLE_MONTHS_MAP[y]) AVAILABLE_MONTHS_MAP[y] = [];
+  AVAILABLE_MONTHS_MAP[y].push(mo);
+});
+
+// 建立級聯選單：先顯示年份選項，選完年後才顯示月份
+function buildCascadeSelect(selectEl, onComplete) {
+  // Step 1: 填入年份
+  function buildYears() {
+    selectEl.innerHTML = '<option value="">選擇年份</option>';
+    Object.keys(AVAILABLE_MONTHS_MAP).sort().forEach(function(y) {
+      var opt = document.createElement('option');
+      opt.value = 'year_' + y;
+      opt.textContent = y + ' 年';
+      selectEl.appendChild(opt);
+    });
+    selectEl._step = 'year';
+  }
+
+  // Step 2: 填入該年的月份
+  function buildMonths(year) {
+    selectEl.innerHTML = '<option value="">選擇月份</option>';
+    // 加「← 返回年份」
+    var back = document.createElement('option');
+    back.value = '__back__';
+    back.textContent = '← 返回年份';
+    selectEl.appendChild(back);
+    var months = AVAILABLE_MONTHS_MAP[year] || [];
+    months.forEach(function(mo) {
+      var opt = document.createElement('option');
+      opt.value = year + mo;  // e.g. "202412"
+      var moNum = parseInt(mo);
+      opt.textContent = year + ' 年 ' + moNum + ' 月';
+      selectEl.appendChild(opt);
+    });
+    selectEl._step = 'month';
+    selectEl._year = year;
+  }
+
+  buildYears();
+
+  selectEl.addEventListener('change', function() {
+    var val = selectEl.value;
+    if (!val) return;
+    if (val === '__back__') {
+      buildYears();
+      selectEl.value = '';
+      return;
+    }
+    if (val.startsWith('year_')) {
+      var year = val.replace('year_', '');
+      buildMonths(year);
+      selectEl.value = '';
+      return;
+    }
+    // 選到完整 yyyymm
+    if (onComplete) onComplete(parseInt(val));
+  });
+
+  buildYears();
+}
+
 function initSalesCharts() {
   if (salesChartsInitialized) return;
   salesChartsInitialized = true;
@@ -492,24 +558,35 @@ function initSalesCharts() {
   renderSalesCharts(ALL_MONTHS.length);
   renderTable(0, 999999);
 
-  // 圖表套用按鈕
-  document.getElementById('chartRangeApply')?.addEventListener('click', () => {
-    const { from, to } = readRange('chartYearFrom','chartMonthFrom','chartYearTo','chartMonthTo');
-    const filtered = ALL_MONTHS.reduce((acc, m, i) => {
-      const n = toNum(m);
-      if (n >= from && n <= to) { acc.labels.push(m); acc.indices.push(i); }
-      return acc;
-    }, { labels: [], indices: [] });
-    // re-render with filtered subset
-    const count = filtered.indices.length || ALL_MONTHS.length;
-    // Use index filtering approach
-    renderSalesChartsFiltered(filtered.indices);
+  // 建立級聯選單
+  var chartFromSel = document.getElementById('chartFrom');
+  var chartToSel   = document.getElementById('chartTo');
+  var tableFromSel = document.getElementById('tableFrom');
+  var tableToSel   = document.getElementById('tableTo');
+
+  var chartRange = { from: 0, to: 999999 };
+  var tableRange = { from: 0, to: 999999 };
+
+  if (chartFromSel) buildCascadeSelect(chartFromSel, function(v) { chartRange.from = v; });
+  if (chartToSel)   buildCascadeSelect(chartToSel,   function(v) { chartRange.to   = v; });
+  if (tableFromSel) buildCascadeSelect(tableFromSel, function(v) { tableRange.from = v; });
+  if (tableToSel)   buildCascadeSelect(tableToSel,   function(v) { tableRange.to   = v; });
+
+  // 套用按鈕
+  document.getElementById('chartRangeApply')?.addEventListener('click', function() {
+    var from = chartRange.from || 0;
+    var to   = chartRange.to   || 999999;
+    var indices = [];
+    ALL_MONTHS.forEach(function(m, i) {
+      var n = parseInt(m);
+      if (n >= from && n <= to) indices.push(i);
+    });
+    if (indices.length === 0) indices = ALL_MONTHS.map(function(_, i) { return i; });
+    renderSalesChartsFiltered(indices);
   });
 
-  // 表格套用按鈕
-  document.getElementById('tableRangeApply')?.addEventListener('click', () => {
-    const { from, to } = readRange('tableYearFrom','tableMonthFrom','tableYearTo','tableMonthTo');
-    renderTable(from, to);
+  document.getElementById('tableRangeApply')?.addEventListener('click', function() {
+    renderTable(tableRange.from || 0, tableRange.to || 999999);
   });
 }
 
