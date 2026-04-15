@@ -532,14 +532,30 @@
             歷史趨勢
           </h2>
           <div class="month-range-control">
-            <select id="chartFrom" class="month-select cascade-select" data-cascade="chart-from">
-              <option value="">起始月份</option>
-            </select>
-            <span class="range-sep">→</span>
-            <select id="chartTo" class="month-select cascade-select" data-cascade="chart-to">
-              <option value="">結束月份</option>
-            </select>
-            <button id="chartRangeApply" class="range-btn">套用</button>
+            <button class="range-trigger-btn" id="chartPickerTrigger">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+              <span id="chartPickerLabel">全部期間</span>
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+            </button>
+          </div>
+
+          <!-- Chart Picker Popover -->
+          <div class="ym-popover" id="chartPickerPopover">
+            <div class="ym-popover-inner">
+              <div class="ym-shortcuts">
+                <button class="ym-shortcut active" data-preset="all">全部</button>
+                <button class="ym-shortcut" data-preset="6m">近 6 個月</button>
+                <button class="ym-shortcut" data-preset="12m">近 12 個月</button>
+                <button class="ym-shortcut" data-preset="custom">自訂</button>
+              </div>
+              <div class="ym-picker-area" id="chartPickerArea">
+                <!-- 動態填入 -->
+              </div>
+            </div>
+            <div class="ym-popover-footer">
+              <span class="ym-selected-label" id="chartSelectedLabel">已選：全部</span>
+              <button class="range-btn" id="chartRangeApply">套用</button>
+            </div>
           </div>
         </div>
 
@@ -588,14 +604,30 @@
             月份對比明細
           </h2>
           <div class="month-range-control">
-            <select id="tableFrom" class="month-select cascade-select" data-cascade="table-from">
-              <option value="">起始月份</option>
-            </select>
-            <span class="range-sep">→</span>
-            <select id="tableTo" class="month-select cascade-select" data-cascade="table-to">
-              <option value="">結束月份</option>
-            </select>
-            <button id="tableRangeApply" class="range-btn">套用</button>
+            <button class="range-trigger-btn" id="tablePickerTrigger">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+              <span id="tablePickerLabel">全部期間</span>
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+            </button>
+          </div>
+
+          <!-- Table Picker Popover -->
+          <div class="ym-popover" id="tablePickerPopover">
+            <div class="ym-popover-inner">
+              <div class="ym-shortcuts">
+                <button class="ym-shortcut active" data-preset="all">全部</button>
+                <button class="ym-shortcut" data-preset="6m">近 6 個月</button>
+                <button class="ym-shortcut" data-preset="12m">近 12 個月</button>
+                <button class="ym-shortcut" data-preset="custom">自訂</button>
+              </div>
+              <div class="ym-picker-area" id="tablePickerArea">
+                <!-- 動態填入 -->
+              </div>
+            </div>
+            <div class="ym-popover-footer">
+              <span class="ym-selected-label" id="tableSelectedLabel">已選：全部</span>
+              <button class="range-btn" id="tableRangeApply">套用</button>
+            </div>
           </div>
         </div>
         <div class="data-table-wrap">

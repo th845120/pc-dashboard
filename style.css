@@ -887,3 +887,171 @@ button { cursor: pointer; background: none; border: none; font: inherit; color: 
   .month-range-control { flex-wrap: wrap; gap: 6px; }
   .range-sep { display: none; }
 }
+
+/* ===== Year-Month Range Picker Popover ===== */
+.range-trigger-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--color-surface-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  color: var(--color-text);
+  font-size: var(--text-sm);
+  font-family: var(--font-body);
+  padding: 5px 12px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: border-color var(--transition), background var(--transition);
+}
+.range-trigger-btn:hover {
+  border-color: var(--color-primary);
+  background: var(--color-primary-highlight);
+}
+.range-trigger-btn svg { opacity: 0.7; flex-shrink: 0; }
+
+/* Popover container — positioned relative to section-header */
+.section-header { position: relative; }
+
+.ym-popover {
+  display: none;
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  z-index: 200;
+  width: 340px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  overflow: hidden;
+  animation: popoverIn 180ms cubic-bezier(0.22,1,0.36,1);
+}
+.ym-popover.open { display: flex; flex-direction: column; }
+
+@keyframes popoverIn {
+  from { opacity: 0; transform: translateY(-6px) scale(0.97); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.ym-popover-inner { display: flex; gap: 0; }
+
+/* 左側快捷選項 */
+.ym-shortcuts {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 12px 8px;
+  border-right: 1px solid var(--color-divider);
+  min-width: 90px;
+}
+.ym-shortcut {
+  background: none;
+  border: none;
+  border-radius: var(--radius-sm);
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+  font-family: var(--font-body);
+  padding: 7px 10px;
+  text-align: left;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background var(--transition), color var(--transition);
+  word-break: keep-all;
+}
+.ym-shortcut:hover { background: var(--color-primary-highlight); color: var(--color-primary); }
+.ym-shortcut.active { background: var(--color-primary-highlight); color: var(--color-primary); font-weight: 600; }
+
+/* 右側 Picker 區域 */
+.ym-picker-area {
+  flex: 1;
+  padding: 14px 12px;
+  min-height: 160px;
+}
+.ym-picker-title {
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+  margin-bottom: 10px;
+}
+/* 年份格子 */
+.ym-year-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+}
+.ym-cell {
+  background: var(--color-surface-2);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  color: var(--color-text);
+  font-size: var(--text-sm);
+  font-family: var(--font-body);
+  padding: 8px 4px;
+  text-align: center;
+  cursor: pointer;
+  transition: background var(--transition), border-color var(--transition), color var(--transition);
+  word-break: keep-all;
+}
+.ym-cell:hover { background: var(--color-primary-highlight); border-color: var(--color-primary); color: var(--color-primary); }
+.ym-cell.selected { background: var(--color-primary); border-color: var(--color-primary); color: var(--color-bg); font-weight: 700; }
+.ym-cell.in-range { background: var(--color-primary-highlight); border-color: transparent; }
+.ym-cell.disabled { opacity: 0.3; cursor: default; pointer-events: none; }
+
+/* 月份格子 */
+.ym-month-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 5px;
+}
+
+/* 返回按鈕 */
+.ym-back-btn {
+  background: none;
+  border: none;
+  color: var(--color-primary);
+  font-size: var(--text-sm);
+  font-family: var(--font-body);
+  cursor: pointer;
+  padding: 0;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  word-break: keep-all;
+}
+.ym-back-btn:hover { opacity: 0.7; }
+.ym-back-label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-text);
+  margin-bottom: 10px;
+}
+.ym-step-label {
+  font-size: 0.7rem;
+  color: var(--color-text-faint);
+  margin-bottom: 10px;
+  display: flex;
+  gap: 4px;
+  align-items: center;
+  word-break: keep-all;
+}
+.ym-step-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--color-border); display: inline-block; }
+.ym-step-dot.active { background: var(--color-primary); }
+
+/* Footer */
+.ym-popover-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  border-top: 1px solid var(--color-divider);
+  background: var(--color-surface-2);
+}
+.ym-selected-label {
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+  word-break: keep-all;
+}

@@ -484,70 +484,225 @@ function renderTable(from, to) {
   tbody.innerHTML = html;
 }
 
-// ── 可用月份清單（從 ALL_MONTHS 自動產生）──
-const AVAILABLE_MONTHS_MAP = {}; // { "2024": ["12"], "2025": ["01",..,"12"], "2026": ["01","02","03"] }
+// ===== Year-Month Range Picker =====
+
+// 從 ALL_MONTHS 自動產生可用年月資料
+var AVAIL_MAP = {}; // { '2024': ['12'], '2025': ['01',...,'12'], '2026': ['01','02','03'] }
 ALL_MONTHS.forEach(function(m) {
-  var y = m.slice(0, 4);
-  var mo = m.slice(4);
-  if (!AVAILABLE_MONTHS_MAP[y]) AVAILABLE_MONTHS_MAP[y] = [];
-  AVAILABLE_MONTHS_MAP[y].push(mo);
+  var y = m.slice(0,4), mo = m.slice(4);
+  if (!AVAIL_MAP[y]) AVAIL_MAP[y] = [];
+  AVAIL_MAP[y].push(mo);
 });
+var AVAIL_YEARS = Object.keys(AVAIL_MAP).sort();
 
-// 建立級聯選單：先顯示年份選項，選完年後才顯示月份
-function buildCascadeSelect(selectEl, onComplete) {
-  // Step 1: 填入年份
-  function buildYears() {
-    selectEl.innerHTML = '<option value="">選擇年份</option>';
-    Object.keys(AVAILABLE_MONTHS_MAP).sort().forEach(function(y) {
-      var opt = document.createElement('option');
-      opt.value = 'year_' + y;
-      opt.textContent = y + ' 年';
-      selectEl.appendChild(opt);
-    });
-    selectEl._step = 'year';
-  }
+function yyyymm(y, m) { return parseInt(y + String(m).padStart(2,'0')); }
+function fmtLabel(v) {
+  if (!v) return '—';
+  var s = String(v);
+  return s.slice(0,4) + '/' + parseInt(s.slice(4)) + '月';
+}
 
-  // Step 2: 填入該年的月份
-  function buildMonths(year) {
-    selectEl.innerHTML = '<option value="">選擇月份</option>';
-    // 加「← 返回年份」
-    var back = document.createElement('option');
-    back.value = '__back__';
-    back.textContent = '← 返回年份';
-    selectEl.appendChild(back);
-    var months = AVAILABLE_MONTHS_MAP[year] || [];
-    months.forEach(function(mo) {
-      var opt = document.createElement('option');
-      opt.value = year + mo;  // e.g. "202412"
-      var moNum = parseInt(mo);
-      opt.textContent = year + ' 年 ' + moNum + ' 月';
-      selectEl.appendChild(opt);
-    });
-    selectEl._step = 'month';
-    selectEl._year = year;
-  }
+// 建立 Picker 實例
+function createPicker(opts) {
+  // opts: { triggerId, popoverId, areaId, labelId, selectedLabelId, shortcutPrefix, onApply }
+  var trigger       = document.getElementById(opts.triggerId);
+  var popover       = document.getElementById(opts.popoverId);
+  var area          = document.getElementById(opts.areaId);
+  var triggerLabel  = document.getElementById(opts.labelId);
+  var selectedLabel = document.getElementById(opts.selectedLabelId);
+  if (!trigger || !popover || !area) return;
 
-  buildYears();
+  var state = { from: 0, to: 999999, pendingFrom: null, pendingTo: null, step: 'from-year' };
+  // step: 'from-year' | 'from-month' | 'to-year' | 'to-month'
 
-  selectEl.addEventListener('change', function() {
-    var val = selectEl.value;
-    if (!val) return;
-    if (val === '__back__') {
-      buildYears();
-      selectEl.value = '';
-      return;
-    }
-    if (val.startsWith('year_')) {
-      var year = val.replace('year_', '');
-      buildMonths(year);
-      selectEl.value = '';
-      return;
-    }
-    // 選到完整 yyyymm
-    if (onComplete) onComplete(parseInt(val));
+  function close() { popover.classList.remove('open'); }
+  function open()  { popover.classList.add('open'); renderArea(); }
+
+  trigger.addEventListener('click', function(e) {
+    e.stopPropagation();
+    var isOpen = popover.classList.contains('open');
+    // Close all other popovers first
+    document.querySelectorAll('.ym-popover.open').forEach(function(p) { p.classList.remove('open'); });
+    if (!isOpen) open();
   });
 
-  buildYears();
+  // Close on outside click
+  document.addEventListener('click', function(e) {
+    if (!popover.contains(e.target) && e.target !== trigger) close();
+  });
+
+  // Shortcuts
+  popover.querySelectorAll('.ym-shortcut').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      popover.querySelectorAll('.ym-shortcut').forEach(function(b) { b.classList.remove('active'); });
+      btn.classList.add('active');
+      var preset = btn.dataset.preset;
+      if (preset === 'all') {
+        state.from = 0; state.to = 999999;
+        updateLabels('全部');
+      } else if (preset === '6m') {
+        var idx6 = Math.max(0, ALL_MONTHS.length - 6);
+        state.from = parseInt(ALL_MONTHS[idx6]); state.to = 999999;
+        updateLabels('近 6 個月');
+      } else if (preset === '12m') {
+        var idx12 = Math.max(0, ALL_MONTHS.length - 12);
+        state.from = parseInt(ALL_MONTHS[idx12]); state.to = 999999;
+        updateLabels('近 12 個月');
+      } else if (preset === 'custom') {
+        state.step = 'from-year';
+        state.pendingFrom = null; state.pendingTo = null;
+        renderArea();
+        return;
+      }
+      renderArea();
+    });
+  });
+
+  function updateLabels(text) {
+    if (triggerLabel)  triggerLabel.textContent  = text;
+    if (selectedLabel) selectedLabel.textContent = '已選：' + text;
+  }
+
+  function renderArea() {
+    var custom = popover.querySelector('[data-preset="custom"]');
+    var isCustom = custom && custom.classList.contains('active');
+    // Determine if we're in custom mode
+    var inCustom = state.step !== 'done' && (state.pendingFrom !== null || ['from-year','from-month','to-year','to-month'].indexOf(state.step) > -1);
+    // Always show year/month picker for custom
+    var customShortcut = popover.querySelector('.ym-shortcut[data-preset="custom"]');
+    if (!customShortcut || !customShortcut.classList.contains('active')) {
+      // Not custom mode — just show summary
+      area.innerHTML = '<div class="ym-picker-title">已套用篩選</div>' +
+        '<div style="color:var(--color-text-muted);font-size:var(--text-sm);margin-top:8px;word-break:keep-all;">' +
+        (state.from ? fmtLabel(state.from) : '最早') + ' → ' +
+        (state.to < 999999 ? fmtLabel(state.to) : '最新') + '</div>';
+      return;
+    }
+    // Custom mode — show step
+    renderStep();
+  }
+
+  function renderStep() {
+    area.innerHTML = '';
+
+    // Step indicator
+    var steps = document.createElement('div');
+    steps.className = 'ym-step-label';
+    var labels = ['起始年','起始月','結束年','結束月'];
+    var stepIdx = ['from-year','from-month','to-year','to-month'].indexOf(state.step);
+    labels.forEach(function(l, i) {
+      var dot = document.createElement('span');
+      dot.className = 'ym-step-dot' + (i <= stepIdx ? ' active' : '');
+      steps.appendChild(dot);
+      var txt = document.createTextNode(' ' + l + ' ');
+      steps.appendChild(txt);
+    });
+    area.appendChild(steps);
+
+    if (state.step === 'from-year' || state.step === 'to-year') {
+      var isFrom = state.step === 'from-year';
+      var title = document.createElement('div');
+      title.className = 'ym-picker-title';
+      title.textContent = isFrom ? '選擇起始年份' : '選擇結束年份';
+      area.appendChild(title);
+
+      // Back button for to-year
+      if (!isFrom) {
+        var back = document.createElement('button');
+        back.className = 'ym-back-btn';
+        back.innerHTML = '← 重選起始';
+        back.addEventListener('click', function() { state.step = 'from-year'; renderStep(); });
+        area.appendChild(back);
+      }
+
+      var grid = document.createElement('div');
+      grid.className = 'ym-year-grid';
+      AVAIL_YEARS.forEach(function(y) {
+        var cell = document.createElement('button');
+        cell.className = 'ym-cell';
+        cell.textContent = y + ' 年';
+        var fromY = state.pendingFrom ? String(state.pendingFrom).slice(0,4) : null;
+        if (isFrom && fromY === y) cell.classList.add('selected');
+        cell.addEventListener('click', function() {
+          if (isFrom) {
+            state._fromYear = y;
+            state.step = 'from-month';
+          } else {
+            state._toYear = y;
+            state.step = 'to-month';
+          }
+          renderStep();
+        });
+        grid.appendChild(cell);
+      });
+      area.appendChild(grid);
+
+    } else if (state.step === 'from-month' || state.step === 'to-month') {
+      var isFromM = state.step === 'from-month';
+      var year = isFromM ? state._fromYear : state._toYear;
+      var months = AVAIL_MAP[year] || [];
+
+      var back = document.createElement('button');
+      back.className = 'ym-back-btn';
+      back.innerHTML = '← ' + year + ' 年';
+      back.addEventListener('click', function() {
+        state.step = isFromM ? 'from-year' : 'to-year';
+        renderStep();
+      });
+      area.appendChild(back);
+
+      var title = document.createElement('div');
+      title.className = 'ym-picker-title';
+      title.textContent = (isFromM ? '選擇起始月份' : '選擇結束月份') + '（' + year + '）';
+      area.appendChild(title);
+
+      var grid = document.createElement('div');
+      grid.className = 'ym-month-grid';
+      months.forEach(function(mo) {
+        var val = yyyymm(year, parseInt(mo));
+        var cell = document.createElement('button');
+        cell.className = 'ym-cell';
+        cell.textContent = parseInt(mo) + ' 月';
+        // Disable to-months before from
+        if (!isFromM && state.pendingFrom && val < state.pendingFrom) {
+          cell.classList.add('disabled');
+        }
+        cell.addEventListener('click', function() {
+          if (isFromM) {
+            state.pendingFrom = val;
+            state.step = 'to-year';
+            // If pendingTo < pendingFrom, reset
+            if (state.pendingTo && state.pendingTo < state.pendingFrom) state.pendingTo = null;
+          } else {
+            state.pendingTo = val;
+            state.step = 'done';
+            // Finalize
+            state.from = state.pendingFrom || 0;
+            state.to   = state.pendingTo   || 999999;
+            updateLabels(fmtLabel(state.from) + ' – ' + fmtLabel(state.to));
+            renderArea();
+            return;
+          }
+          renderStep();
+        });
+        if (isFromM && state.pendingFrom === val) cell.classList.add('selected');
+        if (!isFromM && state.pendingTo === val)   cell.classList.add('selected');
+        grid.appendChild(cell);
+      });
+      area.appendChild(grid);
+
+    } else if (state.step === 'done') {
+      renderArea();
+    }
+  }
+
+  // Apply button
+  document.getElementById(opts.applyId)?.addEventListener('click', function() {
+    opts.onApply(state.from || 0, state.to || 999999);
+    close();
+  });
+
+  return state;
 }
 
 function initSalesCharts() {
@@ -558,62 +713,37 @@ function initSalesCharts() {
   renderSalesCharts(ALL_MONTHS.length);
   renderTable(0, 999999);
 
-  // 建立級聯選單
-  var chartFromSel = document.getElementById('chartFrom');
-  var chartToSel   = document.getElementById('chartTo');
-  var tableFromSel = document.getElementById('tableFrom');
-  var tableToSel   = document.getElementById('tableTo');
-
-  var chartRange = { from: 0, to: 999999 };
-  var tableRange = { from: 0, to: 999999 };
-
-  if (chartFromSel) buildCascadeSelect(chartFromSel, function(v) { chartRange.from = v; });
-  if (chartToSel)   buildCascadeSelect(chartToSel,   function(v) { chartRange.to   = v; });
-  if (tableFromSel) buildCascadeSelect(tableFromSel, function(v) { tableRange.from = v; });
-  if (tableToSel)   buildCascadeSelect(tableToSel,   function(v) { tableRange.to   = v; });
-
-  // 套用按鈕
-  document.getElementById('chartRangeApply')?.addEventListener('click', function() {
-    var from = chartRange.from || 0;
-    var to   = chartRange.to   || 999999;
-    var indices = [];
-    ALL_MONTHS.forEach(function(m, i) {
-      var n = parseInt(m);
-      if (n >= from && n <= to) indices.push(i);
-    });
-    if (indices.length === 0) indices = ALL_MONTHS.map(function(_, i) { return i; });
-    renderSalesChartsFiltered(indices);
+  // 建立圖表 Picker
+  createPicker({
+    triggerId: 'chartPickerTrigger',
+    popoverId: 'chartPickerPopover',
+    areaId:    'chartPickerArea',
+    labelId:   'chartPickerLabel',
+    selectedLabelId: 'chartSelectedLabel',
+    applyId:   'chartRangeApply',
+    onApply: function(from, to) {
+      var indices = [];
+      ALL_MONTHS.forEach(function(m, i) {
+        var n = parseInt(m);
+        if (n >= from && n <= to) indices.push(i);
+      });
+      if (indices.length === 0) indices = ALL_MONTHS.map(function(_, i) { return i; });
+      renderSalesChartsFiltered(indices);
+    }
   });
 
-  document.getElementById('tableRangeApply')?.addEventListener('click', function() {
-    renderTable(tableRange.from || 0, tableRange.to || 999999);
+  // 建立表格 Picker
+  createPicker({
+    triggerId: 'tablePickerTrigger',
+    popoverId: 'tablePickerPopover',
+    areaId:    'tablePickerArea',
+    labelId:   'tablePickerLabel',
+    selectedLabelId: 'tableSelectedLabel',
+    applyId:   'tableRangeApply',
+    onApply: function(from, to) {
+      renderTable(from, to);
+    }
   });
-}
-
-function renderSalesChartsFiltered(indices) {
-  if (!indices || indices.length === 0) {
-    renderSalesCharts(ALL_MONTHS.length);
-    return;
-  }
-  const labels  = indices.map(i => ALL_MONTHS[i]);
-  const fans    = indices.map(i => ALL_FANS[i]);
-  const newb    = indices.map(i => ALL_NEWBUYER[i]);
-  const repurch = indices.map(i => ALL_REPURCHASE[i]);
-  const cvr     = indices.map(i => ALL_CVR[i]);
-  const aov     = indices.map(i => ALL_AOV[i]);
-
-  upsertChart('salesFansChart', {
-    type:'bar', data:{ labels, datasets:[{ data:fans, backgroundColor:barBg(fans), borderColor:barBorder(fans), borderWidth:1.5, borderRadius:5, borderSkipped:false }] },
-    options:{ responsive:true, maintainAspectRatio:false, plugins:{ legend:{display:false}, tooltip:{...sharedTooltip, callbacks:{label:ctx=>` ${ctx.parsed.y>=0?'+':''}${ctx.parsed.y.toLocaleString()} 人`}} }, scales:{ x:sharedScaleX, y:{...sharedScaleY, ticks:{...sharedScaleY.ticks,callback:v=>(v>0?'+':'')+v.toLocaleString()}} }, animation:{duration:600,easing:'easeInOutQuart'} }
-  });
-  upsertChart('salesNewBuyerChart', {
-    type:'bar', data:{ labels, datasets:[{ data:newb, backgroundColor:barBg(newb), borderColor:barBorder(newb), borderWidth:1.5, borderRadius:5, borderSkipped:false }] },
-    options:{ responsive:true, maintainAspectRatio:false, plugins:{ legend:{display:false}, tooltip:{...sharedTooltip, callbacks:{label:ctx=>` ${ctx.parsed.y} 人`}} }, scales:{ x:sharedScaleX, y:sharedScaleY }, animation:{duration:600,easing:'easeInOutQuart'} }
-  });
-  const mkLine = (data) => ({ data, borderColor:'#c4b5dc', backgroundColor:'rgba(196,181,220,0.08)', tension:0.35, fill:true, pointRadius:linePtSize(data), pointBackgroundColor:linePtBg(data), pointBorderColor:linePtBg(data), borderWidth:2 });
-  upsertChart('salesRepurchaseChart', { type:'line', data:{ labels, datasets:[mkLine(repurch)] }, options:{ responsive:true, maintainAspectRatio:false, plugins:{ legend:{display:false}, tooltip:{...sharedTooltip, callbacks:{label:ctx=>` ${ctx.parsed.y}%`}} }, scales:{ x:sharedScaleX, y:{...sharedScaleY, ticks:{...sharedScaleY.ticks,callback:v=>v+'%'}} }, animation:{duration:600,easing:'easeInOutQuart'} } });
-  upsertChart('salesCvrChart',        { type:'line', data:{ labels, datasets:[mkLine(cvr)]    }, options:{ responsive:true, maintainAspectRatio:false, plugins:{ legend:{display:false}, tooltip:{...sharedTooltip, callbacks:{label:ctx=>` ${ctx.parsed.y}%`}} }, scales:{ x:sharedScaleX, y:{...sharedScaleY, ticks:{...sharedScaleY.ticks,callback:v=>v+'%'}} }, animation:{duration:600,easing:'easeInOutQuart'} } });
-  upsertChart('salesAovChart',        { type:'line', data:{ labels, datasets:[mkLine(aov)]    }, options:{ responsive:true, maintainAspectRatio:false, plugins:{ legend:{display:false}, tooltip:{...sharedTooltip, callbacks:{label:ctx=>` NT$${ctx.parsed.y.toLocaleString()}`}} }, scales:{ x:sharedScaleX, y:{...sharedScaleY, ticks:{...sharedScaleY.ticks,callback:v=>'NT$'+v.toLocaleString()}} }, animation:{duration:600,easing:'easeInOutQuart'} } });
 }
 
 // 監聽 Tab 切換，切到銷售數據時才初始化
