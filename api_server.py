@@ -14,7 +14,7 @@ app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], all
 # { visitor_id: { "attempts": int, "locked_until": float_timestamp, "unlocked": bool } }
 lockout_store = {}
 
-CORRECT_PASSWORD = "Precious.Crystal"
+CORRECT_PASSWORD = "123"
 MAX_ATTEMPTS = 3
 LOCKOUT_SECONDS = 86400  # 24 hours
 
