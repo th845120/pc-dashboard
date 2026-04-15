@@ -6,7 +6,7 @@
     if (initialized) return;
     initialized = true;
     initCounters();
-    initRingChart();
+
     initParticles();
   }
 
