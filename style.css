@@ -242,7 +242,7 @@ button { cursor: pointer; background: none; border: none; font: inherit; color: 
 .tab-nav {
   display: flex;
   justify-content: center;
-  padding: var(--space-3) var(--space-6) 0;
+  padding: var(--space-3) var(--space-6);
   gap: var(--space-1);
   border-top: 1px solid rgba(255,255,255,0.06);
   background: var(--color-surface);
@@ -1718,7 +1718,7 @@ button { cursor: pointer; background: none; border: none; font: inherit; color: 
   }
 
   .tab-nav {
-    padding: var(--space-2) var(--space-3) 0;
+    padding: var(--space-2) var(--space-3);
     gap: 0;
   }
   .tab-btn {
@@ -1792,7 +1792,7 @@ button { cursor: pointer; background: none; border: none; font: inherit; color: 
   }
 
   .tab-nav {
-    padding: var(--space-1) var(--space-2) 0;
+    padding: var(--space-1) var(--space-2);
     gap: 0;
   }
   .tab-btn {
