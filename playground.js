@@ -45,6 +45,20 @@
     var milestoneText = milestoneArea.querySelector('.pg-milestone-text');
     var defaultHint = '將游標移到上方卡片，查看裡程碑感言 ✨';
 
+    // Shared timer for all cards — prevents text overlap
+    var msTimer = null;
+    function showMessage(msg, isActive) {
+      if (msTimer) clearTimeout(msTimer);
+      milestoneText.style.opacity = '0';
+      msTimer = setTimeout(function() {
+        milestoneText.textContent = msg;
+        if (isActive) milestoneText.classList.add('active');
+        else milestoneText.classList.remove('active');
+        milestoneText.style.opacity = '1';
+        msTimer = null;
+      }, 200);
+    }
+
     counters.forEach(function(c, idx) {
       var card = document.createElement('div');
       card.className = 'pg-counter-card';
@@ -54,27 +68,15 @@
         '<div class="pg-counter-label">' + c.label + '</div>';
       grid.appendChild(card);
 
-      // Milestone message — desktop hover + mobile tap
-      var currentTimer = null;
-      function showMessage(msg, isActive) {
-        if (currentTimer) clearTimeout(currentTimer);
-        milestoneText.style.opacity = '0';
-        currentTimer = setTimeout(function() {
-          milestoneText.textContent = msg;
-          if (isActive) milestoneText.classList.add('active');
-          else milestoneText.classList.remove('active');
-          milestoneText.style.opacity = '1';
-          currentTimer = null;
-        }, 180);
-      }
+      // Desktop hover
       card.addEventListener('mouseenter', function() {
         showMessage(c.message, true);
       });
       card.addEventListener('mouseleave', function() {
         showMessage(defaultHint, false);
       });
+      // Mobile tap toggle
       card.addEventListener('click', function() {
-        // Mobile tap toggle: if already showing this message, revert
         if (milestoneText.textContent === c.message) {
           showMessage(defaultHint, false);
         } else {
