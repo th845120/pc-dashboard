@@ -61,6 +61,7 @@
     }
 
     var isTouchDevice = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
+    var pinnedMsg = null; // tracks which message is "pinned" by click
 
     counters.forEach(function(c, idx) {
       var card = document.createElement('div');
@@ -72,19 +73,28 @@
       grid.appendChild(card);
 
       if (!isTouchDevice) {
-        // Desktop: hover to show, leave to hide
+        // Desktop: hover shows message
         card.addEventListener('mouseenter', function() {
           showMessage(c.message, true);
         });
+        // Desktop: leave resets ONLY if not pinned
         card.addEventListener('mouseleave', function() {
-          showMessage(defaultHint, false);
+          if (!pinnedMsg) {
+            showMessage(defaultHint, false);
+          } else {
+            showMessage(pinnedMsg, true);
+          }
         });
       }
-      // Tap/click toggle (works on both, but on desktop hover already handles it)
+      // Click: pin/unpin the message
       card.addEventListener('click', function() {
-        if (milestoneText.textContent === c.message) {
+        if (pinnedMsg === c.message) {
+          // clicking same pinned card -> unpin
+          pinnedMsg = null;
           showMessage(defaultHint, false);
         } else {
+          // pin this card's message
+          pinnedMsg = c.message;
           showMessage(c.message, true);
         }
       });
