@@ -953,6 +953,7 @@ button { cursor: pointer; background: none; border: none; font: inherit; color: 
 }
 .ym-shortcut:hover { background: var(--color-primary-highlight); color: var(--color-primary); }
 .ym-shortcut.active { background: var(--color-primary-highlight); color: var(--color-primary); font-weight: 600; }
+.ym-shortcut[data-preset="Q1"] { margin-top: 6px; padding-top: 10px; border-top: 1px solid var(--color-divider); }
 
 /* 右側 Picker 區域 */
 .ym-picker-area {

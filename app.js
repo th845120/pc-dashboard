@@ -577,6 +577,14 @@ function createPicker(opts) {
       if (preset === 'all') {
         state.from = 0; state.to = 999999;
         updateLabels('全部');
+      } else if (preset === '1m') {
+        var idx1 = Math.max(0, ALL_MONTHS.length - 1);
+        state.from = parseInt(ALL_MONTHS[idx1]); state.to = 999999;
+        updateLabels('近 1 個月');
+      } else if (preset === '3m') {
+        var idx3 = Math.max(0, ALL_MONTHS.length - 3);
+        state.from = parseInt(ALL_MONTHS[idx3]); state.to = 999999;
+        updateLabels('近 3 個月');
       } else if (preset === '6m') {
         var idx6 = Math.max(0, ALL_MONTHS.length - 6);
         state.from = parseInt(ALL_MONTHS[idx6]); state.to = 999999;
@@ -585,6 +593,20 @@ function createPicker(opts) {
         var idx12 = Math.max(0, ALL_MONTHS.length - 12);
         state.from = parseInt(ALL_MONTHS[idx12]); state.to = 999999;
         updateLabels('近 12 個月');
+      } else if (preset === 'Q1' || preset === 'Q2' || preset === 'Q3' || preset === 'Q4') {
+        var qMap = { Q1: ['01','03'], Q2: ['04','06'], Q3: ['07','09'], Q4: ['10','12'] };
+        var qRange = qMap[preset];
+        var latestMonth = ALL_MONTHS[ALL_MONTHS.length - 1];
+        var latestYear = latestMonth.substring(0, 4);
+        var latestMM = latestMonth.substring(4, 6);
+        // 如果當前季度的起始月在最新數據之後，則使用前一年
+        var qYear = latestYear;
+        if (parseInt(qRange[0]) > parseInt(latestMM)) {
+          qYear = String(parseInt(latestYear) - 1);
+        }
+        state.from = parseInt(qYear + qRange[0]);
+        state.to = parseInt(qYear + qRange[1]);
+        updateLabels(qYear + ' ' + preset);
       } else if (preset === 'custom') {
         state.step = 'from-year';
         state.pendingFrom = null; state.pendingTo = null;
