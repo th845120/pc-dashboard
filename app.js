@@ -195,3 +195,156 @@ const observer = new IntersectionObserver((entries) => {
 
 const firstKpi = document.querySelector('.kpi-grid');
 if (firstKpi) observer.observe(firstKpi);
+
+// ===== 銷售數據圖表 =====
+const salesMonths = ['202412','202501','202502','202503','202504','202505','202506','202507','202508','202509','202510','202511','202512','202601','202602','202603'];
+
+const salesFansData     = [4733, 6214, 2310, 749, 1600, 9610, 3979, 3237, 3139, 1845, 685, 2038, 2673, 2215, 4712, -253];
+const salesNewBuyerData = [139, 153, 229, 189, 193, 213, 248, 159, 150, 122, 129, 113, 84, 95, 98, 87];
+const salesRepurchase   = [11.48, 12.55, 14.70, 21.71, 21.72, 20.73, 28.38, 28.76, 25.71, 16.03, 23.81, 18.95, 24.54, 22.43, 34.07, 29.53];
+const salesCvr          = [0.52, 0.54, 0.71, 1.01, 1.04, 0.72, 0.52, 0.50, 0.58, 0.40, 0.33, 0.44, 0.42, 0.47, 0.65, 0.44];
+const salesAov          = [3173, 3351, 3869, 3896, 3962, 4312, 4930, 8135, 5597, 3994, 4909, 5280, 5209, 5904, 4041, 3837];
+
+// 共用顏色函式：最後一筆（202603）標紅，其餘用品牌紫/藍
+function barColors(data, goodUp = true) {
+  return data.map((v, i) => {
+    if (i === data.length - 1) return 'rgba(224,85,85,0.85)';
+    return 'rgba(196,181,220,0.55)';
+  });
+}
+function barBorderColors(data) {
+  return data.map((v, i) => i === data.length - 1 ? '#e05555' : '#c4b5dc');
+}
+
+// 共用 line dataset
+function lineDataset(data) {
+  const colors = data.map((v, i) => i === data.length - 1 ? '#e05555' : '#c4b5dc');
+  return {
+    data,
+    borderColor: '#c4b5dc',
+    backgroundColor: 'rgba(196,181,220,0.08)',
+    tension: 0.35,
+    fill: true,
+    pointRadius: data.map((_, i) => i === data.length - 1 ? 6 : 3),
+    pointBackgroundColor: colors,
+    pointBorderColor: colors,
+    borderWidth: 2,
+  };
+}
+
+// 共用 scale 設定
+const sharedScales = {
+  x: {
+    grid: { display: false },
+    ticks: { font: { family: "'Noto Sans TC', sans-serif", size: 10 }, color: '#b0a6c0', maxRotation: 45 },
+    border: { display: false },
+  },
+  y: {
+    grid: { color: 'rgba(180,170,200,0.1)' },
+    ticks: { font: { family: "'Noto Sans TC', sans-serif", size: 11 }, color: '#b0a6c0' },
+    border: { display: false },
+  }
+};
+
+const sharedOptions = (yLabel = '') => ({
+  responsive: true,
+  maintainAspectRatio: false,
+  plugins: {
+    legend: { display: false },
+    tooltip: {
+      bodyFont: { family: "'Noto Sans TC', sans-serif", size: 13 },
+      padding: 10,
+    }
+  },
+  scales: {
+    ...sharedScales,
+    y: {
+      ...sharedScales.y,
+      title: yLabel ? { display: true, text: yLabel, color: '#b0a6c0', font: { size: 11 } } : undefined,
+    }
+  },
+  animation: { duration: 900, easing: 'easeInOutQuart' }
+});
+
+// 粉絲增長（包含負值 → bar chart）
+const fansBars = salesFansData.map((v, i) => i === salesFansData.length - 1 ? '#e05555' : (v >= 0 ? '#c4b5dc' : '#e05555'));
+const salesFansCtx = document.getElementById('salesFansChart');
+if (salesFansCtx) {
+  new Chart(salesFansCtx, {
+    type: 'bar',
+    data: {
+      labels: salesMonths,
+      datasets: [{ data: salesFansData, backgroundColor: fansBars, borderRadius: 5, borderSkipped: false }]
+    },
+    options: {
+      ...sharedOptions(),
+      plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => ` ${ctx.parsed.y > 0 ? '+' : ''}${ctx.parsed.y.toLocaleString()} 人` }, bodyFont: { family: "'Noto Sans TC', sans-serif", size: 13 }, padding: 10 } },
+      scales: { ...sharedOptions().scales, y: { ...sharedOptions().scales.y, ticks: { ...sharedOptions().scales.y.ticks, callback: v => (v > 0 ? '+' : '') + v.toLocaleString() } } }
+    }
+  });
+}
+
+// 新客增長（bar）
+const salesNewBuyerCtx = document.getElementById('salesNewBuyerChart');
+if (salesNewBuyerCtx) {
+  new Chart(salesNewBuyerCtx, {
+    type: 'bar',
+    data: {
+      labels: salesMonths,
+      datasets: [{ data: salesNewBuyerData, backgroundColor: barColors(salesNewBuyerData), borderColor: barBorderColors(salesNewBuyerData), borderWidth: 1.5, borderRadius: 5, borderSkipped: false }]
+    },
+    options: { ...sharedOptions('人'), plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => ` ${ctx.parsed.y} 人` }, bodyFont: { family: "'Noto Sans TC', sans-serif", size: 13 }, padding: 10 } } }
+  });
+}
+
+// 複購率（line）
+const salesRepurchaseCtx = document.getElementById('salesRepurchaseChart');
+if (salesRepurchaseCtx) {
+  new Chart(salesRepurchaseCtx, {
+    type: 'line',
+    data: { labels: salesMonths, datasets: [lineDataset(salesRepurchase)] },
+    options: { ...sharedOptions('%'), plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => ` ${ctx.parsed.y}%` }, bodyFont: { family: "'Noto Sans TC', sans-serif", size: 13 }, padding: 10 } } }
+  });
+}
+
+// 轉換率（line）
+const salesCvrCtx = document.getElementById('salesCvrChart');
+if (salesCvrCtx) {
+  new Chart(salesCvrCtx, {
+    type: 'line',
+    data: { labels: salesMonths, datasets: [lineDataset(salesCvr)] },
+    options: { ...sharedOptions('%'), plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => ` ${ctx.parsed.y}%` }, bodyFont: { family: "'Noto Sans TC', sans-serif", size: 13 }, padding: 10 } } }
+  });
+}
+
+// 平均客單價（line）
+const salesAovCtx = document.getElementById('salesAovChart');
+if (salesAovCtx) {
+  new Chart(salesAovCtx, {
+    type: 'line',
+    data: { labels: salesMonths, datasets: [lineDataset(salesAov)] },
+    options: { ...sharedOptions('NT$'), plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => ` NT$${ctx.parsed.y.toLocaleString()}` }, bodyFont: { family: "'Noto Sans TC', sans-serif", size: 13 }, padding: 10 } } }
+  });
+}
+
+// 跳出率對比 donut（手機 vs 電腦）
+const salesBounceCtx = document.getElementById('salesBounceChart');
+if (salesBounceCtx) {
+  new Chart(salesBounceCtx, {
+    type: 'doughnut',
+    data: {
+      labels: ['手機跳出率', '電腦跳出率'],
+      datasets: [{ data: [26.92, 73.80], backgroundColor: ['#3dbf7a', '#e05555'], borderColor: 'transparent', borderWidth: 0, hoverOffset: 6 }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      cutout: '68%',
+      plugins: {
+        legend: { display: true, position: 'bottom', labels: { color: '#b0a6c0', font: { family: "'Noto Sans TC', sans-serif", size: 12 }, padding: 12 } },
+        tooltip: { callbacks: { label: ctx => ` ${ctx.label}：${ctx.parsed}%` }, bodyFont: { family: "'Noto Sans TC', sans-serif", size: 13 }, padding: 10 }
+      },
+      animation: { duration: 900, easing: 'easeInOutQuart' }
+    }
+  });
+}
