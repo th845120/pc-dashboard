@@ -591,6 +591,8 @@ button { cursor: pointer; background: none; border: none; font: inherit; color: 
   color: var(--color-text-muted);
   max-width: 60ch;
   line-height: 1.6;
+  word-break: keep-all;
+  overflow-wrap: break-word;
 }
 
 /* ===== INFO NOTE ===== */
@@ -1223,40 +1225,72 @@ button { cursor: pointer; background: none; border: none; font: inherit; color: 
 
 /* ===== SALES PASSWORD LOCK ===== */
 .sales-lock-overlay {
-  position: absolute;
-  inset: 0;
-  z-index: 100;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 90;
   display: flex;
   align-items: center;
   justify-content: center;
   background: var(--color-bg);
-  backdrop-filter: blur(20px);
-  min-height: 60vh;
+  overflow: hidden;
 }
 .sales-lock-overlay.hidden { display: none; }
+/* 浮水印 */
+.sales-lock-watermark {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-display);
+  font-size: clamp(100px, 18vw, 260px);
+  font-weight: 800;
+  color: var(--color-text);
+  opacity: 0.03;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+  pointer-events: none;
+  user-select: none;
+  word-break: keep-all;
+}
 .sales-lock-card {
+  position: relative;
+  z-index: 1;
   text-align: center;
-  max-width: 380px;
+  max-width: 400px;
   width: 100%;
   padding: var(--space-8);
 }
 .sales-lock-icon {
   color: var(--color-primary);
-  margin-bottom: var(--space-4);
-  opacity: 0.7;
+  margin-bottom: var(--space-5);
+  opacity: 0.6;
 }
 .sales-lock-title {
   font-family: var(--font-display);
-  font-size: var(--text-lg);
+  font-size: var(--text-xl);
   font-weight: 600;
   color: var(--color-text);
-  margin-bottom: var(--space-2);
-  letter-spacing: 0.04em;
+  margin-bottom: var(--space-3);
+  letter-spacing: 0.05em;
 }
 .sales-lock-desc {
   font-size: var(--text-sm);
   color: var(--color-text-muted);
+  margin-bottom: var(--space-2);
+  min-height: 1.2em;
+}
+.sales-lock-warning {
+  font-size: 11px;
+  color: #8b3a4a;
   margin-bottom: var(--space-6);
+  line-height: 1.6;
+  letter-spacing: 0.02em;
+  word-break: keep-all;
+  overflow-wrap: break-word;
 }
 .sales-lock-input-wrap {
   display: flex;
@@ -1265,7 +1299,7 @@ button { cursor: pointer; background: none; border: none; font: inherit; color: 
 }
 .sales-lock-input {
   flex: 1;
-  padding: 10px 14px;
+  padding: 12px 16px;
   border-radius: var(--radius-md);
   border: 1px solid var(--color-border);
   background: var(--color-surface-2);
@@ -1287,7 +1321,7 @@ button { cursor: pointer; background: none; border: none; font: inherit; color: 
   40%, 80% { transform: translateX(6px); }
 }
 .sales-lock-btn {
-  padding: 10px 20px;
+  padding: 12px 24px;
   border-radius: var(--radius-md);
   border: none;
   background: var(--color-primary);

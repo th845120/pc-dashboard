@@ -1446,20 +1446,35 @@ var YEARLY_PERFORMANCE = [
 
   function showUnlocked() {
     overlay.classList.add('hidden');
+    overlay.style.display = 'none';
   }
 
   function showNeedPassword(attemptsLeft) {
     input.style.display = '';
     btn.style.display = '';
     btn.disabled = false;
-    descEl.textContent = '請輸入密碼以瀏覽銷售數據';
+    descEl.textContent = '';
     descEl.style.color = '';
     if (attemptsLeft < 3 && attemptsLeft > 0) {
       errEl.textContent = '還剩 ' + attemptsLeft + ' 次機會';
     }
   }
 
-  // Check status on load
+  // Show overlay only when sales tab is active
+  function syncOverlayVisibility() {
+    var salesTab = document.getElementById('tab-sales');
+    if (!salesTab) return;
+    var isActive = salesTab.classList.contains('active');
+    if (overlay.classList.contains('hidden')) return; // already unlocked
+    overlay.style.display = isActive ? 'flex' : 'none';
+  }
+  // Listen to tab switches
+  document.querySelectorAll('.tab-btn').forEach(function(b) {
+    b.addEventListener('click', function() { setTimeout(syncOverlayVisibility, 0); });
+  });
+  syncOverlayVisibility();
+
+  // Check status on load (form already visible, no delay)
   fetch(API + '/api/sales-auth/status').then(function(r) { return r.json(); }).then(function(data) {
     if (data.status === 'unlocked') showUnlocked();
     else if (data.status === 'locked') showLocked(data.remaining_seconds);

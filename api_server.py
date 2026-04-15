@@ -18,7 +18,7 @@ CORRECT_PASSWORD = "Precious.Crystal"
 MAX_ATTEMPTS = 3
 LOCKOUT_SECONDS = 86400  # 24 hours
 
-NOTION_PAGE_ID = "34302a99a1b780d398a1ed418ec4bb79"
+NOTION_DB_ID = "3e22c769-0791-4b4f-912d-0661ec43826f"
 
 
 def get_visitor(request: Request) -> str:
@@ -85,8 +85,10 @@ def verify_password(body: PasswordCheck, request: Request):
         info["attempts"] = 0
         info["locked_until"] = 0
 
-    # Check password
-    if body.password == CORRECT_PASSWORD:
+    # Check password (strip to avoid invisible chars from mobile keyboards)
+    submitted = body.password.strip()
+    print(f"[AUTH] visitor={vid} submitted_len={len(submitted)} match={submitted == CORRECT_PASSWORD}")
+    if submitted == CORRECT_PASSWORD:
         info["unlocked"] = True
         info["attempts"] = 0
         lockout_store[vid] = info
@@ -100,19 +102,22 @@ def verify_password(body: PasswordCheck, request: Request):
         info["locked_until"] = now + LOCKOUT_SECONDS
         lockout_store[vid] = info
 
-        # Send Notion alert
+        # Send Notion alert — write to CC-PC database
         try:
             now_iso = time.strftime("%Y-%m-%dT%H:%M:%S+08:00")
             call_notion("notion_mcp", "notion-create-pages", {
-                "parent": {"page_id": NOTION_PAGE_ID},
+                "parent": {"data_source_id": NOTION_DB_ID},
                 "pages": [{
-                    "properties": {"title": "銷售數據密碼錯誤"},
-                    "icon": "🚨",
-                    "content": (
-                        f"**訪客 ID**：`{vid}`\n\n"
-                        f"**時間**：{now_iso}\n\n"
-                        f"連續輸入錯誤密碼 {MAX_ATTEMPTS} 次，已鎖定 24 小時。"
-                    )
+                    "properties": {
+                        "title": "銷售數據密碼錯誤",
+                        "Task": "",
+                        "Description": f"• 訪客 ID：{vid}\n• 時間：{now_iso}\n• 連續錯誤 {MAX_ATTEMPTS} 次\n• 已鎖定 24 小時",
+                        "Platform": "蝦皮",
+                        "Sentiment": "需處理",
+                        "date:Date:start": now_iso[:10],
+                        "date:Date:is_datetime": 0
+                    },
+                    "icon": "🚨"
                 }]
             })
         except Exception as e:
