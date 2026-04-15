@@ -54,22 +54,32 @@
         '<div class="pg-counter-label">' + c.label + '</div>';
       grid.appendChild(card);
 
-      // Hover events for milestone message
-      card.addEventListener('mouseenter', function() {
+      // Milestone message — desktop hover + mobile tap
+      var currentTimer = null;
+      function showMessage(msg, isActive) {
+        if (currentTimer) clearTimeout(currentTimer);
         milestoneText.style.opacity = '0';
-        setTimeout(function() {
-          milestoneText.textContent = c.message;
-          milestoneText.classList.add('active');
+        currentTimer = setTimeout(function() {
+          milestoneText.textContent = msg;
+          if (isActive) milestoneText.classList.add('active');
+          else milestoneText.classList.remove('active');
           milestoneText.style.opacity = '1';
-        }, 150);
+          currentTimer = null;
+        }, 180);
+      }
+      card.addEventListener('mouseenter', function() {
+        showMessage(c.message, true);
       });
       card.addEventListener('mouseleave', function() {
-        milestoneText.style.opacity = '0';
-        setTimeout(function() {
-          milestoneText.textContent = defaultHint;
-          milestoneText.classList.remove('active');
-          milestoneText.style.opacity = '1';
-        }, 150);
+        showMessage(defaultHint, false);
+      });
+      card.addEventListener('click', function() {
+        // Mobile tap toggle: if already showing this message, revert
+        if (milestoneText.textContent === c.message) {
+          showMessage(defaultHint, false);
+        } else {
+          showMessage(c.message, true);
+        }
       });
     });
 

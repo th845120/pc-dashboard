@@ -1378,7 +1378,7 @@ button { cursor: pointer; background: none; border: none; font: inherit; color: 
   line-height: 1.8;
   text-align: center;
   letter-spacing: 0.03em;
-  transition: opacity 0.15s ease;
+  transition: opacity 0.18s ease;
   word-break: keep-all;
 }
 .pg-milestone-text.active {
