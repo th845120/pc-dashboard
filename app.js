@@ -196,7 +196,13 @@ const observer = new IntersectionObserver((entries) => {
 const firstKpi = document.querySelector('.kpi-grid');
 if (firstKpi) observer.observe(firstKpi);
 
-// ===== 銷售數據圖表 =====
+// ===== 銷售數據圖表（延遲初始化，避免 hidden tab canvas bug）=====
+let salesChartsInitialized = false;
+
+function initSalesCharts() {
+  if (salesChartsInitialized) return;
+  salesChartsInitialized = true;
+
 const salesMonths = ['202412','202501','202502','202503','202504','202505','202506','202507','202508','202509','202510','202511','202512','202601','202602','202603'];
 
 const salesFansData     = [4733, 6214, 2310, 749, 1600, 9610, 3979, 3237, 3139, 1845, 685, 2038, 2673, 2215, 4712, -253];
@@ -348,3 +354,15 @@ if (salesBounceCtx) {
     }
   });
 }
+
+}
+
+// 監聽 Tab 切換，切到銷售數據時才初始化
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    if (btn.dataset.tab === 'sales') {
+      // 給 DOM 一個 frame 時間讓 canvas 出現
+      requestAnimationFrame(() => setTimeout(initSalesCharts, 50));
+    }
+  });
+});
