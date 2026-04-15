@@ -2,19 +2,18 @@
 (function () {
   const t = document.querySelector('[data-theme-toggle]');
   const r = document.documentElement;
-  let d = matchMedia('(prefers-color-scheme:dark)').matches ? 'dark' : 'light';
+  // Always default to dark (brand purple)
+  let d = 'dark';
   r.setAttribute('data-theme', d);
+  const sunIcon = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>';
+  const moonIcon = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>';
   if (t) {
-    t.innerHTML = d === 'dark'
-      ? '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>'
-      : '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>';
+    t.innerHTML = sunIcon;
     t.addEventListener('click', () => {
       d = d === 'dark' ? 'light' : 'dark';
       r.setAttribute('data-theme', d);
       t.setAttribute('aria-label', d === 'dark' ? '切換淺色模式' : '切換深色模式');
-      t.innerHTML = d === 'dark'
-        ? '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>'
-        : '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>';
+      t.innerHTML = d === 'dark' ? sunIcon : moonIcon;
     });
   }
 })();
@@ -33,7 +32,7 @@ if (donutCtx) {
       labels: ['好評 (4-5★)', '普通 (3★)', '差評 (1-2★)'],
       datasets: [{
         data: [16510, 33, 8],
-        backgroundColor: ['#2d6a4f', '#b8952e', '#a62626'],
+        backgroundColor: ['#4ade80', '#fbbf24', '#f87171'],
         borderColor: 'transparent',
         borderWidth: 0,
         hoverOffset: 6,
@@ -76,8 +75,8 @@ if (barCtx) {
       datasets: [{
         label: '評價數量',
         data: [16510, 33, 8],
-        backgroundColor: ['rgba(45,106,79,0.75)', 'rgba(184,149,46,0.75)', 'rgba(166,38,38,0.75)'],
-        borderColor: ['#2d6a4f', '#b8952e', '#a62626'],
+        backgroundColor: ['rgba(74,222,128,0.8)', 'rgba(251,191,36,0.8)', 'rgba(248,113,113,0.8)'],
+        borderColor: ['#4ade80', '#fbbf24', '#f87171'],
         borderWidth: 2,
         borderRadius: 8,
         borderSkipped: false,
