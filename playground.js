@@ -22,16 +22,30 @@
   // ===== 1. ANIMATED COUNTERS =====
   function initCounters() {
     var counters = [
-      { label: '累計營業額', value: 61181971, prefix: 'NT$', suffix: '', color: 'var(--color-primary)' },
-      { label: '累計訂單數', value: 26269, prefix: '', suffix: ' 筆', color: '#3dbf7a' },
-      { label: '粉絲總數', value: 162573, prefix: '', suffix: ' 人', color: '#e8a825' },
+      { label: '累計營業額', value: 61181971, prefix: 'NT$', suffix: '', color: 'var(--color-primary)',
+        message: '這是聚寶水晶從成立到現在，累積的營業額哦！感謝你對公司的付出，未來讓我們一起繼續加油 ヾ(´︶`*)ﾉ♬' },
+      { label: '累計訂單數', value: 26269, prefix: '', suffix: ' 筆', color: '#3dbf7a',
+        message: '這是聚寶水晶從成立到現在，總共出貨的訂單數量！不知不覺已經服務了好多客人，我們把一條條用心挑選的水晶交付到客人手上，真的很有成就感，也辛苦出貨夥伴了，看到他記得跟他說聲「辛苦了」哦 :)' },
+      { label: '粉絲總數', value: 162750, prefix: '', suffix: ' 人', color: '#e8a825',
+        message: '這是我們全網的粉絲數哦！我們不期望這個數字變得多大，只希望珍惜每一個與聚寶水晶相遇的客人哦  (❁´◡`❁)' },
     ];
 
     var grid = document.getElementById('pgCounterGrid');
     if (!grid) return;
     grid.innerHTML = '';
 
-    counters.forEach(function(c) {
+    // Build milestone message area below grid
+    var section = grid.parentElement;
+    var existingMsg = section.querySelector('.pg-milestone-area');
+    if (existingMsg) existingMsg.remove();
+    var milestoneArea = document.createElement('div');
+    milestoneArea.className = 'pg-milestone-area';
+    milestoneArea.innerHTML = '<div class="pg-milestone-text">將游標移到上方卡片，查看裡程碑感言 ✨</div>';
+    section.appendChild(milestoneArea);
+    var milestoneText = milestoneArea.querySelector('.pg-milestone-text');
+    var defaultHint = '將游標移到上方卡片，查看裡程碑感言 ✨';
+
+    counters.forEach(function(c, idx) {
       var card = document.createElement('div');
       card.className = 'pg-counter-card';
       card.innerHTML =
@@ -39,6 +53,24 @@
         c.prefix + '0' + c.suffix + '</div>' +
         '<div class="pg-counter-label">' + c.label + '</div>';
       grid.appendChild(card);
+
+      // Hover events for milestone message
+      card.addEventListener('mouseenter', function() {
+        milestoneText.style.opacity = '0';
+        setTimeout(function() {
+          milestoneText.textContent = c.message;
+          milestoneText.classList.add('active');
+          milestoneText.style.opacity = '1';
+        }, 150);
+      });
+      card.addEventListener('mouseleave', function() {
+        milestoneText.style.opacity = '0';
+        setTimeout(function() {
+          milestoneText.textContent = defaultHint;
+          milestoneText.classList.remove('active');
+          milestoneText.style.opacity = '1';
+        }, 150);
+      });
     });
 
     // Animate with easing
