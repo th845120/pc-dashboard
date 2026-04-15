@@ -101,18 +101,18 @@ if (barCtx) {
           grid: { display: false },
           ticks: {
             font: { family: "'Noto Sans TC', sans-serif", size: 12 },
-            color: '#7a7570',
+            color: '#b0a6c0',
           },
           border: { display: false },
         },
         y: {
           type: 'logarithmic',
           grid: {
-            color: 'rgba(120,115,110,0.12)',
+            color: 'rgba(180,170,200,0.1)',
           },
           ticks: {
             font: { family: "'Noto Sans TC', sans-serif", size: 11 },
-            color: '#7a7570',
+            color: '#b0a6c0',
             callback: (v) => v >= 1000 ? (v / 1000).toFixed(0) + 'K' : v,
           },
           border: { display: false },
