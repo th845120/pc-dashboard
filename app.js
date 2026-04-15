@@ -560,9 +560,12 @@ function createPicker(opts) {
     if (!isOpen) open();
   });
 
+  // Stop clicks inside popover from bubbling to document
+  popover.addEventListener('click', function(e) { e.stopPropagation(); });
+
   // Close on outside click
   document.addEventListener('click', function(e) {
-    if (!popover.contains(e.target) && e.target !== trigger) close();
+    if (!popover.contains(e.target) && e.target !== trigger && !trigger.contains(e.target)) close();
   });
 
   // Shortcuts
