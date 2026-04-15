@@ -357,7 +357,7 @@ button { cursor: pointer; background: none; border: none; font: inherit; color: 
 /* ===== KPI GRID ===== */
 .kpi-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(155px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(155px, 1fr));
   gap: var(--space-4);
 }
 .kpi-card {

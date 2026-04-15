@@ -160,26 +160,26 @@ function animateCounter(el, target, duration = 1200, suffix = '') {
 }
 
 // Trigger counters on load
-const kpiValues = document.querySelectorAll('.kpi-value');
+// 用 ID 精準對應，避免索引偶合問題
 const kpiData = [
-  // 蝦皮 (0-4)
-  { el: kpiValues[0], val: 4.99, float: true },
-  { el: kpiValues[1], val: 99.75, float: true, suffix: '%' },
-  { el: kpiValues[2], val: 141988 },
-  { el: kpiValues[3], val: 366 },
-  { el: kpiValues[4], val: 75, suffix: '%' },
-  // Meta (5-7)
-  { el: kpiValues[5], val: 16366 },
-  { el: kpiValues[6], val: 100, suffix: '%' },
-  { el: kpiValues[7], val: 275 },
-  // Instagram (8-10)
-  { el: kpiValues[8], val: 4213 },
-  { el: kpiValues[9], val: 245 },
-  { el: kpiValues[10], val: 155 },
-  // Google Business Profile (11-12) — 13 is address, skip animation
-  { el: kpiValues[11], val: 5.0, float: true },
-  { el: kpiValues[12], val: 55 },
-];
+  // 蝦皮
+  { id: 'kpi-shopee-rating', val: 4.99, float: true },
+  { id: 'kpi-shopee-positive', val: 99.75, float: true, suffix: '%' },
+  { id: 'kpi-shopee-fans', val: 141988 },
+  { id: 'kpi-shopee-products', val: 366 },
+  { id: 'kpi-shopee-reply', val: 75, suffix: '%' },
+  // Meta
+  { id: 'kpi-meta-fans', val: 16366 },
+  { id: 'kpi-meta-recommend', val: 100, suffix: '%' },
+  { id: 'kpi-meta-engagement', val: 275 },
+  // Instagram
+  { id: 'kpi-ig-fans', val: 4213 },
+  { id: 'kpi-ig-posts', val: 245 },
+  { id: 'kpi-ig-following', val: 155 },
+  // Google Business Profile
+  { id: 'kpi-google-rating', val: 5.0, float: true },
+  { id: 'kpi-google-reviews', val: 55 },
+].map(d => ({ ...d, el: document.getElementById(d.id) })).filter(d => d.el);
 
 const observer = new IntersectionObserver((entries) => {
   entries.forEach(entry => {

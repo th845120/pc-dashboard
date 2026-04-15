@@ -68,31 +68,31 @@
         <div class="kpi-grid">
           <div class="kpi-card accent">
             <div class="kpi-label">整體評分</div>
-            <div class="kpi-value">4.99</div>
+            <div class="kpi-value" id="kpi-shopee-rating">4.99</div>
             <div class="kpi-sub">滿分 5.00</div>
             <div class="kpi-delta neutral">── 首次記錄</div>
           </div>
           <div class="kpi-card">
             <div class="kpi-label">好評率</div>
-            <div class="kpi-value">99.75%</div>
+            <div class="kpi-value" id="kpi-shopee-positive">99.75%</div>
             <div class="kpi-sub">4-5 星評價佔比</div>
             <div class="kpi-delta neutral">── 首次記錄</div>
           </div>
           <div class="kpi-card">
             <div class="kpi-label">蝦皮粉絲</div>
-            <div class="kpi-value">141,988</div>
+            <div class="kpi-value" id="kpi-shopee-fans">141,988</div>
             <div class="kpi-sub">累積追蹤人數</div>
             <div class="kpi-delta neutral">── 首次記錄</div>
           </div>
           <div class="kpi-card">
             <div class="kpi-label">商品數</div>
-            <div class="kpi-value">366</div>
+            <div class="kpi-value" id="kpi-shopee-products">366</div>
             <div class="kpi-sub">上架商品總數</div>
             <div class="kpi-delta neutral">── 首次記錄</div>
           </div>
           <div class="kpi-card warn">
             <div class="kpi-label">回覆率</div>
-            <div class="kpi-value">75%</div>
+            <div class="kpi-value" id="kpi-shopee-reply">75%</div>
             <div class="kpi-sub">API 即時數據<br>（截至 04/15）</div>
           </div>
         </div>
@@ -126,18 +126,18 @@
         <div class="kpi-grid">
           <div class="kpi-card accent">
             <div class="kpi-label">粉絲數</div>
-            <div class="kpi-value">16,366</div>
+            <div class="kpi-value" id="kpi-meta-fans">16,366</div>
             <div class="kpi-sub">Facebook 粉絲頁</div>
             <div class="kpi-delta neutral">── 首次記錄</div>
           </div>
           <div class="kpi-card good">
             <div class="kpi-label">推薦率</div>
-            <div class="kpi-value">100%</div>
+            <div class="kpi-value" id="kpi-meta-recommend">100%</div>
             <div class="kpi-sub">共 37 則評論</div>
           </div>
           <div class="kpi-card">
             <div class="kpi-label">近期互動</div>
-            <div class="kpi-value">275</div>
+            <div class="kpi-value" id="kpi-meta-engagement">275</div>
             <div class="kpi-sub">讚 + 留言 + 分享（2天）</div>
           </div>
         </div>
@@ -155,19 +155,19 @@
         <div class="kpi-grid">
           <div class="kpi-card accent">
             <div class="kpi-label">粉絲數</div>
-            <div class="kpi-value">4,213</div>
+            <div class="kpi-value" id="kpi-ig-fans">4,213</div>
             <div class="kpi-sub">@opcrystal888</div>
             <div class="kpi-delta neutral">── 首次記錄</div>
           </div>
           <div class="kpi-card">
             <div class="kpi-label">貼文數</div>
-            <div class="kpi-value">245</div>
+            <div class="kpi-value" id="kpi-ig-posts">245</div>
             <div class="kpi-sub">累積發布</div>
             <div class="kpi-delta neutral">── 首次記錄</div>
           </div>
           <div class="kpi-card">
             <div class="kpi-label">追蹤中</div>
-            <div class="kpi-value">155</div>
+            <div class="kpi-value" id="kpi-ig-following">155</div>
             <div class="kpi-sub">關注帳號數</div>
           </div>
         </div>
@@ -189,18 +189,18 @@
         <div class="kpi-grid">
           <div class="kpi-card accent">
             <div class="kpi-label">Google 評分</div>
-            <div class="kpi-value">5.0</div>
+            <div class="kpi-value" id="kpi-google-rating">5.0</div>
             <div class="kpi-sub">滿分 5.0（全 5 星）</div>
           </div>
           <div class="kpi-card good">
             <div class="kpi-label">評論數</div>
-            <div class="kpi-value">55</div>
+            <div class="kpi-value" id="kpi-google-reviews">55</div>
             <div class="kpi-sub">55 則全為 5 星</div>
             <div class="kpi-delta neutral">── 首次記錄</div>
           </div>
           <div class="kpi-card">
             <div class="kpi-label">商家地址</div>
-            <div class="kpi-value" style="font-size:var(--text-base);white-space:nowrap;">板橋區華江一路550號</div>
+            <div class="kpi-value kpi-address" style="font-size:var(--text-base);white-space:nowrap;">板橋區華江一路550號</div>
             <div class="kpi-sub">新北市板橋區</div>
           </div>
         </div>
@@ -382,7 +382,7 @@
             <div class="kpi-value">16.56%</div>
             <div class="kpi-sub">從回覆到下單</div>
           </div>
-          <div class="kpi-card accent">
+          <div class="kpi-card">
             <div class="kpi-label">聊聊滿意度</div>
             <div class="kpi-value">99.38%</div>
             <div class="kpi-delta bad">▼ 0.03%</div>
@@ -396,7 +396,7 @@
             <div class="kpi-value" style="font-size:var(--text-xl);">NT$267,428</div>
             <div class="kpi-delta bad">▼ 49.02%</div>
           </div>
-          <div class="kpi-card accent">
+          <div class="kpi-card">
             <div class="kpi-label">聊聊平均客單價</div>
             <div class="kpi-value">NT$4,313</div>
             <div class="kpi-sub">銷售額 ÷ 訂單數</div>
