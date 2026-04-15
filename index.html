@@ -12,6 +12,19 @@
 </head>
 <body>
 
+  <!-- Splash Screen -->
+  <div id="splashScreen" class="splash-screen">
+    <canvas id="splashParticles" class="splash-particles-canvas"></canvas>
+    <div class="splash-overlay">
+      <div class="splash-title">聚寶水晶</div>
+      <div class="splash-sub">PRECIOUS CRYSTAL · 用數據說話</div>
+      <div class="splash-hint">點擊任意處進入儀表板</div>
+    </div>
+  </div>
+
+  <!-- Main App (hidden until splash dismissed) -->
+  <div id="mainApp" class="main-app hidden">
+
   <!-- Header -->
   <header class="header">
     <div class="header-inner">
@@ -1033,21 +1046,7 @@
 
 
 
-      <!-- 粒子背景互動 -->
-      <section class="section pg-particles-section">
-        <div class="section-header">
-          <h2 class="section-title">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-            粒子流動背景
-          </h2>
-          <span class="section-badge">移動滑鼠互動</span>
-        </div>
-        <canvas id="pgParticles" class="pg-particles-canvas"></canvas>
-        <div class="pg-particles-overlay">
-          <div class="pg-particles-text">聚寶水晶</div>
-          <div class="pg-particles-sub">Precious Crystal · 用數據說話</div>
-        </div>
-      </section>
+
 
     </main>
   </div>
@@ -1059,8 +1058,11 @@
 
   <div class="cursor-glow" id="cursorGlow"></div>
 
+  </div><!-- /mainApp -->
+
   <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
   <script src="app.js"></script>
   <script src="playground.js"></script>
+  <script src="splash.js"></script>
 </body>
 </html>
