@@ -1387,14 +1387,14 @@ var YEARLY_PERFORMANCE = [
     if (isPercent) {
       var diff = curr - prev;
       var sign = diff >= 0 ? '▲' : '▼';
-      var cls = invertColor ? (diff <= 0 ? 'good' : 'bad') : (diff >= 0 ? 'good' : 'bad');
-      return ' <span class="kpi-delta ' + cls + '" style="display:inline;font-size:0.75rem;">' + sign + ' ' + Math.abs(diff).toFixed(2) + '%</span>';
+      var cls = invertColor ? (diff <= 0 ? 'up' : 'down') : (diff >= 0 ? 'up' : 'down');
+      return '<br><span class="kpi-delta ' + cls + '" style="font-size:0.75rem;">' + sign + ' ' + Math.abs(diff).toFixed(2) + '%</span>';
     } else {
       if (prev === 0) return '';
       var pct = ((curr - prev) / prev * 100);
       var sign2 = pct >= 0 ? '▲' : '▼';
-      var cls2 = invertColor ? (pct <= 0 ? 'good' : 'bad') : (pct >= 0 ? 'good' : 'bad');
-      return ' <span class="kpi-delta ' + cls2 + '" style="display:inline;font-size:0.75rem;">' + sign2 + ' ' + Math.abs(pct).toFixed(1) + '%</span>';
+      var cls2 = invertColor ? (pct <= 0 ? 'up' : 'down') : (pct >= 0 ? 'up' : 'down');
+      return '<br><span class="kpi-delta ' + cls2 + '" style="font-size:0.75rem;">' + sign2 + ' ' + Math.abs(pct).toFixed(1) + '%</span>';
     }
   }
 
