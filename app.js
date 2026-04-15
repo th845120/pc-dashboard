@@ -503,6 +503,40 @@ function fmtLabel(v) {
 }
 
 // 建立 Picker 實例
+// ── 依索引陣列過濾後重繪圖表 ──
+function renderSalesChartsFiltered(indices) {
+  if (!indices || indices.length === 0) {
+    renderSalesCharts(ALL_MONTHS.length);
+    return;
+  }
+  var labels  = indices.map(function(i) { return ALL_MONTHS[i]; });
+  var fans    = indices.map(function(i) { return ALL_FANS[i]; });
+  var newb    = indices.map(function(i) { return ALL_NEWBUYER[i]; });
+  var repurch = indices.map(function(i) { return ALL_REPURCHASE[i]; });
+  var cvr     = indices.map(function(i) { return ALL_CVR[i]; });
+  var aov     = indices.map(function(i) { return ALL_AOV[i]; });
+
+  function mkLine(data) {
+    return { data: data, borderColor: '#c4b5dc', backgroundColor: 'rgba(196,181,220,0.08)',
+      tension: 0.35, fill: true, pointRadius: linePtSize(data),
+      pointBackgroundColor: linePtBg(data), pointBorderColor: linePtBg(data), borderWidth: 2 };
+  }
+
+  upsertChart('salesFansChart', {
+    type: 'bar',
+    data: { labels: labels, datasets: [{ data: fans, backgroundColor: barBg(fans), borderColor: barBorder(fans), borderWidth: 1.5, borderRadius: 5, borderSkipped: false }] },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { ...sharedTooltip, callbacks: { label: function(ctx) { return ' ' + (ctx.parsed.y >= 0 ? '+' : '') + ctx.parsed.y.toLocaleString() + ' 人'; } } } }, scales: { x: sharedScaleX, y: { ...sharedScaleY, ticks: { ...sharedScaleY.ticks, callback: function(v) { return (v > 0 ? '+' : '') + v.toLocaleString(); } } } }, animation: { duration: 600, easing: 'easeInOutQuart' } }
+  });
+  upsertChart('salesNewBuyerChart', {
+    type: 'bar',
+    data: { labels: labels, datasets: [{ data: newb, backgroundColor: barBg(newb), borderColor: barBorder(newb), borderWidth: 1.5, borderRadius: 5, borderSkipped: false }] },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { ...sharedTooltip, callbacks: { label: function(ctx) { return ' ' + ctx.parsed.y + ' 人'; } } } }, scales: { x: sharedScaleX, y: sharedScaleY }, animation: { duration: 600, easing: 'easeInOutQuart' } }
+  });
+  upsertChart('salesRepurchaseChart', { type: 'line', data: { labels: labels, datasets: [mkLine(repurch)] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { ...sharedTooltip, callbacks: { label: function(ctx) { return ' ' + ctx.parsed.y + '%'; } } } }, scales: { x: sharedScaleX, y: { ...sharedScaleY, ticks: { ...sharedScaleY.ticks, callback: function(v) { return v + '%'; } } } }, animation: { duration: 600, easing: 'easeInOutQuart' } } });
+  upsertChart('salesCvrChart',        { type: 'line', data: { labels: labels, datasets: [mkLine(cvr)]    }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { ...sharedTooltip, callbacks: { label: function(ctx) { return ' ' + ctx.parsed.y + '%'; } } } }, scales: { x: sharedScaleX, y: { ...sharedScaleY, ticks: { ...sharedScaleY.ticks, callback: function(v) { return v + '%'; } } } }, animation: { duration: 600, easing: 'easeInOutQuart' } } });
+  upsertChart('salesAovChart',        { type: 'line', data: { labels: labels, datasets: [mkLine(aov)]    }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { ...sharedTooltip, callbacks: { label: function(ctx) { return ' NT$' + ctx.parsed.y.toLocaleString(); } } } }, scales: { x: sharedScaleX, y: { ...sharedScaleY, ticks: { ...sharedScaleY.ticks, callback: function(v) { return 'NT$' + v.toLocaleString(); } } } }, animation: { duration: 600, easing: 'easeInOutQuart' } } });
+}
+
 function createPicker(opts) {
   // opts: { triggerId, popoverId, areaId, labelId, selectedLabelId, shortcutPrefix, onApply }
   var trigger       = document.getElementById(opts.triggerId);
@@ -692,7 +726,11 @@ function createPicker(opts) {
       area.appendChild(grid);
 
     } else if (state.step === 'done') {
-      renderArea();
+      // 顯示已選摘要，不再遞迴
+      area.innerHTML = '<div class="ym-picker-title">已選定範圍</div>' +
+        '<div style="color:var(--color-text);font-size:var(--text-base);margin-top:8px;font-weight:600;">' +
+        fmtLabel(state.from) + ' &nbsp;→&nbsp; ' + fmtLabel(state.to) + '</div>' +
+        '<div style="color:var(--color-text-muted);font-size:var(--text-xs);margin-top:6px;">按下「套用」以更新圖表</div>';
     }
   }
 
