@@ -24,7 +24,7 @@
         </div>
       </div>
       <div class="header-right">
-        <span class="update-badge">最後更新：2026-04-15 16:57 (UTC+8)</span>
+        <span class="update-badge">最後更新：2026-04-16 00:32 (UTC+8)</span>
         <button class="theme-toggle" data-theme-toggle aria-label="切換深色模式">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
         </button>
@@ -44,6 +44,10 @@
       <button class="tab-btn" data-tab="sales" role="tab" aria-selected="false">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="20" x2="12" y2="10"/><line x1="18" y1="20" x2="18" y2="4"/><line x1="6" y1="20" x2="6" y2="16"/></svg>
         銷售數據
+      </button>
+      <button class="tab-btn" data-tab="playground" role="tab" aria-selected="false">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+        互動實驗室
       </button>
     </nav>
   </header>
@@ -155,7 +159,7 @@
         <div class="kpi-grid">
           <div class="kpi-card accent">
             <div class="kpi-label">粉絲數</div>
-            <div class="kpi-value" id="kpi-ig-fans">4,213</div>
+            <div class="kpi-value" id="kpi-ig-fans">4,219</div>
             <div class="kpi-sub">@opcrystal888</div>
             <div class="kpi-delta neutral">── 首次記錄</div>
           </div>
@@ -978,11 +982,93 @@
     </main>
   </div>
 
+  <!-- ===== TAB: 互動實驗室 ===== -->
+  <div class="tab-panel" id="tab-playground">
+    <div class="page-subtitle">
+      <h1>互動實驗室</h1>
+      <div class="accent-line"></div>
+    </div>
+    <main class="main">
+
+      <!-- 動態數字卡片 -->
+      <section class="section">
+        <div class="section-header">
+          <h2 class="section-title">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+            動態數字總覽
+          </h2>
+        </div>
+        <div class="pg-counter-grid" id="pgCounterGrid"></div>
+      </section>
+
+      <!-- 互動圈圖 -->
+      <section class="section">
+        <div class="section-header">
+          <h2 class="section-title">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 2a10 10 0 0 1 0 20"/><path d="M12 2v10l7 7"/></svg>
+            熱卖水晶分佈
+          </h2>
+          <span class="section-badge">懸停查看細節</span>
+        </div>
+        <div class="pg-ring-row">
+          <div class="pg-ring-container" id="pgRingChart"></div>
+          <div class="pg-ring-legend" id="pgRingLegend"></div>
+        </div>
+      </section>
+
+      <!-- 月營收賽跑圖 -->
+      <section class="section">
+        <div class="section-header">
+          <h2 class="section-title">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/></svg>
+            月營收賽跑圖
+          </h2>
+          <button class="pg-play-btn" id="pgRacePlay">▶ 播放</button>
+        </div>
+        <div class="pg-race-container" id="pgRaceChart"></div>
+        <div class="pg-race-timeline" id="pgRaceTimeline"></div>
+      </section>
+
+      <!-- 波動熱力圖 -->
+      <section class="section">
+        <div class="section-header">
+          <h2 class="section-title">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+            月度表現熱力圖
+          </h2>
+          <span class="section-badge">懸停查看數值</span>
+        </div>
+        <div class="pg-heatmap-container" id="pgHeatmap"></div>
+      </section>
+
+      <!-- 粒子背景互動 -->
+      <section class="section pg-particles-section">
+        <div class="section-header">
+          <h2 class="section-title">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            粒子流動背景
+          </h2>
+          <span class="section-badge">移動滑鼠互動</span>
+        </div>
+        <canvas id="pgParticles" class="pg-particles-canvas"></canvas>
+        <div class="pg-particles-overlay">
+          <div class="pg-particles-text">聚寶水晶</div>
+          <div class="pg-particles-sub">Precious Crystal · 用數據說話</div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
   <footer class="footer">
     <div class="footer-line"></div>
     <p>聚寶水晶 Precious Crystal · 品牌儀表板 · 每週一自動更新</p>
   </footer>
 
+  <div class="cursor-glow" id="cursorGlow"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
   <script src="app.js"></script>
+  <script src="playground.js"></script>
 </body>
 </html>

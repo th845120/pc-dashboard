@@ -173,7 +173,7 @@ const kpiData = [
   { id: 'kpi-meta-recommend', val: 100, suffix: '%' },
   { id: 'kpi-meta-engagement', val: 275 },
   // Instagram
-  { id: 'kpi-ig-fans', val: 4213 },
+  { id: 'kpi-ig-fans', val: 4219 },
   { id: 'kpi-ig-posts', val: 245 },
   { id: 'kpi-ig-following', val: 155 },
   // Google Business Profile
@@ -526,7 +526,21 @@ function createPicker(opts) {
   // step: 'from-year' | 'from-month' | 'to-year' | 'to-month'
 
   function close() { popover.classList.remove('open'); }
-  function open()  { popover.classList.add('open'); renderArea(); }
+  function open()  {
+    // 重置 custom 步驟狀態
+    state.step = 'from-year';
+    state.pendingFrom = null;
+    state.pendingTo = null;
+    // 清除所有 shortcut 的 active 狀態
+    popover.querySelectorAll('.ym-shortcut').forEach(function(b) { b.classList.remove('active'); });
+    // 顯示目前篩選範圍摘要
+    area.innerHTML = '<div class="ym-picker-title">目前篩選</div>' +
+      '<div style="color:var(--color-text-muted);font-size:var(--text-sm);margin-top:8px;word-break:keep-all;">' +
+      (state.from ? fmtLabel(state.from) : '最早') + ' → ' +
+      (state.to < 999999 ? fmtLabel(state.to) : '最新') + '</div>' +
+      '<div style="color:var(--color-text-faint);font-size:var(--text-xs);margin-top:12px;">點選左側選項切換範圍</div>';
+    popover.classList.add('open');
+  }
 
   trigger.addEventListener('click', function(e) {
     e.stopPropagation();
@@ -589,7 +603,9 @@ function createPicker(opts) {
         renderArea();
         return;
       }
-      renderArea();
+      // 非 custom 預設選完後，套用篩選並自動關閉 popover
+      if (opts.onApply) opts.onApply(state.from, state.to);
+      close();
     });
   });
 
@@ -1419,4 +1435,19 @@ var YEARLY_PERFORMANCE = [
   tbody.innerHTML = html;
 })();
 
+// ===== CURSOR GLOW =====
+(function() {
+  var glow = document.getElementById('cursorGlow');
+  if (!glow) return;
+  var visible = false;
+  document.addEventListener('mousemove', function(e) {
+    if (!visible) { glow.classList.add('visible'); visible = true; }
+    glow.style.left = e.clientX + 'px';
+    glow.style.top = e.clientY + 'px';
+  });
+  document.addEventListener('mouseleave', function() {
+    glow.classList.remove('visible');
+    visible = false;
+  });
+})();
 
