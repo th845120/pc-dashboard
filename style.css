@@ -1047,6 +1047,11 @@ h1, h2, h3, h4, h5, h6, p, li, td, th, span, div, label, a {
   }
   .review-item { padding: 16px; }
   .yoy-row { font-size: var(--text-xs); }
+  /* Splash screen — 手機版縮小 30% */
+  .splash-brand-img { max-width: 182px; }
+  .splash-overlay { gap: 14px; }
+  .splash-slogan { font-size: var(--text-base); }
+  .splash-hint { font-size: var(--text-xs); margin-top: 16px; }
 }
 
 @media (max-width: 480px) {

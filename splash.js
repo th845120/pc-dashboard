@@ -275,12 +275,12 @@
       stars.push({
         x: emp.posRatioX * w,
         y: emp.posRatioY * h,
-        r: emp.active ? 2.8 : 2.0,
-        baseOpacity: emp.active ? 0.95 : 0.45,
+        r: 2.8,
+        baseOpacity: emp.active ? 0.95 : 0.85,
         twinkle: true,
-        twinkleSpeed: emp.active ? 0.035 : 0.02,
+        twinkleSpeed: emp.active ? 0.035 : 0.01,
         twinklePhase: ei * 1.2,
-        twinkleMin: emp.active ? 0.6 : 0.25,
+        twinkleMin: emp.active ? 0.6 : 0.78,
         color: emp.active ? [230, 220, 255] : [200, 195, 220],
         vx: 0,
         vy: 0,
@@ -566,7 +566,7 @@
       // --- Name label ---
       var labelOffsetY = es.empActive ? es.r * 8.5 : es.r * 5;
       var labelY = eDrawY + labelOffsetY;
-      var fontSize = es.empActive ? 13 : 11;
+      var fontSize = es.empActive ? 13 : 12;
       ctx.font = (es.empActive ? '500 ' : '400 ') + fontSize + 'px "Noto Sans TC", sans-serif';
       ctx.textAlign = 'center';
       ctx.textBaseline = 'top';
@@ -578,7 +578,7 @@
       } else {
         ctx.shadowColor = 'transparent';
         ctx.shadowBlur = 0;
-        ctx.fillStyle = 'rgba(160, 155, 190, ' + (eOp * 0.6) + ')';
+        ctx.fillStyle = 'rgba(215, 210, 240, ' + (eOp * 0.7) + ')';
       }
       ctx.fillText(es.empName, eDrawX, labelY);
       // Reset shadow
