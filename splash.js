@@ -18,37 +18,47 @@
   var gyroTargetX = 0, gyroTargetY = 0;
   var isTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
   var gyroMaxShift = 18; // max pixel shift
+  var gyroListenerAdded = false;
+  var gyroPermissionRequested = false;
 
-  if (isTouch && window.DeviceOrientationEvent) {
-    // Request permission on iOS 13+
-    var addGyroListener = function() {
-      window.addEventListener('deviceorientation', function(e) {
-        // gamma: left-right tilt (-90..90), beta: front-back tilt (-180..180)
-        var gamma = e.gamma || 0; // left-right
-        var beta = e.beta || 0;   // front-back
-        // Clamp to reasonable range
-        gamma = Math.max(-45, Math.min(45, gamma));
-        beta = Math.max(-45, Math.min(45, beta));
-        // Normalize to -1..1
-        gyroTargetX = -(gamma / 45) * gyroMaxShift;
-        gyroTargetY = -(beta / 45) * gyroMaxShift;
-      }, true);
-    };
+  function addGyroListener() {
+    if (gyroListenerAdded) return;
+    gyroListenerAdded = true;
+    window.addEventListener('deviceorientation', function(e) {
+      // gamma: left-right tilt (-90..90), beta: front-back tilt (-180..180)
+      var gamma = e.gamma || 0;
+      var beta = e.beta || 0;
+      // Clamp to reasonable range
+      gamma = Math.max(-45, Math.min(45, gamma));
+      beta = Math.max(-45, Math.min(45, beta));
+      // Normalize to -1..1
+      gyroTargetX = -(gamma / 45) * gyroMaxShift;
+      gyroTargetY = -(beta / 45) * gyroMaxShift;
+    }, true);
+  }
 
+  function requestGyroPermission() {
+    if (gyroPermissionRequested) return;
+    gyroPermissionRequested = true;
     if (typeof DeviceOrientationEvent.requestPermission === 'function') {
-      // iOS 13+ — request permission alongside first splash click
-      var gyroRequested = false;
-      splash.addEventListener('click', function() {
-        if (gyroRequested) return;
-        gyroRequested = true;
-        DeviceOrientationEvent.requestPermission().then(function(state) {
-          if (state === 'granted') addGyroListener();
-        }).catch(function() {});
+      // iOS 13+ — must be triggered by user gesture
+      DeviceOrientationEvent.requestPermission().then(function(state) {
+        if (state === 'granted') addGyroListener();
+      }).catch(function() {
+        gyroPermissionRequested = false; // allow retry on failure
       });
     } else {
-      // Android / older iOS — just add listener
       addGyroListener();
     }
+  }
+
+  // Track whether iOS gyro permission needs handling
+  var needsIOSGyroPermission = isTouch && window.DeviceOrientationEvent &&
+    typeof DeviceOrientationEvent.requestPermission === 'function';
+
+  if (isTouch && window.DeviceOrientationEvent && !needsIOSGyroPermission) {
+    // Android / older iOS — just add listener immediately
+    addGyroListener();
   }
 
   function resize() {
@@ -575,8 +585,8 @@
   }
   draw();
 
-  // --- Click to dismiss ---
-  splash.addEventListener('click', function() {
+  // --- Dismiss splash (shared logic) ---
+  function dismissSplash() {
     splash.classList.add('fade-out');
     mainApp.classList.remove('hidden');
     setTimeout(function() {
@@ -584,6 +594,23 @@
       cancelAnimationFrame(animId);
       animId = null;
     }, 800);
+  }
+
+  // --- Click to dismiss ---
+  splash.addEventListener('click', function() {
+    if (needsIOSGyroPermission && !gyroPermissionRequested) {
+      // iOS 13+: first click requests gyro permission, THEN dismisses
+      gyroPermissionRequested = true;
+      DeviceOrientationEvent.requestPermission().then(function(state) {
+        if (state === 'granted') addGyroListener();
+        dismissSplash();
+      }).catch(function() {
+        gyroPermissionRequested = false;
+        dismissSplash();
+      });
+    } else {
+      dismissSplash();
+    }
   });
 
   // --- Brand logo click → return to splash ---
