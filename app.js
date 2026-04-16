@@ -46,7 +46,7 @@ if (donutCtx) {
     data: {
       labels: ['好評 (4-5★)', '普通 (3★)', '差評 (1-2★)'],
       datasets: [{
-        data: [16510, 33, 8],
+        data: [16517, 33, 8],
         backgroundColor: ['#3dbf7a', '#e8a825', '#e05555'],
         borderColor: 'transparent',
         borderWidth: 0,
@@ -89,7 +89,7 @@ if (barCtx) {
       labels: ['好評\n(4-5★)', '普通\n(3★)', '差評\n(1-2★)'],
       datasets: [{
         label: '評價數量',
-        data: [16510, 33, 8],
+        data: [16517, 33, 8],
         backgroundColor: ['rgba(61,191,122,0.75)', 'rgba(232,168,37,0.75)', 'rgba(224,85,85,0.75)'],
         borderColor: ['#3dbf7a', '#e8a825', '#e05555'],
         borderWidth: 2,
@@ -165,15 +165,15 @@ const kpiData = [
   // 蝦皮
   { id: 'kpi-shopee-rating', val: 4.99, float: true },
   { id: 'kpi-shopee-positive', val: 99.75, float: true, suffix: '%' },
-  { id: 'kpi-shopee-fans', val: 141988 },
+  { id: 'kpi-shopee-fans', val: 142363 },
   { id: 'kpi-shopee-products', val: 366 },
-  { id: 'kpi-shopee-reply', val: 75, suffix: '%' },
-  // Meta
-  { id: 'kpi-meta-fans', val: 16366 },
+  { id: 'kpi-shopee-reply', val: 73, suffix: '%' },
+  // Meta — display as "16K" so skip counter
+  // { id: 'kpi-meta-fans', val: 16000 },
   { id: 'kpi-meta-recommend', val: 100, suffix: '%' },
-  { id: 'kpi-meta-engagement', val: 275 },
+  { id: 'kpi-meta-engagement', val: 279 },
   // Instagram
-  { id: 'kpi-ig-fans', val: 4219 },
+  { id: 'kpi-ig-fans', val: 4226 },
   { id: 'kpi-ig-posts', val: 245 },
   { id: 'kpi-ig-following', val: 155 },
   // Google Business Profile
@@ -213,12 +213,20 @@ function sliceData(arr, months) {
   return arr.slice(-n);
 }
 
-// 顏色：最後一筆紅，其餘品牌紫
+// 顏色：最後一筆紅，負值也紅，其餘品牌紫
 function barBg(data) {
-  return data.map((_, i) => i === data.length - 1 ? '#e05555' : 'rgba(196,181,220,0.55)');
+  return data.map(function(v, i) {
+    if (i === data.length - 1) return '#e05555';
+    if (v < 0) return 'rgba(224,85,85,0.55)';
+    return 'rgba(196,181,220,0.55)';
+  });
 }
 function barBorder(data) {
-  return data.map((_, i) => i === data.length - 1 ? '#e05555' : '#c4b5dc');
+  return data.map(function(v, i) {
+    if (i === data.length - 1) return '#e05555';
+    if (v < 0) return '#e05555';
+    return '#c4b5dc';
+  });
 }
 function linePtBg(data) {
   return data.map((_, i) => i === data.length - 1 ? '#e05555' : '#c4b5dc');
@@ -1756,5 +1764,36 @@ var YEARLY_PERFORMANCE = [
     glow.classList.remove('visible');
     visible = false;
   });
+})();
+
+// ===== HEADER SCROLL EFFECT =====
+(function() {
+  var header = document.getElementById('siteHeader');
+  if (!header) return;
+  var lastScroll = 0;
+  window.addEventListener('scroll', function() {
+    var scrollY = window.scrollY || window.pageYOffset;
+    if (scrollY > 10) {
+      header.classList.add('scrolled');
+    } else {
+      header.classList.remove('scrolled');
+    }
+    lastScroll = scrollY;
+  }, { passive: true });
+})();
+
+// ===== SCROLL FADE-IN ANIMATIONS =====
+(function() {
+  var elements = document.querySelectorAll('.fade-in-up');
+  if (!elements.length) return;
+  var observer = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+  elements.forEach(function(el) { observer.observe(el); });
 })();
 

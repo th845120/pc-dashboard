@@ -23,20 +23,20 @@
     </div>
   </div>
 
-  <!-- Main App (hidden until splash dismissed) -->
+  <!-- Main App -->
   <div id="mainApp" class="main-app hidden">
 
   <!-- Header -->
-  <header class="header">
+  <header class="header" id="siteHeader">
     <div class="header-inner">
       <a class="brand" href="#" id="brandHomeLink" title="回到首頁">
         <img src="logo.png" alt="聚寶水晶" class="brand-logo" />
         <img src="brand-text.png" alt="聚寶水晶 Precious Crystal" class="brand-text-img" />
       </a>
       <div class="header-right">
-        <span class="update-badge">最後更新：2026-04-16 00:32 (UTC+8)</span>
+        <span class="update-badge">最後更新：2026-04-16 14:45 (UTC+8)</span>
         <button class="theme-toggle" data-theme-toggle aria-label="切換深色模式">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
         </button>
       </div>
     </div>
@@ -44,7 +44,7 @@
     <!-- Tab Nav -->
     <nav class="tab-nav" role="tablist">
       <button class="tab-btn active" data-tab="sentiment" role="tab" aria-selected="true">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3h18v18H3z" opacity="0"/><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
         品牌輿情
       </button>
       <button class="tab-btn" data-tab="sales" role="tab" aria-selected="false">
@@ -71,7 +71,7 @@
     <main class="main">
 
       <!-- Section: 蝦皮 -->
-      <section class="section">
+      <section class="section fade-in-up">
         <div class="section-header">
           <h2 class="section-title">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
@@ -94,7 +94,7 @@
           </div>
           <div class="kpi-card">
             <div class="kpi-label">蝦皮粉絲</div>
-            <div class="kpi-value" id="kpi-shopee-fans">141,988</div>
+            <div class="kpi-value" id="kpi-shopee-fans">142,363</div>
             <div class="kpi-sub">累積追蹤人數</div>
             <div class="kpi-delta neutral">── 首次記錄</div>
           </div>
@@ -106,8 +106,8 @@
           </div>
           <div class="kpi-card warn">
             <div class="kpi-label">回覆率</div>
-            <div class="kpi-value" id="kpi-shopee-reply">75%</div>
-            <div class="kpi-sub">API 即時數據<br>（截至 04/15）</div>
+            <div class="kpi-value" id="kpi-shopee-reply">73%</div>
+            <div class="kpi-sub">蝦皮聊聊回覆率</div>
           </div>
         </div>
         <div class="charts-row">
@@ -115,7 +115,7 @@
             <h3 class="chart-title">評價分布</h3>
             <div class="chart-wrap donut-wrap"><canvas id="ratingDonut"></canvas></div>
             <div class="donut-legend">
-              <span class="legend-dot good"></span><span>好評 16,510</span>
+              <span class="legend-dot good"></span><span>好評 16,517</span>
               <span class="legend-dot warn"></span><span>普通 33</span>
               <span class="legend-dot bad"></span><span>差評 8</span>
             </div>
@@ -123,13 +123,13 @@
           <div class="chart-card">
             <h3 class="chart-title">評價總量</h3>
             <div class="chart-wrap"><canvas id="totalBar"></canvas></div>
-            <p class="chart-note">總評價數：<strong>16,551</strong> 則</p>
+            <p class="chart-note">總評價數：<strong>16,558</strong> 則</p>
           </div>
         </div>
       </section>
 
       <!-- Section: Meta -->
-      <section class="section">
+      <section class="section fade-in-up">
         <div class="section-header">
           <h2 class="section-title">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
@@ -140,7 +140,7 @@
         <div class="kpi-grid">
           <div class="kpi-card accent">
             <div class="kpi-label">粉絲數</div>
-            <div class="kpi-value" id="kpi-meta-fans">16,366</div>
+            <div class="kpi-value" id="kpi-meta-fans">16K</div>
             <div class="kpi-sub">Facebook 粉絲頁</div>
             <div class="kpi-delta neutral">── 首次記錄</div>
           </div>
@@ -151,14 +151,14 @@
           </div>
           <div class="kpi-card">
             <div class="kpi-label">近期互動</div>
-            <div class="kpi-value" id="kpi-meta-engagement">275</div>
-            <div class="kpi-sub">讚 + 留言 + 分享（2天）</div>
+            <div class="kpi-value" id="kpi-meta-engagement">279</div>
+            <div class="kpi-sub">14 讚 + 261 留言 + 4 分享</div>
           </div>
         </div>
       </section>
 
       <!-- Section: Instagram -->
-      <section class="section">
+      <section class="section fade-in-up">
         <div class="section-header">
           <h2 class="section-title">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
@@ -169,7 +169,7 @@
         <div class="kpi-grid">
           <div class="kpi-card accent">
             <div class="kpi-label">粉絲數</div>
-            <div class="kpi-value" id="kpi-ig-fans">4,219</div>
+            <div class="kpi-value" id="kpi-ig-fans">4,226</div>
             <div class="kpi-sub">@opcrystal888</div>
             <div class="kpi-delta neutral">── 首次記錄</div>
           </div>
@@ -185,14 +185,14 @@
             <div class="kpi-sub">關注帳號數</div>
           </div>
         </div>
-        <div class="info-note">
+        <div class="info-note" style="margin-top:16px;">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
           IG 互動數據（讚數、留言數）需連接 Instagram 連接器後方可追蹤
         </div>
       </section>
 
       <!-- Section: Google Business Profile -->
-      <section class="section">
+      <section class="section fade-in-up">
         <div class="section-header">
           <h2 class="section-title">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
@@ -219,54 +219,54 @@
           </div>
         </div>
         <div class="reviews-section">
-          <h3 class="chart-title">最新評論</h3>
+          <h3 class="chart-title">Google 最新評論</h3>
           <div class="review-list">
             <div class="review-item">
               <div class="review-header">
                 <span class="review-author">Chih-Chun Tu</span>
                 <span class="review-stars">★★★★★</span>
-                <span class="review-date">2026-04-15</span>
+                <span class="review-date">1天前</span>
               </div>
               <p class="review-text">聚寶水晶讚</p>
             </div>
             <div class="review-item">
               <div class="review-header">
-                <span class="review-author">楊雅惠</span>
-                <span class="review-stars">★★★★★</span>
-                <span class="review-date">2026-04-14</span>
-              </div>
-              <p class="review-text">跟老闆買的水晶品質很好，感謝老闆和聚寶主播真誠介紹美麗的水晶。</p>
-            </div>
-            <div class="review-item">
-              <div class="review-header">
                 <span class="review-author">Yvonne Chan</span>
                 <span class="review-stars">★★★★★</span>
-                <span class="review-date">2026-04-14</span>
+                <span class="review-date">2天前</span>
               </div>
-              <p class="review-text">偶然第一次看到老闆的直播，就開始下單小試水溫直到現在，除了是台灣寄送很安心之外，水晶的品質是真的非常非常好，包裝更是一點都不馬虎，是個很讓人安心購物的賣家。</p>
+              <p class="review-text">無意間看到賣家的直播，開始試著下單，之後就一直買了。除了從台灣出貨讓我比較安心之外，水晶的品質真的很好，包裝也很完美，是一家可以很安心購物的賣家。</p>
             </div>
             <div class="review-item">
               <div class="review-header">
                 <span class="review-author">Tintin Tai</span>
                 <span class="review-stars">★★★★★</span>
-                <span class="review-date">2026-04-14</span>
+                <span class="review-date">2天前</span>
               </div>
-              <p class="review-text">沒什麼比擁有自己喜歡的水晶更愉悅的事了<br>老闆細心的介紹各種水晶<br>協助尋找心中想要的品質<br>超開心進入水晶世界初期就碰到老闆😊</p>
+              <p class="review-text">沒有什麼比擁有自己心愛的水晶更開心的事了！老闆耐心地講解各種水晶，幫我找到我想要的品質。好開心在水晶之旅的初期就遇到了老闆！😊</p>
+            </div>
+            <div class="review-item">
+              <div class="review-header">
+                <span class="review-author">楊雅惠</span>
+                <span class="review-stars">★★★★★</span>
+                <span class="review-date">2天前（已編輯）</span>
+              </div>
+              <p class="review-text">在賣家買的水晶品質都很好，感謝賣家和聚寶直播主真誠介紹美麗的水晶。</p>
             </div>
             <div class="review-item">
               <div class="review-header">
                 <span class="review-author">陳欣婷</span>
                 <span class="review-stars">★★★★★</span>
-                <span class="review-date">2026-04-14</span>
+                <span class="review-date">2天前</span>
               </div>
-              <p class="review-text">品質保證的好賣家</p>
+              <p class="review-text">賣家很好，品質有保證</p>
             </div>
           </div>
         </div>
       </section>
 
       <!-- Section: 輿情監測 -->
-      <section class="section">
+      <section class="section fade-in-up">
         <div class="section-header">
           <h2 class="section-title">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
@@ -312,7 +312,7 @@
       </section>
 
       <!-- Section: 行動建議 -->
-      <section class="section">
+      <section class="section fade-in-up">
         <div class="section-header">
           <h2 class="section-title">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
@@ -355,8 +355,7 @@
     </div>
     <main class="main">
 
-      <!-- ── Section 1: 聊聊概覽（本月 KPI）── -->
-      <section class="section">
+      <section class="section fade-in-up">
         <div class="section-header">
           <h2 class="section-title">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
@@ -364,67 +363,24 @@
           </h2>
           <span class="section-badge" style="background:rgba(196,181,220,0.15);color:#c4b5dc;">聊聊數據</span>
         </div>
-
-        <!-- 第一排：聊聊諮詢 / 已回覆聊聊 / 未回覆聊聊 -->
         <div class="kpi-grid service-kpi-3">
-          <div class="kpi-card">
-            <div class="kpi-label">聊聊諮詢</div>
-            <div class="kpi-value">347</div>
-            <div class="kpi-delta good-delta">▲ 4.52%</div>
-          </div>
-          <div class="kpi-card">
-            <div class="kpi-label">已回覆聊聊</div>
-            <div class="kpi-value">314</div>
-            <div class="kpi-delta good-delta">▲ 14.18%</div>
-          </div>
-          <div class="kpi-card">
-            <div class="kpi-label">未回覆聊聊</div>
-            <div class="kpi-value">33</div>
-            <div class="kpi-delta good-delta">▼ 42.11%</div>
-          </div>
+          <div class="kpi-card"><div class="kpi-label">聊聊諮詢</div><div class="kpi-value">347</div><div class="kpi-delta good-delta">▲ 4.52%</div></div>
+          <div class="kpi-card"><div class="kpi-label">已回覆聊聊</div><div class="kpi-value">314</div><div class="kpi-delta good-delta">▲ 14.18%</div></div>
+          <div class="kpi-card"><div class="kpi-label">未回覆聊聊</div><div class="kpi-value">33</div><div class="kpi-delta good-delta">▼ 42.11%</div></div>
         </div>
-
-        <!-- 第二排：詢問率 / 轉化率（回覆至下單）/ 聊聊滿意度 -->
         <div class="kpi-grid service-kpi-3" style="margin-top:12px;">
-          <div class="kpi-card">
-            <div class="kpi-label">詢問率</div>
-            <div class="kpi-value">0.15%</div>
-            <div class="kpi-sub">訪客 → 諮詢比率</div>
-          </div>
-          <div class="kpi-card">
-            <div class="kpi-label">轉化率（回覆至下單）</div>
-            <div class="kpi-value">16.56%</div>
-            <div class="kpi-sub">從回覆到下單</div>
-          </div>
-          <div class="kpi-card">
-            <div class="kpi-label">聊聊滿意度</div>
-            <div class="kpi-value">99.38%</div>
-            <div class="kpi-delta bad">▼ 0.03%</div>
-          </div>
+          <div class="kpi-card"><div class="kpi-label">詢問率</div><div class="kpi-value">0.15%</div><div class="kpi-sub">訪客 → 諮詢比率</div></div>
+          <div class="kpi-card"><div class="kpi-label">轉化率（回覆至下單）</div><div class="kpi-value">16.56%</div><div class="kpi-sub">從回覆到下單</div></div>
+          <div class="kpi-card"><div class="kpi-label">聊聊滿意度</div><div class="kpi-value">99.38%</div><div class="kpi-delta bad">▼ 0.03%</div></div>
         </div>
-
-        <!-- 第三排：營業額 / 聊聊平均客單價 / 平均回應速度 -->
         <div class="kpi-grid service-kpi-3" style="margin-top:12px;">
-          <div class="kpi-card">
-            <div class="kpi-label">營業額</div>
-            <div class="kpi-value" style="font-size:var(--text-xl);">NT$267,428</div>
-            <div class="kpi-delta bad">▼ 49.02%</div>
-          </div>
-          <div class="kpi-card">
-            <div class="kpi-label">聊聊平均客單價</div>
-            <div class="kpi-value">NT$4,313</div>
-            <div class="kpi-sub">銷售額 ÷ 訂單數</div>
-          </div>
-          <div class="kpi-card">
-            <div class="kpi-label">平均回應速度</div>
-            <div class="kpi-value" style="font-size:var(--text-xl);">01:23:35</div>
-            <div class="kpi-delta good-delta">▼ 6.99%（速度改善）</div>
-          </div>
+          <div class="kpi-card"><div class="kpi-label">營業額</div><div class="kpi-value" style="font-size:var(--text-xl);">NT$267,428</div><div class="kpi-delta bad">▼ 49.02%</div></div>
+          <div class="kpi-card"><div class="kpi-label">聊聊平均客單價</div><div class="kpi-value">NT$4,313</div><div class="kpi-sub">銷售額 ÷ 訂單數</div></div>
+          <div class="kpi-card"><div class="kpi-label">平均回應速度</div><div class="kpi-value" style="font-size:var(--text-xl);">01:23:35</div><div class="kpi-delta good-delta">▼ 6.99%（速度改善）</div></div>
         </div>
       </section>
 
-      <!-- ── Section 3: 歷史趨勢 ── -->
-      <section class="section">
+      <section class="section fade-in-up">
         <div class="section-header">
           <h2 class="section-title">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
@@ -437,8 +393,6 @@
               <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
             </button>
           </div>
-
-          <!-- Service Chart Picker Popover -->
           <div class="ym-popover" id="serviceChartPickerPopover">
             <div class="ym-popover-inner">
               <div class="ym-shortcuts">
@@ -453,9 +407,7 @@
                 <button class="ym-shortcut" data-preset="Q4">Q4</button>
                 <button class="ym-shortcut" data-preset="custom">自訂</button>
               </div>
-              <div class="ym-picker-area" id="serviceChartPickerArea">
-                <!-- 動態填入 -->
-              </div>
+              <div class="ym-picker-area" id="serviceChartPickerArea"></div>
             </div>
             <div class="ym-popover-footer">
               <span class="ym-selected-label" id="serviceChartSelectedLabel">已選：全部</span>
@@ -463,34 +415,17 @@
             </div>
           </div>
         </div>
-
-        <!-- 未回覆聊聊 + 詢問率 -->
         <div class="charts-row service-charts-2col">
-          <div class="chart-card">
-            <h3 class="chart-title">未回覆聊聊 / 月</h3>
-            <div class="chart-wrap" style="height:200px;"><canvas id="serviceUnrepliedChart"></canvas></div>
-          </div>
-          <div class="chart-card">
-            <h3 class="chart-title">詢問率趨勢 (%)</h3>
-            <div class="chart-wrap" style="height:200px;"><canvas id="serviceInquiryChart"></canvas></div>
-          </div>
+          <div class="chart-card"><h3 class="chart-title">未回覆聊聊 / 月</h3><div class="chart-wrap" style="height:200px;"><canvas id="serviceUnrepliedChart"></canvas></div></div>
+          <div class="chart-card"><h3 class="chart-title">詢問率趨勢 (%)</h3><div class="chart-wrap" style="height:200px;"><canvas id="serviceInquiryChart"></canvas></div></div>
         </div>
-
-        <!-- 轉化率 + 聊聊營業額 -->
         <div class="charts-row service-charts-2col" style="margin-top:16px;">
-          <div class="chart-card">
-            <h3 class="chart-title">轉化率趨勢 — 回覆至下單 (%)</h3>
-            <div class="chart-wrap" style="height:200px;"><canvas id="serviceCvrChart"></canvas></div>
-          </div>
-          <div class="chart-card">
-            <h3 class="chart-title">聊聊營業額趨勢 (NT$)</h3>
-            <div class="chart-wrap" style="height:200px;"><canvas id="serviceRevenueChart"></canvas></div>
-          </div>
+          <div class="chart-card"><h3 class="chart-title">轉化率趨勢 — 回覆至下單 (%)</h3><div class="chart-wrap" style="height:200px;"><canvas id="serviceCvrChart"></canvas></div></div>
+          <div class="chart-card"><h3 class="chart-title">聊聊營業額趨勢 (NT$)</h3><div class="chart-wrap" style="height:200px;"><canvas id="serviceRevenueChart"></canvas></div></div>
         </div>
       </section>
 
-      <!-- ── Section 4: 月份對比明細表 ── -->
-      <section class="section">
+      <section class="section fade-in-up">
         <div class="section-header">
           <h2 class="section-title">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
@@ -503,8 +438,6 @@
               <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
             </button>
           </div>
-
-          <!-- Service Table Picker Popover -->
           <div class="ym-popover" id="serviceTablePickerPopover">
             <div class="ym-popover-inner">
               <div class="ym-shortcuts">
@@ -519,9 +452,7 @@
                 <button class="ym-shortcut" data-preset="Q4">Q4</button>
                 <button class="ym-shortcut" data-preset="custom">自訂</button>
               </div>
-              <div class="ym-picker-area" id="serviceTablePickerArea">
-                <!-- 動態填入 -->
-              </div>
+              <div class="ym-picker-area" id="serviceTablePickerArea"></div>
             </div>
             <div class="ym-popover-footer">
               <span class="ym-selected-label" id="serviceTableSelectedLabel">已選：全部</span>
@@ -531,19 +462,8 @@
         </div>
         <div class="data-table-wrap">
           <table class="data-table">
-            <thead>
-              <tr>
-                <th>月份</th>
-                <th>未回覆聊聊</th>
-                <th>詢問率</th>
-                <th>轉化率</th>
-                <th>營業額</th>
-                <th>平均客單價</th>
-              </tr>
-            </thead>
-            <tbody id="serviceTableBody">
-              <!-- 動態填入 -->
-            </tbody>
+            <thead><tr><th>月份</th><th>未回覆聊聊</th><th>詢問率</th><th>轉化率</th><th>營業額</th><th>平均客單價</th></tr></thead>
+            <tbody id="serviceTableBody"></tbody>
           </table>
         </div>
         <div class="info-note" style="margin-top:12px;">
@@ -552,8 +472,7 @@
         </div>
       </section>
 
-      <!-- ── Section 5: 客服改善建議 ── -->
-      <section class="section">
+      <section class="section fade-in-up">
         <div class="section-header">
           <h2 class="section-title">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
@@ -590,15 +509,13 @@
 
   <!-- ===== TAB: 銷售數據 ===== -->
   <div class="tab-panel" id="tab-sales">
-
     <div class="page-subtitle">
       <h1>銷售數據</h1>
       <div class="accent-line"></div>
     </div>
     <main class="main">
 
-      <!-- ── 202603 本月 KPI ── -->
-      <section class="section">
+      <section class="section fade-in-up">
         <div class="section-header">
           <h2 class="section-title">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="20" x2="12" y2="10"/><line x1="18" y1="20" x2="18" y2="4"/><line x1="6" y1="20" x2="6" y2="16"/></svg>
@@ -606,81 +523,28 @@
           </h2>
           <span class="section-badge" style="background:rgba(196,181,220,0.15);color:#c4b5dc;">可出貨訂單</span>
         </div>
-
-        <!-- 第一排：粉絲增長 / 新客增長 / 複購率 -->
         <div class="kpi-grid sales-kpi-3">
-          <div class="kpi-card">
-            <div class="kpi-label">蝦皮粉絲增長</div>
-            <div class="kpi-value" id="s-fans" style="color:#e05555;">-253</div>
-            <div class="kpi-sub">2026 年 3 月淨增減</div>
-            <div class="kpi-delta bad">▼ 4,965 人（較上月 +4,712）</div>
-          </div>
-          <div class="kpi-card">
-            <div class="kpi-label">新客增長</div>
-            <div class="kpi-value" id="s-newbuyer">87</div>
-            <div class="kpi-sub">新買家人數</div>
-            <div class="kpi-delta bad">▼ 11.22%（較上月 98 人）</div>
-          </div>
-          <div class="kpi-card">
-            <div class="kpi-label">複購率</div>
-            <div class="kpi-value" id="s-repurchase">29.53%</div>
-            <div class="kpi-sub">可出貨訂單回購率</div>
-            <div class="kpi-delta bad">▼ 13.33%（較上月 34.07%）</div>
-          </div>
+          <div class="kpi-card"><div class="kpi-label">蝦皮粉絲增長</div><div class="kpi-value" style="color:#e05555;">-253</div><div class="kpi-sub">2026 年 3 月淨增減</div><div class="kpi-delta bad">▼ 4,965 人（較上月 +4,712）</div></div>
+          <div class="kpi-card"><div class="kpi-label">新客增長</div><div class="kpi-value">87</div><div class="kpi-sub">新買家人數</div><div class="kpi-delta bad">▼ 11.22%（較上月 98 人）</div></div>
+          <div class="kpi-card"><div class="kpi-label">複購率</div><div class="kpi-value">29.53%</div><div class="kpi-sub">可出貨訂單回購率</div><div class="kpi-delta bad">▼ 13.33%（較上月 34.07%）</div></div>
         </div>
-
-        <!-- 第二排：轉換率 / 平均客單價 -->
         <div class="kpi-grid sales-kpi-3" style="margin-top:12px;">
-          <div class="kpi-card">
-            <div class="kpi-label">訂單轉換率</div>
-            <div class="kpi-value" id="s-cvr">0.44%</div>
-            <div class="kpi-sub">可出貨訂單／訪客</div>
-            <div class="kpi-delta bad">▼ 32.31%（較上月 0.65%）</div>
-          </div>
-          <div class="kpi-card accent">
-            <div class="kpi-label">平均客單價</div>
-            <div class="kpi-value" id="s-aov">NT$3,837</div>
-            <div class="kpi-sub">可出貨訂單均價</div>
-            <div class="kpi-delta bad">▼ 5.05%（較上月 NT$4,041）</div>
-          </div>
-          <div class="kpi-card">
-            <div class="kpi-label">淨營業額</div>
-            <div class="kpi-value" id="s-revenue" style="font-size:var(--text-xl);">NT$782,417</div>
-            <div class="kpi-sub">可出貨 $970,838 - 不成立 - 退貨</div>
-            <div class="kpi-delta neutral">── 首次記錄（202603）</div>
-          </div>
+          <div class="kpi-card"><div class="kpi-label">訂單轉換率</div><div class="kpi-value">0.44%</div><div class="kpi-sub">可出貨訂單／訪客</div><div class="kpi-delta bad">▼ 32.31%（較上月 0.65%）</div></div>
+          <div class="kpi-card accent"><div class="kpi-label">平均客單價</div><div class="kpi-value">NT$3,837</div><div class="kpi-sub">可出貨訂單均價</div><div class="kpi-delta bad">▼ 5.05%（較上月 NT$4,041）</div></div>
+          <div class="kpi-card"><div class="kpi-label">淨營業額</div><div class="kpi-value" style="font-size:var(--text-xl);">NT$782,417</div><div class="kpi-sub">可出貨 $970,838 - 不成立 - 退貨</div><div class="kpi-delta neutral">── 首次記錄（202603）</div></div>
         </div>
-
-        <!-- 第三排：手機跳出率 / 電腦跳出率 / 退貨訂單 -->
         <div class="kpi-grid sales-kpi-3" style="margin-top:12px;">
-          <div class="kpi-card good">
-            <div class="kpi-label">手機跳出率</div>
-            <div class="kpi-value" id="s-mobile-bounce">26.92%</div>
-            <div class="kpi-sub">手機版訪客跳出比率</div>
-            <div class="kpi-delta good">▲ 2.91%（較上月 26.16%，正常範圍）</div>
-          </div>
-          <div class="kpi-card bad">
-            <div class="kpi-label">電腦跳出率</div>
-            <div class="kpi-value" id="s-pc-bounce">73.80%</div>
-            <div class="kpi-sub">電腦版訪客跳出比率</div>
-            <div class="kpi-delta neutral">── 首次記錄（電腦版）</div>
-          </div>
-          <div class="kpi-card">
-            <div class="kpi-label">退貨/不成立訂單</div>
-            <div class="kpi-value" id="s-return-orders">45</div>
-            <div class="kpi-sub">不成立 40 + 退貨 5</div>
-            <div class="kpi-delta bad">銷售額 NT$188,421</div>
-          </div>
+          <div class="kpi-card"><div class="kpi-label">手機跳出率</div><div class="kpi-value">26.92%</div><div class="kpi-sub">手機版訪客跳出比率</div><div class="kpi-delta good">▲ 2.91%（較上月 26.16%，正常範圍）</div></div>
+          <div class="kpi-card"><div class="kpi-label">電腦跳出率</div><div class="kpi-value">73.80%</div><div class="kpi-sub">電腦版訪客跳出比率</div><div class="kpi-delta neutral">── 首次記錄（電腦版）</div></div>
+          <div class="kpi-card"><div class="kpi-label">退貨/不成立訂單</div><div class="kpi-value">45</div><div class="kpi-sub">不成立 40 + 退貨 5</div><div class="kpi-delta bad">銷售額 NT$188,421</div></div>
         </div>
-
         <div class="info-note" style="margin-top:16px;">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
           數據來源：蝦皮賣場後台匯出（可出貨訂單維度），202603 = 2026年3月
         </div>
       </section>
 
-      <!-- ── 趨勢圖表區 ── -->
-      <section class="section">
+      <section class="section fade-in-up">
         <div class="section-header">
           <h2 class="section-title">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
@@ -693,8 +557,6 @@
               <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
             </button>
           </div>
-
-          <!-- Chart Picker Popover -->
           <div class="ym-popover" id="chartPickerPopover">
             <div class="ym-popover-inner">
               <div class="ym-shortcuts">
@@ -709,9 +571,7 @@
                 <button class="ym-shortcut" data-preset="Q4">Q4</button>
                 <button class="ym-shortcut" data-preset="custom">自訂</button>
               </div>
-              <div class="ym-picker-area" id="chartPickerArea">
-                <!-- 動態填入 -->
-              </div>
+              <div class="ym-picker-area" id="chartPickerArea"></div>
             </div>
             <div class="ym-popover-footer">
               <span class="ym-selected-label" id="chartSelectedLabel">已選：全部</span>
@@ -719,42 +579,20 @@
             </div>
           </div>
         </div>
-
-        <!-- 粉絲增長 + 新客增長 -->
         <div class="charts-row">
-          <div class="chart-card">
-            <h3 class="chart-title">蝦皮粉絲增長 / 月</h3>
-            <div class="chart-wrap" style="height:200px;"><canvas id="salesFansChart"></canvas></div>
-          </div>
-          <div class="chart-card">
-            <h3 class="chart-title">新客增長 / 月</h3>
-            <div class="chart-wrap" style="height:200px;"><canvas id="salesNewBuyerChart"></canvas></div>
-          </div>
+          <div class="chart-card"><h3 class="chart-title">蝦皮粉絲增長 / 月</h3><div class="chart-wrap" style="height:200px;"><canvas id="salesFansChart"></canvas></div></div>
+          <div class="chart-card"><h3 class="chart-title">新客增長 / 月</h3><div class="chart-wrap" style="height:200px;"><canvas id="salesNewBuyerChart"></canvas></div></div>
         </div>
-
-        <!-- 複購率 + 轉換率 -->
         <div class="charts-row" style="margin-top:16px;">
-          <div class="chart-card">
-            <h3 class="chart-title">複購率趨勢 (%)</h3>
-            <div class="chart-wrap" style="height:200px;"><canvas id="salesRepurchaseChart"></canvas></div>
-          </div>
-          <div class="chart-card">
-            <h3 class="chart-title">訂單轉換率趨勢 (%)</h3>
-            <div class="chart-wrap" style="height:200px;"><canvas id="salesCvrChart"></canvas></div>
-          </div>
+          <div class="chart-card"><h3 class="chart-title">複購率趨勢 (%)</h3><div class="chart-wrap" style="height:200px;"><canvas id="salesRepurchaseChart"></canvas></div></div>
+          <div class="chart-card"><h3 class="chart-title">訂單轉換率趨勢 (%)</h3><div class="chart-wrap" style="height:200px;"><canvas id="salesCvrChart"></canvas></div></div>
         </div>
-
-        <!-- 平均客單價（全寬） -->
         <div style="margin-top:16px;">
-          <div class="chart-card">
-            <h3 class="chart-title">平均客單價趨勢 (NT$)</h3>
-            <div class="chart-wrap" style="height:200px;"><canvas id="salesAovChart"></canvas></div>
-          </div>
+          <div class="chart-card"><h3 class="chart-title">平均客單價趨勢 (NT$)</h3><div class="chart-wrap" style="height:200px;"><canvas id="salesAovChart"></canvas></div></div>
         </div>
       </section>
 
-      <!-- ── 月份對比表 ── -->
-      <section class="section">
+      <section class="section fade-in-up">
         <div class="section-header">
           <h2 class="section-title">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
@@ -767,8 +605,6 @@
               <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
             </button>
           </div>
-
-          <!-- Table Picker Popover -->
           <div class="ym-popover" id="tablePickerPopover">
             <div class="ym-popover-inner">
               <div class="ym-shortcuts">
@@ -783,9 +619,7 @@
                 <button class="ym-shortcut" data-preset="Q4">Q4</button>
                 <button class="ym-shortcut" data-preset="custom">自訂</button>
               </div>
-              <div class="ym-picker-area" id="tablePickerArea">
-                <!-- 動態填入 -->
-              </div>
+              <div class="ym-picker-area" id="tablePickerArea"></div>
             </div>
             <div class="ym-popover-footer">
               <span class="ym-selected-label" id="tableSelectedLabel">已選：全部</span>
@@ -795,36 +629,8 @@
         </div>
         <div class="data-table-wrap">
           <table class="data-table">
-            <thead>
-              <tr>
-                <th>月份</th>
-                <th>粉絲增長</th>
-                <th>新客</th>
-                <th>複購率</th>
-                <th>轉換率</th>
-                <th>平均客單價</th>
-                <th>手機跳出</th>
-                <th>電腦跳出</th>
-              </tr>
-            </thead>
-            <tbody id="salesTableBody">
-              <tr><td>202412</td><td>4,733</td><td>139</td><td>11.48%</td><td>0.52%</td><td>NT$3,173</td><td>22.82%</td><td>74.21%</td></tr>
-              <tr><td>202501</td><td>6,214</td><td>153</td><td>12.55%</td><td>0.54%</td><td>NT$3,351</td><td>22.09%</td><td>74.63%</td></tr>
-              <tr><td>202502</td><td>2,310</td><td>229</td><td>14.70%</td><td>0.71%</td><td>NT$3,869</td><td>21.61%</td><td>72.75%</td></tr>
-              <tr><td>202503</td><td>749</td><td>189</td><td>21.71%</td><td>1.01%</td><td>NT$3,896</td><td>20.36%</td><td>68.28%</td></tr>
-              <tr><td>202504</td><td>1,600</td><td>193</td><td>21.72%</td><td>1.04%</td><td>NT$3,962</td><td>16.35%</td><td>69.84%</td></tr>
-              <tr><td>202505</td><td>9,610</td><td>213</td><td>20.73%</td><td>0.72%</td><td>NT$4,312</td><td>19.37%</td><td>63.67%</td></tr>
-              <tr><td>202506</td><td>3,979</td><td>248</td><td>28.38%</td><td>0.52%</td><td>NT$4,930</td><td>19.25%</td><td>62.75%</td></tr>
-              <tr><td>202507</td><td>3,237</td><td>159</td><td>28.76%</td><td>0.50%</td><td>NT$8,135</td><td>18.70%</td><td>63.84%</td></tr>
-              <tr><td>202508</td><td>3,139</td><td>150</td><td>25.71%</td><td>0.58%</td><td>NT$5,597</td><td>21.60%</td><td>61.96%</td></tr>
-              <tr><td>202509</td><td>1,845</td><td>122</td><td>16.03%</td><td>0.40%</td><td>NT$3,994</td><td>26.93%</td><td>72.65%</td></tr>
-              <tr><td>202510</td><td>685</td><td>129</td><td>23.81%</td><td>0.33%</td><td>NT$4,909</td><td>29.60%</td><td>72.81%</td></tr>
-              <tr><td>202511</td><td>2,038</td><td>113</td><td>18.95%</td><td>0.44%</td><td>NT$5,280</td><td>27.23%</td><td>67.65%</td></tr>
-              <tr><td>202512</td><td>2,673</td><td>84</td><td>24.54%</td><td>0.42%</td><td>NT$5,209</td><td>26.84%</td><td>66.45%</td></tr>
-              <tr><td>202601</td><td>2,215</td><td>95</td><td>22.43%</td><td>0.47%</td><td>NT$5,904</td><td>26.71%</td><td>72.03%</td></tr>
-              <tr><td>202602</td><td>4,712</td><td>98</td><td>34.07%</td><td>0.65%</td><td>NT$4,041</td><td>26.16%</td><td>－</td></tr>
-              <tr class="highlight-row"><td><strong>202603</strong></td><td class="cell-bad"><strong>-253</strong></td><td class="cell-bad"><strong>87</strong></td><td class="cell-bad"><strong>29.53%</strong></td><td class="cell-bad"><strong>0.44%</strong></td><td class="cell-bad"><strong>NT$3,837</strong></td><td><strong>26.92%</strong></td><td><strong>73.80%</strong></td></tr>
-            </tbody>
+            <thead><tr><th>月份</th><th>粉絲增長</th><th>新客</th><th>複購率</th><th>轉換率</th><th>平均客單價</th><th>手機跳出</th><th>電腦跳出</th></tr></thead>
+            <tbody id="salesTableBody"></tbody>
           </table>
         </div>
         <div class="info-note" style="margin-top:12px;">
@@ -833,8 +639,7 @@
         </div>
       </section>
 
-      <!-- ── 蝦皮歷史營業額 ── -->
-      <section class="section">
+      <section class="section fade-in-up">
         <div class="section-header">
           <h2 class="section-title">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
@@ -842,26 +647,13 @@
           </h2>
           <span class="section-badge" style="background:rgba(196,181,220,0.15);color:#c4b5dc;">總營業額</span>
         </div>
-
-        <!-- 年度控制列 -->
         <div class="revenue-controls">
           <div class="year-checkbox-group" id="yearCheckboxGroup">
-            <label style="--year-color:#e8a825;">
-              <input type="checkbox" name="yearToggle" value="2024" checked />
-              <span>2024</span>
-            </label>
-            <label style="--year-color:#3dbf7a;">
-              <input type="checkbox" name="yearToggle" value="2025" checked />
-              <span>2025</span>
-            </label>
-            <label style="--year-color:#c4b5dc;">
-              <input type="checkbox" name="yearToggle" value="2026" checked />
-              <span>2026</span>
-            </label>
+            <label style="--year-color:#e8a825;"><input type="checkbox" name="yearToggle" value="2024" checked /><span>2024</span></label>
+            <label style="--year-color:#3dbf7a;"><input type="checkbox" name="yearToggle" value="2025" checked /><span>2025</span></label>
+            <label style="--year-color:#c4b5dc;"><input type="checkbox" name="yearToggle" value="2026" checked /><span>2026</span></label>
           </div>
         </div>
-
-        <!-- 走勢圖 / 賽跑圖切換 -->
         <div class="chart-card">
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
             <h3 class="chart-title" style="margin:0;">營業額走勢（每月）</h3>
@@ -879,8 +671,6 @@
             <div class="pg-race-timeline" id="revRaceTimeline"></div>
           </div>
         </div>
-
-        <!-- 同比分析面板 -->
         <div class="yoy-panel" id="yoyPanel">
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
             <div class="chart-title">同比分析</div>
@@ -897,24 +687,12 @@
           </div>
           <div id="yoyContent" style="display:none;"></div>
         </div>
-
-        <!-- 數據表格 -->
         <div>
           <div style="font-size:var(--text-xs);color:var(--color-text-muted);margin-bottom:8px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;">年度營業額明細</div>
           <div class="data-table-wrap">
             <table class="data-table revenue-history-table">
-              <thead>
-                <tr>
-                  <th>年度</th>
-                  <th>Jan</th><th>Feb</th><th>Mar</th><th>Apr</th>
-                  <th>May</th><th>Jun</th><th>Jul</th><th>Aug</th>
-                  <th>Sep</th><th>Oct</th><th>Nov</th><th>Dec</th>
-                  <th>年度合計</th>
-                </tr>
-              </thead>
-              <tbody id="revenueTableBody">
-                <!-- 動態填入 -->
-              </tbody>
+              <thead><tr><th>年度</th><th>Jan</th><th>Feb</th><th>Mar</th><th>Apr</th><th>May</th><th>Jun</th><th>Jul</th><th>Aug</th><th>Sep</th><th>Oct</th><th>Nov</th><th>Dec</th><th>年度合計</th></tr></thead>
+              <tbody id="revenueTableBody"></tbody>
             </table>
           </div>
           <div class="info-note" style="margin-top:10px;">
@@ -924,8 +702,7 @@
         </div>
       </section>
 
-      <!-- ── 年度表現 ── -->
-      <section class="section">
+      <section class="section fade-in-up">
         <div class="section-header">
           <h2 class="section-title">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20V10"/><path d="M18 20V4"/><path d="M6 20v-4"/></svg>
@@ -935,28 +712,13 @@
         </div>
         <div class="data-table-wrap">
           <table class="data-table" id="yearlyPerformanceTable">
-            <thead>
-              <tr>
-                <th>年度</th>
-                <th>營業額</th>
-                <th>訂單數</th>
-                <th>下單轉換率</th>
-                <th>平均訂單金額</th>
-                <th>不成立訂單</th>
-                <th>不成立訂單金額</th>
-                <th>退貨訂單</th>
-                <th>退貨率</th>
-              </tr>
-            </thead>
-            <tbody id="yearlyPerfBody">
-              <!-- 動態填入 -->
-            </tbody>
+            <thead><tr><th>年度</th><th>營業額</th><th>訂單數</th><th>下單轉換率</th><th>平均訂單金額</th><th>不成立訂單</th><th>不成立訂單金額</th><th>退貨訂單</th><th>退貨率</th></tr></thead>
+            <tbody id="yearlyPerfBody"></tbody>
           </table>
         </div>
       </section>
 
-      <!-- ── 銷售行動建議 ── -->
-      <section class="section">
+      <section class="section fade-in-up">
         <div class="section-header">
           <h2 class="section-title">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
@@ -964,41 +726,11 @@
           </h2>
         </div>
         <div class="action-list">
-          <div class="action-item high">
-            <div class="action-priority">優先</div>
-            <div class="action-content">
-              <div class="action-title">恢復粉絲增長動能，止血負成長</div>
-              <div class="action-desc">3 月粉絲流失 253 人，較上月 +4,712 人大幅衰退。建議檢視蝦皮廣告投放是否中斷或預算縮減，並搭配直播活動與社群互動（抽獎、限時優惠）重新拉回粉絲關注。歷史高峰曾達 +9,610 人（202505），目前原因需緊急排查。</div>
-            </div>
-          </div>
-          <div class="action-item high">
-            <div class="action-priority">優先</div>
-            <div class="action-content">
-              <div class="action-title">拉高訂單轉換率，目前僅 0.44%</div>
-              <div class="action-desc">轉換率從上月 0.65% 下降至 0.44%，歷史高峰為 1.04%（202504）。建議優化商品詳情頁資訊豐富度、加強購買誘因（限時折扣、滾動滴砂），並針對高跳出率的電腦版（73.80%）優化頁面體驗與視覺引導。</div>
-            </div>
-          </div>
-          <div class="action-item mid">
-            <div class="action-priority">中等</div>
-            <div class="action-content">
-              <div class="action-title">降低不成立訂單比例</div>
-              <div class="action-desc">3 月不成立 40 筆（NT$120,747）+ 退貨 5 筆（NT$67,674），合計 NT$188,421 損失，佔總營業額 19.4%。年度趨勢也顯示 2025 年不成立單量較 2024 年增加 34%。建議分析不成立主因（未付款、取消、地址問題），針對性改善付款提醒與訂單確認流程。</div>
-            </div>
-          </div>
-          <div class="action-item mid">
-            <div class="action-priority">中等</div>
-            <div class="action-content">
-              <div class="action-title">提升新客獲取與回購穩定性</div>
-              <div class="action-desc">新客 87 人較上月 98 人下降 11%，複購率 29.53% 也從上月 34.07% 回落。可探索首購優惠券吸引新客，同時運用會員專屬折扣、回購提醒、新品優先通知等手段穩住熟客回購。歷史複購高峰達 34.07%（202602），證明客群有回購潛力。</div>
-            </div>
-          </div>
-          <div class="action-item low">
-            <div class="action-priority">持續</div>
-            <div class="action-content">
-              <div class="action-title">維持營業額成長動能</div>
-              <div class="action-desc">2026 Q1 營業額 NT$3,315,914，同比 2025 Q1 成長 15.43%，年度營業額從 2024 年 NT$22.9M 成長至 2025 年 NT$30.9M（+35.1%）。但平均客單價從 NT$4,516 降至 NT$2,721（-39.7%），營收成長主要靠訂單量放大。建議在維持單量的同時，透過組合優惠、高單價商品推薦拉回客單價。</div>
-            </div>
-          </div>
+          <div class="action-item high"><div class="action-priority">優先</div><div class="action-content"><div class="action-title">恢復粉絲增長動能，止血負成長</div><div class="action-desc">3 月粉絲流失 253 人，較上月 +4,712 人大幅衰退。建議檢視蝦皮廣告投放是否中斷或預算縮減，並搭配直播活動與社群互動（抽獎、限時優惠）重新拉回粉絲關注。歷史高峰曾達 +9,610 人（202505），目前原因需緊急排查。</div></div></div>
+          <div class="action-item high"><div class="action-priority">優先</div><div class="action-content"><div class="action-title">拉高訂單轉換率，目前僅 0.44%</div><div class="action-desc">轉換率從上月 0.65% 下降至 0.44%，歷史高峰為 1.04%（202504）。建議優化商品詳情頁資訊豐富度、加強購買誘因（限時折扣、滾動滴砂），並針對高跳出率的電腦版（73.80%）優化頁面體驗與視覺引導。</div></div></div>
+          <div class="action-item mid"><div class="action-priority">中等</div><div class="action-content"><div class="action-title">降低不成立訂單比例</div><div class="action-desc">3 月不成立 40 筆（NT$120,747）+ 退貨 5 筆（NT$67,674），合計 NT$188,421 損失，佔總營業額 19.4%。年度趨勢也顯示 2025 年不成立單量較 2024 年增加 34%。建議分析不成立主因（未付款、取消、地址問題），針對性改善付款提醒與訂單確認流程。</div></div></div>
+          <div class="action-item mid"><div class="action-priority">中等</div><div class="action-content"><div class="action-title">提升新客獲取與回購穩定性</div><div class="action-desc">新客 87 人較上月 98 人下降 11%，複購率 29.53% 也從上月 34.07% 回落。可探索首購優惠券吸引新客，同時運用會員專屬折扣、回購提醒、新品優先通知等手段穩住熟客回購。歷史複購高峰達 34.07%（202602），證明客群有回購潛力。</div></div></div>
+          <div class="action-item low"><div class="action-priority">持續</div><div class="action-content"><div class="action-title">維持營業額成長動能</div><div class="action-desc">2026 Q1 營業額 NT$3,315,914，同比 2025 Q1 成長 15.43%，年度營業額從 2024 年 NT$22.9M 成長至 2025 年 NT$30.9M（+35.1%）。但平均客單價從 NT$4,516 降至 NT$2,721（−39.7%），營收成長主要靠訂單量放大。建議在維持單量的同時，透過組合優惠、高單價商品推薦拉回客單價。</div></div></div>
         </div>
       </section>
 
@@ -1011,10 +743,9 @@
       <h1>里程碑</h1>
       <div class="accent-line"></div>
     </div>
-    <main class="main">
-
-      <!-- 動態數字卡片 -->
-      <section class="section">
+    <main class="main" style="position:relative;">
+      <canvas id="pgParticles" style="position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;opacity:0.5;"></canvas>
+      <section class="section fade-in-up" style="position:relative;z-index:1;">
         <div class="section-header">
           <h2 class="section-title">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
@@ -1023,15 +754,6 @@
         </div>
         <div class="pg-counter-grid" id="pgCounterGrid"></div>
       </section>
-
-
-
-
-
-
-
-
-
     </main>
   </div>
 
