@@ -145,6 +145,19 @@
     mctx.restore();
   }
 
+  // ===== EMPLOYEE STARS DATA =====
+  // Positions avoid the center logo area (approx 0.3-0.7 x, 0.25-0.65 y)
+  var employeeStars = [
+    // Active employees — bright, with orbiting ring
+    { name: '靚潔', active: true,  posRatioX: 0.12, posRatioY: 0.22 },
+    { name: 'Jerry', active: true, posRatioX: 0.82, posRatioY: 0.18 },
+    { name: '阿嬤', active: true,  posRatioX: 0.88, posRatioY: 0.55 },
+    { name: '郁芩', active: true,  posRatioX: 0.18, posRatioY: 0.52 },
+    // Inactive employees — dim, no ring
+    { name: '佩瑾', active: false, posRatioX: 0.10, posRatioY: 0.80 },
+    { name: '珍妮', active: false, posRatioX: 0.85, posRatioY: 0.82 },
+  ];
+
   function initField() {
     stars = [];
     nebulae = [];
@@ -190,8 +203,8 @@
         vy: (Math.random() - 0.5) * 0.1
       });
     }
-    // Layer 3: bright prominent stars
-    for (var i = 0; i < 35; i++) {
+    // Layer 3: bright prominent stars (reduced to 29, since 6 employee stars added)
+    for (var i = 0; i < 29; i++) {
       var colorRoll2 = Math.random();
       var col2 = colorRoll2 < 0.3
         ? [180, 200, 255]
@@ -213,6 +226,30 @@
         vx: (Math.random() - 0.5) * 0.12,
         vy: (Math.random() - 0.5) * 0.12,
         hasCross: Math.random() < 0.4
+      });
+    }
+
+    // --- Employee named stars (fixed positions, prominent) ---
+    for (var ei = 0; ei < employeeStars.length; ei++) {
+      var emp = employeeStars[ei];
+      stars.push({
+        x: emp.posRatioX * w,
+        y: emp.posRatioY * h,
+        r: emp.active ? 2.8 : 2.0,
+        baseOpacity: emp.active ? 0.95 : 0.35,
+        twinkle: true,
+        twinkleSpeed: emp.active ? 0.035 : 0.02,
+        twinklePhase: ei * 1.2,
+        twinkleMin: emp.active ? 0.6 : 0.15,
+        color: emp.active ? [230, 220, 255] : [200, 195, 220],
+        vx: 0,
+        vy: 0,
+        hasCross: true,
+        isEmployee: true,
+        empName: emp.name,
+        empActive: emp.active,
+        empIndex: ei,
+        orbitPhase: Math.random() * Math.PI * 2
       });
     }
 
@@ -316,22 +353,25 @@
       var depthFactor = s.r > 1.5 ? 1.2 : s.r > 0.8 ? 0.7 : 0.3;
       var starDrawX = s.x + gyroOffsetX * depthFactor;
       var starDrawY = s.y + gyroOffsetY * depthFactor;
-      var dx = s.x - mouseX;
-      var dy = s.y - mouseY;
-      var dist = Math.sqrt(dx * dx + dy * dy);
-      if (dist < 100 && dist > 0) {
-        var force = (100 - dist) / 100 * 0.3;
-        s.vx += (dx / dist) * force;
-        s.vy += (dy / dist) * force;
+      // Employee stars stay fixed — skip mouse repulsion & drift
+      if (!s.isEmployee) {
+        var dx = s.x - mouseX;
+        var dy = s.y - mouseY;
+        var dist = Math.sqrt(dx * dx + dy * dy);
+        if (dist < 100 && dist > 0) {
+          var force = (100 - dist) / 100 * 0.3;
+          s.vx += (dx / dist) * force;
+          s.vy += (dy / dist) * force;
+        }
+        s.vx *= 0.988;
+        s.vy *= 0.988;
+        s.x += s.vx;
+        s.y += s.vy;
+        if (s.x < 0) s.x = cw;
+        if (s.x > cw) s.x = 0;
+        if (s.y < 0) s.y = ch;
+        if (s.y > ch) s.y = 0;
       }
-      s.vx *= 0.988;
-      s.vy *= 0.988;
-      s.x += s.vx;
-      s.y += s.vy;
-      if (s.x < 0) s.x = cw;
-      if (s.x > cw) s.x = 0;
-      if (s.y < 0) s.y = ch;
-      if (s.y > ch) s.y = 0;
 
       var op;
       if (s.twinkle) {
@@ -389,6 +429,121 @@
           ctx.stroke();
         }
       }
+    }
+
+    // --- Employee star decorations: enhanced glow + orbiting ring + name label ---
+    for (var si2 = 0; si2 < stars.length; si2++) {
+      var es = stars[si2];
+      if (!es.isEmployee) continue;
+
+      var edF = es.r > 1.5 ? 1.2 : 0.7;
+      var eDrawX = es.x + gyroOffsetX * edF;
+      var eDrawY = es.y + gyroOffsetY * edF;
+
+      // Compute current opacity for this star
+      var eOp;
+      if (es.twinkle) {
+        var et = Math.sin(frame * es.twinkleSpeed + es.twinklePhase);
+        var eFactor = es.twinkleMin + (1 - es.twinkleMin) * (et * 0.5 + 0.5);
+        eOp = es.baseOpacity * eFactor;
+      } else {
+        eOp = es.baseOpacity;
+      }
+      var ec = es.color;
+
+      // --- Enhanced 4-point cross rays (like 夜姬-DC3 style) ---
+      if (es.empActive) {
+        // Bright star core glow
+        var coreGlow = ctx.createRadialGradient(eDrawX, eDrawY, 0, eDrawX, eDrawY, es.r * 8);
+        coreGlow.addColorStop(0, 'rgba(' + ec[0] + ',' + ec[1] + ',' + ec[2] + ',' + (eOp * 0.25) + ')');
+        coreGlow.addColorStop(0.3, 'rgba(' + ec[0] + ',' + ec[1] + ',' + ec[2] + ',' + (eOp * 0.08) + ')');
+        coreGlow.addColorStop(1, 'rgba(' + ec[0] + ',' + ec[1] + ',' + ec[2] + ',0)');
+        ctx.fillStyle = coreGlow;
+        ctx.fillRect(eDrawX - es.r * 8, eDrawY - es.r * 8, es.r * 16, es.r * 16);
+
+        // Prominent cross rays
+        var crossLen = es.r * 12 * eOp;
+        var crossOpMain = eOp * 0.4;
+        var crossOpFade = eOp * 0.08;
+        // Horizontal ray
+        var hGrad = ctx.createLinearGradient(eDrawX - crossLen, eDrawY, eDrawX + crossLen, eDrawY);
+        hGrad.addColorStop(0, 'rgba(' + ec[0] + ',' + ec[1] + ',' + ec[2] + ',0)');
+        hGrad.addColorStop(0.35, 'rgba(' + ec[0] + ',' + ec[1] + ',' + ec[2] + ',' + crossOpFade + ')');
+        hGrad.addColorStop(0.5, 'rgba(' + ec[0] + ',' + ec[1] + ',' + ec[2] + ',' + crossOpMain + ')');
+        hGrad.addColorStop(0.65, 'rgba(' + ec[0] + ',' + ec[1] + ',' + ec[2] + ',' + crossOpFade + ')');
+        hGrad.addColorStop(1, 'rgba(' + ec[0] + ',' + ec[1] + ',' + ec[2] + ',0)');
+        ctx.strokeStyle = hGrad;
+        ctx.lineWidth = 1.2;
+        ctx.beginPath();
+        ctx.moveTo(eDrawX - crossLen, eDrawY);
+        ctx.lineTo(eDrawX + crossLen, eDrawY);
+        ctx.stroke();
+        // Vertical ray
+        var vGrad = ctx.createLinearGradient(eDrawX, eDrawY - crossLen, eDrawX, eDrawY + crossLen);
+        vGrad.addColorStop(0, 'rgba(' + ec[0] + ',' + ec[1] + ',' + ec[2] + ',0)');
+        vGrad.addColorStop(0.35, 'rgba(' + ec[0] + ',' + ec[1] + ',' + ec[2] + ',' + crossOpFade + ')');
+        vGrad.addColorStop(0.5, 'rgba(' + ec[0] + ',' + ec[1] + ',' + ec[2] + ',' + crossOpMain + ')');
+        vGrad.addColorStop(0.65, 'rgba(' + ec[0] + ',' + ec[1] + ',' + ec[2] + ',' + crossOpFade + ')');
+        vGrad.addColorStop(1, 'rgba(' + ec[0] + ',' + ec[1] + ',' + ec[2] + ',0)');
+        ctx.strokeStyle = vGrad;
+        ctx.lineWidth = 1.2;
+        ctx.beginPath();
+        ctx.moveTo(eDrawX, eDrawY - crossLen);
+        ctx.lineTo(eDrawX, eDrawY + crossLen);
+        ctx.stroke();
+        // Thinner diagonal rays
+        var diagLen = crossLen * 0.5;
+        ctx.strokeStyle = 'rgba(' + ec[0] + ',' + ec[1] + ',' + ec[2] + ',' + (eOp * 0.12) + ')';
+        ctx.lineWidth = 0.5;
+        ctx.beginPath();
+        ctx.moveTo(eDrawX - diagLen, eDrawY - diagLen);
+        ctx.lineTo(eDrawX + diagLen, eDrawY + diagLen);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(eDrawX + diagLen, eDrawY - diagLen);
+        ctx.lineTo(eDrawX - diagLen, eDrawY + diagLen);
+        ctx.stroke();
+      }
+
+      // --- Orbiting ring for ACTIVE employees only ---
+      if (es.empActive) {
+        var orbitRadius = es.r * 6;
+        var ringProgress = ((frame * 0.015) + es.orbitPhase) % (Math.PI * 2);
+        // Primary arc (crescent style)
+        ctx.beginPath();
+        ctx.arc(eDrawX, eDrawY, orbitRadius, ringProgress, ringProgress + Math.PI * 1.1, false);
+        ctx.strokeStyle = 'rgba(180, 195, 255, ' + (eOp * 0.55) + ')';
+        ctx.lineWidth = 1.0;
+        ctx.stroke();
+        // Secondary thinner arc opposite side
+        ctx.beginPath();
+        ctx.arc(eDrawX, eDrawY, orbitRadius + 1.5, ringProgress + Math.PI * 1.2, ringProgress + Math.PI * 1.9, false);
+        ctx.strokeStyle = 'rgba(180, 195, 255, ' + (eOp * 0.22) + ')';
+        ctx.lineWidth = 0.5;
+        ctx.stroke();
+      }
+
+      // --- Name label ---
+      var labelOffsetY = es.empActive ? es.r * 8.5 : es.r * 5;
+      var labelY = eDrawY + labelOffsetY;
+      var fontSize = es.empActive ? 13 : 11;
+      ctx.font = (es.empActive ? '500 ' : '400 ') + fontSize + 'px "Noto Sans TC", sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'top';
+      if (es.empActive) {
+        // Bright text with subtle shadow for readability
+        ctx.shadowColor = 'rgba(100, 80, 160, 0.5)';
+        ctx.shadowBlur = 8;
+        ctx.fillStyle = 'rgba(215, 210, 240, ' + (eOp * 0.9) + ')';
+      } else {
+        ctx.shadowColor = 'transparent';
+        ctx.shadowBlur = 0;
+        ctx.fillStyle = 'rgba(140, 135, 170, ' + (eOp * 0.5) + ')';
+      }
+      ctx.fillText(es.empName, eDrawX, labelY);
+      // Reset shadow
+      ctx.shadowColor = 'transparent';
+      ctx.shadowBlur = 0;
     }
 
     // --- Shooting stars ---
