@@ -94,17 +94,24 @@
       });
     });
 
-    // Auto-fit text to card width
-    function fitCounterText(el) {
+    // Pre-calculate the fitted font size for each counter based on final value
+    function calcFitSize(el, text) {
       var card = el.closest('.pg-counter-card');
-      if (!card) return;
-      var cardW = card.clientWidth - 48; // account for padding
-      var size = 44; // start large
-      el.style.fontSize = size + 'px';
-      while (el.scrollWidth > cardW && size > 14) {
+      if (!card) return 44;
+      var cardW = card.clientWidth - 48;
+      // Use a hidden span to measure
+      var span = document.createElement('span');
+      span.style.cssText = 'position:absolute;visibility:hidden;white-space:nowrap;font-weight:700;font-variant-numeric:tabular-nums;';
+      span.textContent = text;
+      document.body.appendChild(span);
+      var size = 44;
+      span.style.fontSize = size + 'px';
+      while (span.scrollWidth > cardW && size > 14) {
         size -= 1;
-        el.style.fontSize = size + 'px';
+        span.style.fontSize = size + 'px';
       }
+      document.body.removeChild(span);
+      return size;
     }
 
     // Animate with easing
@@ -115,8 +122,15 @@
       var suffix = el.dataset.suffix;
       var isDecimal = target % 1 !== 0;
       var duration = 2000;
-      var start = performance.now();
 
+      // Pre-calculate final text and font size BEFORE animation starts
+      var finalText = isDecimal
+        ? prefix + target.toFixed(2) + suffix
+        : prefix + target.toLocaleString('en-US') + suffix;
+      var fitSize = calcFitSize(el, finalText);
+      el.style.fontSize = fitSize + 'px';
+
+      var start = performance.now();
       function tick(now) {
         var t = Math.min((now - start) / duration, 1);
         var ease = 1 - Math.pow(1 - t, 3);
@@ -126,7 +140,6 @@
         } else {
           el.textContent = prefix + Math.round(current).toLocaleString('en-US') + suffix;
         }
-        if (t >= 1) fitCounterText(el);
         if (t < 1) requestAnimationFrame(tick);
       }
       requestAnimationFrame(tick);
@@ -134,7 +147,16 @@
 
     // Re-fit on resize
     window.addEventListener('resize', function() {
-      els.forEach(fitCounterText);
+      els.forEach(function(el) {
+        var target = parseFloat(el.dataset.target);
+        var prefix = el.dataset.prefix;
+        var suffix = el.dataset.suffix;
+        var isDecimal = target % 1 !== 0;
+        var finalText = isDecimal
+          ? prefix + target.toFixed(2) + suffix
+          : prefix + target.toLocaleString('en-US') + suffix;
+        el.style.fontSize = calcFitSize(el, finalText) + 'px';
+      });
     });
   }
 
