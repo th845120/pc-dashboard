@@ -926,14 +926,14 @@ h1, h2, h3, h4, h5, h6, p, li, td, th, span, div, label, a {
   border-color: rgba(196,181,220,0.3);
 }
 .pg-counter-value {
-  font-size: clamp(1.5rem, 1rem + 2vw, 2.75rem);
+  font-size: clamp(1.1rem, 0.4rem + 2.8vw, 2.75rem);
   font-weight: 700;
   font-variant-numeric: tabular-nums;
   line-height: 1.1;
   margin-bottom: 8px;
   white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  width: 100%;
+  text-align: center;
 }
 .pg-counter-label {
   font-size: var(--text-sm);

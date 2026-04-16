@@ -94,6 +94,19 @@
       });
     });
 
+    // Auto-fit text to card width
+    function fitCounterText(el) {
+      var card = el.closest('.pg-counter-card');
+      if (!card) return;
+      var cardW = card.clientWidth - 48; // account for padding
+      var size = 44; // start large
+      el.style.fontSize = size + 'px';
+      while (el.scrollWidth > cardW && size > 14) {
+        size -= 1;
+        el.style.fontSize = size + 'px';
+      }
+    }
+
     // Animate with easing
     var els = grid.querySelectorAll('.pg-counter-value');
     els.forEach(function(el) {
@@ -113,9 +126,15 @@
         } else {
           el.textContent = prefix + Math.round(current).toLocaleString('en-US') + suffix;
         }
+        if (t >= 1) fitCounterText(el);
         if (t < 1) requestAnimationFrame(tick);
       }
       requestAnimationFrame(tick);
+    });
+
+    // Re-fit on resize
+    window.addEventListener('resize', function() {
+      els.forEach(fitCounterText);
     });
   }
 
