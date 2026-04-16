@@ -158,13 +158,16 @@
   // ===== EMPLOYEE STARS DATA =====
   var employeeStars = [
     // Active employees — bright, with orbiting ring
+    { name: 'JING', active: true },
     { name: '靚潔', active: true },
     { name: 'Jerry', active: true },
     { name: '阿嬤', active: true },
     { name: '郁芩', active: true },
     // Inactive employees — dim, no ring
     { name: '佩瑾', active: false },
+    { name: 'Emma', active: false },
     { name: '珍妮', active: false },
+    { name: '雨恩', active: false },
   ];
 
   // Generate random positions avoiding center logo zone + mutual spacing
