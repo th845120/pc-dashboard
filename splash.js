@@ -13,6 +13,52 @@
   var mouseX = -999, mouseY = -999;
   var milkyWayCanvas = null; // off-screen pre-rendered galaxy band
 
+  // ===== SPLASH BGM (5s play + 2s fade-out) =====
+  var splashAudio = new Audio('splash-bgm.mp3');
+  splashAudio.volume = 0.6;
+  splashAudio.loop = false;
+  var audioFadeTimer = null;
+  var audioPlayTimer = null;
+
+  function playSplashBGM() {
+    clearTimeout(audioFadeTimer);
+    clearTimeout(audioPlayTimer);
+    splashAudio.currentTime = 0;
+    splashAudio.volume = 0.6;
+    splashAudio.play().catch(function() { /* autoplay blocked, will play on click */ });
+    // After 5 seconds, start 2-second fade-out
+    audioPlayTimer = setTimeout(function() {
+      fadeSplashBGM();
+    }, 5000);
+  }
+
+  function fadeSplashBGM() {
+    var fadeSteps = 40; // 2000ms / 50ms = 40 steps
+    var fadeInterval = 50;
+    var step = splashAudio.volume / fadeSteps;
+    clearTimeout(audioFadeTimer);
+    function doFade() {
+      if (splashAudio.volume > step) {
+        splashAudio.volume = Math.max(0, splashAudio.volume - step);
+        audioFadeTimer = setTimeout(doFade, fadeInterval);
+      } else {
+        splashAudio.volume = 0;
+        splashAudio.pause();
+      }
+    }
+    doFade();
+  }
+
+  function stopSplashBGM() {
+    clearTimeout(audioFadeTimer);
+    clearTimeout(audioPlayTimer);
+    splashAudio.pause();
+    splashAudio.currentTime = 0;
+  }
+
+  // Try autoplay on load (most browsers block this, so also play on first click)
+  playSplashBGM();
+
   // ===== MOBILE GYROSCOPE PARALLAX =====
   var gyroOffsetX = 0, gyroOffsetY = 0;
   var gyroTargetX = 0, gyroTargetY = 0;
@@ -620,6 +666,7 @@
 
   // --- Dismiss splash (shared logic) ---
   function dismissSplash() {
+    stopSplashBGM();
     splash.classList.add('fade-out');
     mainApp.classList.remove('hidden');
     setTimeout(function() {
@@ -630,7 +677,13 @@
   }
 
   // --- Click to dismiss ---
+  var splashClicked = false;
   splash.addEventListener('click', function() {
+    // On first click, ensure audio plays (browser autoplay policy)
+    if (!splashClicked) {
+      splashClicked = true;
+      if (splashAudio.paused) playSplashBGM();
+    }
     if (needsIOSGyroPermission && !gyroPermissionRequested) {
       // iOS 13+: first click requests gyro permission, THEN dismisses
       gyroPermissionRequested = true;
@@ -657,5 +710,6 @@
     resize();
     initField();
     if (!animId) draw();
+    playSplashBGM();
   });
 })();
