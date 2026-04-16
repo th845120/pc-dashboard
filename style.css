@@ -141,7 +141,7 @@ h1, h2, h3, h4, h5, h6, p, li, td, th, span, div, label, a {
 .splash-brand-img {
   max-width: 260px;
   height: auto;
-  filter: drop-shadow(0 4px 20px rgba(196,181,220,0.25));
+  filter: brightness(0) invert(1) drop-shadow(0 4px 20px rgba(255,255,255,0.15));
 }
 .splash-slogan {
   font-size: var(--text-lg);
@@ -415,6 +415,7 @@ h1, h2, h3, h4, h5, h6, p, li, td, th, span, div, label, a {
   color: var(--color-primary);
   line-height: 1.1;
   font-variant-numeric: tabular-nums;
+  white-space: nowrap;
 }
 .kpi-sub {
   font-size: var(--text-xs);
