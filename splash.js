@@ -156,17 +156,46 @@
   }
 
   // ===== EMPLOYEE STARS DATA =====
-  // Positions avoid the center logo area (approx 0.3-0.7 x, 0.25-0.65 y)
   var employeeStars = [
     // Active employees — bright, with orbiting ring
-    { name: '靚潔', active: true,  posRatioX: 0.12, posRatioY: 0.22 },
-    { name: 'Jerry', active: true, posRatioX: 0.82, posRatioY: 0.18 },
-    { name: '阿嬤', active: true,  posRatioX: 0.88, posRatioY: 0.55 },
-    { name: '郁芩', active: true,  posRatioX: 0.18, posRatioY: 0.52 },
+    { name: '靚潔', active: true },
+    { name: 'Jerry', active: true },
+    { name: '阿嬤', active: true },
+    { name: '郁芩', active: true },
     // Inactive employees — dim, no ring
-    { name: '佩瑾', active: false, posRatioX: 0.10, posRatioY: 0.80 },
-    { name: '珍妮', active: false, posRatioX: 0.85, posRatioY: 0.82 },
+    { name: '佩瑾', active: false },
+    { name: '珍妮', active: false },
   ];
+
+  // Generate random positions avoiding center logo zone + mutual spacing
+  function randomizeEmployeePositions() {
+    // Exclusion zone for center logo (ratio-based)
+    var exL = 0.28, exR = 0.72, exT = 0.20, exB = 0.70;
+    // Margin from edges
+    var margin = 0.06;
+    var minDist = 0.18; // minimum ratio-distance between any two employee stars
+    var placed = [];
+
+    for (var i = 0; i < employeeStars.length; i++) {
+      var attempts = 0, rx, ry, tooClose;
+      do {
+        rx = margin + Math.random() * (1 - 2 * margin);
+        ry = margin + Math.random() * (1 - 2 * margin);
+        // Reject if inside center logo zone
+        var inCenter = (rx > exL && rx < exR && ry > exT && ry < exB);
+        // Reject if too close to already-placed stars
+        tooClose = false;
+        for (var j = 0; j < placed.length; j++) {
+          var dx = rx - placed[j][0], dy = ry - placed[j][1];
+          if (Math.sqrt(dx * dx + dy * dy) < minDist) { tooClose = true; break; }
+        }
+        attempts++;
+      } while ((inCenter || tooClose) && attempts < 200);
+      employeeStars[i].posRatioX = rx;
+      employeeStars[i].posRatioY = ry;
+      placed.push([rx, ry]);
+    }
+  }
 
   function initField() {
     stars = [];
@@ -239,22 +268,23 @@
       });
     }
 
-    // --- Employee named stars (fixed positions, prominent) ---
+    // --- Employee named stars (random positions, prominent) ---
+    randomizeEmployeePositions();
     for (var ei = 0; ei < employeeStars.length; ei++) {
       var emp = employeeStars[ei];
       stars.push({
         x: emp.posRatioX * w,
         y: emp.posRatioY * h,
         r: emp.active ? 2.8 : 2.0,
-        baseOpacity: emp.active ? 0.95 : 0.35,
+        baseOpacity: emp.active ? 0.95 : 0.45,
         twinkle: true,
         twinkleSpeed: emp.active ? 0.035 : 0.02,
         twinklePhase: ei * 1.2,
-        twinkleMin: emp.active ? 0.6 : 0.15,
+        twinkleMin: emp.active ? 0.6 : 0.25,
         color: emp.active ? [230, 220, 255] : [200, 195, 220],
         vx: 0,
         vy: 0,
-        hasCross: true,
+        hasCross: emp.active,
         isEmployee: true,
         empName: emp.name,
         empActive: emp.active,
@@ -548,7 +578,7 @@
       } else {
         ctx.shadowColor = 'transparent';
         ctx.shadowBlur = 0;
-        ctx.fillStyle = 'rgba(140, 135, 170, ' + (eOp * 0.5) + ')';
+        ctx.fillStyle = 'rgba(160, 155, 190, ' + (eOp * 0.6) + ')';
       }
       ctx.fillText(es.empName, eDrawX, labelY);
       // Reset shadow
