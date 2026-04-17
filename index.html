@@ -47,10 +47,31 @@
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
         品牌輿情
       </button>
-      <button class="tab-btn" data-tab="sales" role="tab" aria-selected="false">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="20" x2="12" y2="10"/><line x1="18" y1="20" x2="18" y2="4"/><line x1="6" y1="20" x2="6" y2="16"/></svg>
-        銷售數據
-      </button>
+      <div class="tab-dropdown">
+        <button class="tab-btn" data-tab="sales" data-sub="sales-overview" role="tab" aria-selected="false">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="20" x2="12" y2="10"/><line x1="18" y1="20" x2="18" y2="4"/><line x1="6" y1="20" x2="6" y2="16"/></svg>
+          銷售數據
+          <svg class="tab-dropdown-arrow" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <div class="tab-dropdown-menu">
+          <button class="tab-dropdown-item active" data-sub="sales-overview">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+            總覽
+          </button>
+          <button class="tab-dropdown-item" data-sub="sales-shopee-live">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/></svg>
+            蝦皮直播
+          </button>
+          <button class="tab-dropdown-item" data-sub="sales-meta-live">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
+            Meta 直播
+          </button>
+          <button class="tab-dropdown-item" data-sub="sales-ig-live">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+            Instagram 直播
+          </button>
+        </div>
+      </div>
       <button class="tab-btn" data-tab="service" role="tab" aria-selected="false">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
         客服數據
@@ -509,6 +530,9 @@
 
   <!-- ===== TAB: 銷售數據 ===== -->
   <div class="tab-panel" id="tab-sales">
+
+    <!-- Sub-panel: 總覽 -->
+    <div class="sales-sub-panel active" id="sales-overview">
     <div class="page-subtitle">
       <h1>銷售數據</h1>
       <div class="accent-line"></div>
@@ -721,10 +745,63 @@
       <section class="section fade-in-up">
         <div class="section-header">
           <h2 class="section-title">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2h11"/></svg>
+            銷售行動建議
+          </h2>
+        </div>
+        <div class="action-list">
+          <div class="action-item high"><div class="action-priority">優先</div><div class="action-content"><div class="action-title">恢復粉絲增長動能，止血負成長</div><div class="action-desc">3 月粉絲流失 253 人，較上月 +4,712 人大幅衰退。建議檢視蝦皮廣告投放是否中斷或預算縮減，並搭配直播活動與社群互動（抽獎、限時優惠）重新拉回粉絲關注。歷史高峰曾達 +9,610 人（202505），目前原因需緊急排查。</div></div></div>
+          <div class="action-item high"><div class="action-priority">優先</div><div class="action-content"><div class="action-title">拉高訂單轉換率，目前僅 0.44%</div><div class="action-desc">轉換率從上月 0.65% 下降至 0.44%，歷史高峰為 1.04%（202504）。建議優化商品詳情頁資訊豐富度、加強購買誘因（限時折扣、滾動滴砂），並針對高跳出率的電腦版（73.80%）優化頁面體驗與視覺引導。</div></div></div>
+          <div class="action-item mid"><div class="action-priority">中等</div><div class="action-content"><div class="action-title">降低不成立訂單比例</div><div class="action-desc">3 月不成立 40 筆（NT$120,747）+ 退貨 5 筆（NT$67,674），合計 NT$188,421 損失，佔總營業額 19.4%。年度趨勢也顯示 2025 年不成立單量較 2024 年增加 34%。建議分析不成立主因（未付款、取消、地址問題），針對性改善付款提醒與訂單確認流程。</div></div></div>
+          <div class="action-item mid"><div class="action-priority">中等</div><div class="action-content"><div class="action-title">提升新客獲取與回購穩定性</div><div class="action-desc">新客 87 人較上月 98 人下降 11%，複購率 29.53% 也從上月 34.07% 回落。可探索首購優惠券吸引新客，同時運用會員專屬折扣、回購提醒、新品優先通知等手段穩住熟客回購。歷史複購高峰達 34.07%（202602），證明客群有回購潛力。</div></div></div>
+          <div class="action-item low"><div class="action-priority">持續</div><div class="action-content"><div class="action-title">維持營業額成長動能</div><div class="action-desc">2026 Q1 營業額 NT$3,315,914，同比 2025 Q1 成長 15.43%，年度營業額從 2024 年 NT$22.9M 成長至 2025 年 NT$30.9M（+35.1%）。但平均客單價從 NT$4,516 降至 NT$2,721（−39.7%），營收成長主要靠訂單量放大。建議在維持單量的同時，透過組合優惠、高單價商品推薦拉回客單價。</div></div></div>
+        </div>
+      </section>
+
+    </main>
+    </div><!-- /sales-overview -->
+
+    <!-- Sub-panel: 蝦皮直播 -->
+    <div class="sales-sub-panel" id="sales-shopee-live">
+    <div class="page-subtitle">
+      <h1>蝦皮直播</h1>
+      <div class="accent-line"></div>
+    </div>
+    <main class="main">
+      <section class="section fade-in-up">
+        <div class="section-header">
+          <h2 class="section-title">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20V10"/><path d="M18 20V4"/><path d="M6 20v-4"/><circle cx="12" cy="6" r="2"/></svg>
             直播主蝦幣 vs 業績
           </h2>
-          <span class="section-badge" style="background:rgba(196,181,220,0.15);color:#c4b5dc;">邊際效益追蹤</span>
+          <div class="month-range-control">
+            <button class="range-trigger-btn" id="streamerPickerTrigger">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+              <span id="streamerPickerLabel">全部期間</span>
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+            </button>
+          </div>
+          <div class="ym-popover" id="streamerPickerPopover">
+            <div class="ym-popover-inner">
+              <div class="ym-shortcuts">
+                <button class="ym-shortcut active" data-preset="all">全部</button>
+                <button class="ym-shortcut" data-preset="1m">近 1 個月</button>
+                <button class="ym-shortcut" data-preset="3m">近 3 個月</button>
+                <button class="ym-shortcut" data-preset="6m">近 6 個月</button>
+                <button class="ym-shortcut" data-preset="12m">近 12 個月</button>
+                <button class="ym-shortcut" data-preset="Q1">Q1</button>
+                <button class="ym-shortcut" data-preset="Q2">Q2</button>
+                <button class="ym-shortcut" data-preset="Q3">Q3</button>
+                <button class="ym-shortcut" data-preset="Q4">Q4</button>
+                <button class="ym-shortcut" data-preset="custom">自訂</button>
+              </div>
+              <div class="ym-picker-area" id="streamerPickerArea"></div>
+            </div>
+            <div class="ym-popover-footer">
+              <span class="ym-selected-label" id="streamerSelectedLabel">已選：全部</span>
+              <button class="range-btn" id="streamerRangeApply">套用</button>
+            </div>
+          </div>
         </div>
         <div class="streamer-controls">
           <div class="streamer-checkbox-group" id="streamerCheckboxGroup"></div>
@@ -750,24 +827,43 @@
           </div>
         </div>
       </section>
+    </main>
+    </div><!-- /sales-shopee-live -->
 
+    <!-- Sub-panel: Meta 直播 -->
+    <div class="sales-sub-panel" id="sales-meta-live">
+    <div class="page-subtitle">
+      <h1>Meta 直播</h1>
+      <div class="accent-line"></div>
+    </div>
+    <main class="main">
       <section class="section fade-in-up">
-        <div class="section-header">
-          <h2 class="section-title">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2h11"/></svg>
-            銷售行動建議
-          </h2>
-        </div>
-        <div class="action-list">
-          <div class="action-item high"><div class="action-priority">優先</div><div class="action-content"><div class="action-title">恢復粉絲增長動能，止血負成長</div><div class="action-desc">3 月粉絲流失 253 人，較上月 +4,712 人大幅衰退。建議檢視蝦皮廣告投放是否中斷或預算縮減，並搭配直播活動與社群互動（抽獎、限時優惠）重新拉回粉絲關注。歷史高峰曾達 +9,610 人（202505），目前原因需緊急排查。</div></div></div>
-          <div class="action-item high"><div class="action-priority">優先</div><div class="action-content"><div class="action-title">拉高訂單轉換率，目前僅 0.44%</div><div class="action-desc">轉換率從上月 0.65% 下降至 0.44%，歷史高峰為 1.04%（202504）。建議優化商品詳情頁資訊豐富度、加強購買誘因（限時折扣、滾動滴砂），並針對高跳出率的電腦版（73.80%）優化頁面體驗與視覺引導。</div></div></div>
-          <div class="action-item mid"><div class="action-priority">中等</div><div class="action-content"><div class="action-title">降低不成立訂單比例</div><div class="action-desc">3 月不成立 40 筆（NT$120,747）+ 退貨 5 筆（NT$67,674），合計 NT$188,421 損失，佔總營業額 19.4%。年度趨勢也顯示 2025 年不成立單量較 2024 年增加 34%。建議分析不成立主因（未付款、取消、地址問題），針對性改善付款提醒與訂單確認流程。</div></div></div>
-          <div class="action-item mid"><div class="action-priority">中等</div><div class="action-content"><div class="action-title">提升新客獲取與回購穩定性</div><div class="action-desc">新客 87 人較上月 98 人下降 11%，複購率 29.53% 也從上月 34.07% 回落。可探索首購優惠券吸引新客，同時運用會員專屬折扣、回購提醒、新品優先通知等手段穩住熟客回購。歷史複購高峰達 34.07%（202602），證明客群有回購潛力。</div></div></div>
-          <div class="action-item low"><div class="action-priority">持續</div><div class="action-content"><div class="action-title">維持營業額成長動能</div><div class="action-desc">2026 Q1 營業額 NT$3,315,914，同比 2025 Q1 成長 15.43%，年度營業額從 2024 年 NT$22.9M 成長至 2025 年 NT$30.9M（+35.1%）。但平均客單價從 NT$4,516 降至 NT$2,721（−39.7%），營收成長主要靠訂單量放大。建議在維持單量的同時，透過組合優惠、高單價商品推薦拉回客單價。</div></div></div>
+        <div class="sales-empty-state">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="opacity:0.3;"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
+          <div class="sales-empty-title">Meta 直播數據</div>
+          <div class="sales-empty-desc">此頁面尚在規劃中，待未來接入 Meta 直播數據後啟用。</div>
         </div>
       </section>
-
     </main>
+    </div><!-- /sales-meta-live -->
+
+    <!-- Sub-panel: Instagram 直播 -->
+    <div class="sales-sub-panel" id="sales-ig-live">
+    <div class="page-subtitle">
+      <h1>Instagram 直播</h1>
+      <div class="accent-line"></div>
+    </div>
+    <main class="main">
+      <section class="section fade-in-up">
+        <div class="sales-empty-state">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="opacity:0.3;"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+          <div class="sales-empty-title">Instagram 直播數據</div>
+          <div class="sales-empty-desc">此頁面尚在規劃中，待未來接入 Instagram 直播數據後啟用。</div>
+        </div>
+      </section>
+    </main>
+    </div><!-- /sales-ig-live -->
+
   </div>
 
   <!-- ===== TAB: 里程碑 ===== -->

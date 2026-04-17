@@ -1,17 +1,90 @@
 // ===== TAB SWITCHING =====
-document.querySelectorAll('.tab-btn').forEach(btn => {
-  btn.addEventListener('click', () => {
-    const target = btn.dataset.tab;
-    document.querySelectorAll('.tab-btn').forEach(b => {
-      b.classList.remove('active');
-      b.setAttribute('aria-selected', 'false');
-    });
-    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
-    btn.classList.add('active');
-    btn.setAttribute('aria-selected', 'true');
-    document.getElementById('tab-' + target).classList.add('active');
+var activeSalesSub = 'sales-overview';
+
+function switchMainTab(target, fromBtn) {
+  document.querySelectorAll('.tab-btn').forEach(function(b) {
+    b.classList.remove('active');
+    b.setAttribute('aria-selected', 'false');
+  });
+  document.querySelectorAll('.tab-panel').forEach(function(p) { p.classList.remove('active'); });
+  fromBtn.classList.add('active');
+  fromBtn.setAttribute('aria-selected', 'true');
+  document.getElementById('tab-' + target).classList.add('active');
+}
+
+function switchSalesSubPanel(subId) {
+  activeSalesSub = subId;
+  document.querySelectorAll('.sales-sub-panel').forEach(function(p) { p.classList.remove('active'); });
+  var panel = document.getElementById(subId);
+  if (panel) panel.classList.add('active');
+  // Update dropdown item active state
+  document.querySelectorAll('.tab-dropdown-item').forEach(function(item) {
+    item.classList.toggle('active', item.dataset.sub === subId);
+  });
+}
+
+document.querySelectorAll('.tab-btn').forEach(function(btn) {
+  btn.addEventListener('click', function(e) {
+    var target = btn.dataset.tab;
+    // If this is the sales dropdown btn, switch to sales tab + current sub
+    if (target === 'sales') {
+      switchMainTab('sales', btn);
+      switchSalesSubPanel(activeSalesSub);
+      // Close dropdown
+      var dd = btn.closest('.tab-dropdown');
+      if (dd) dd.classList.remove('open');
+    } else {
+      switchMainTab(target, btn);
+    }
   });
 });
+
+// Dropdown sub-item clicks
+document.querySelectorAll('.tab-dropdown-item').forEach(function(item) {
+  item.addEventListener('click', function(e) {
+    e.stopPropagation();
+    var subId = item.dataset.sub;
+    var salesBtn = document.querySelector('[data-tab="sales"]');
+    // Switch to sales tab first
+    switchMainTab('sales', salesBtn);
+    // Then switch sub-panel
+    switchSalesSubPanel(subId);
+    // Close dropdown
+    var dd = item.closest('.tab-dropdown');
+    if (dd) dd.classList.remove('open');
+  });
+});
+
+// Mobile touch support for dropdown
+(function() {
+  var dropdown = document.querySelector('.tab-dropdown');
+  if (!dropdown) return;
+  var salesBtn = dropdown.querySelector('.tab-btn');
+  var touchOpened = false;
+
+  // On touch devices, first tap opens dropdown, second tap navigates
+  salesBtn.addEventListener('touchstart', function(e) {
+    if (!dropdown.classList.contains('open') && !touchOpened) {
+      e.preventDefault();
+      dropdown.classList.add('open');
+      touchOpened = true;
+    }
+  }, { passive: false });
+
+  // Close dropdown when tapping outside
+  document.addEventListener('touchstart', function(e) {
+    if (touchOpened && !dropdown.contains(e.target)) {
+      dropdown.classList.remove('open');
+      touchOpened = false;
+    }
+  });
+  document.addEventListener('click', function(e) {
+    if (!dropdown.contains(e.target)) {
+      dropdown.classList.remove('open');
+      touchOpened = false;
+    }
+  });
+})();
 
 // ===== THEME TOGGLE =====
 (function () {
@@ -1832,6 +1905,24 @@ var TOTAL_MONTHLY_COINS = STREAMER_MONTH_LABELS.map(function(_, i) {
 var showTotalCoins = true;
 var streamerCoinChartInstance = null;
 
+// Streamer date filter state — indices into STREAMER_MONTH_LABELS
+var streamerFilterIndices = null; // null = show all
+
+// Seasonal month classification: peak (red) vs off-season (blue)
+// Peak months: 2, 6, 7, 8
+var PEAK_MONTHS = [2, 6, 7, 8];
+function isPeakMonth(monthLabel) {
+  // monthLabel format: "MM/YY" e.g. "04/25"
+  var mm = parseInt(monthLabel.split('/')[0], 10);
+  return PEAK_MONTHS.indexOf(mm) > -1;
+}
+function getSeasonColor(monthLabel) {
+  return isPeakMonth(monthLabel) ? '#e05555' : '#5b9bd5';
+}
+function getSeasonLabel(monthLabel) {
+  return isPeakMonth(monthLabel) ? '旺' : '淡';
+}
+
 function initStreamerCheckboxes() {
   var group = document.getElementById('streamerCheckboxGroup');
   if (!group) return;
@@ -1888,14 +1979,19 @@ function initStreamerCheckboxes() {
   }
 }
 
+function getFilteredIndices() {
+  return streamerFilterIndices || STREAMER_MONTH_LABELS.map(function(_, i) { return i; });
+}
+
 function buildStreamerDatasets() {
+  var indices = getFilteredIndices();
   var datasets = [];
 
-  // Total coins bar (behind everything) — always uses full sum
+  // Total coins bar (behind everything)
   if (showTotalCoins) {
     datasets.push({
       label: '總蝦幣投放',
-      data: TOTAL_MONTHLY_COINS,
+      data: indices.map(function(i) { return TOTAL_MONTHLY_COINS[i]; }),
       type: 'bar',
       backgroundColor: 'rgba(196,181,220,0.18)',
       borderColor: 'rgba(196,181,220,0.4)',
@@ -1911,10 +2007,9 @@ function buildStreamerDatasets() {
   Object.keys(STREAMER_DATA).forEach(function(name) {
     var s = STREAMER_DATA[name];
     if (!s.active) return;
-    // Revenue line (left Y axis) - solid
     datasets.push({
       label: name + ' 業績',
-      data: s.revenue,
+      data: indices.map(function(i) { return s.revenue[i]; }),
       borderColor: s.color,
       backgroundColor: s.colorBg,
       fill: false,
@@ -1927,10 +2022,9 @@ function buildStreamerDatasets() {
       yAxisID: 'yRevenue',
       order: 1
     });
-    // Coins line (right Y axis) - dashed
     datasets.push({
       label: name + ' 蝦幣',
-      data: s.coins,
+      data: indices.map(function(i) { return s.coins[i]; }),
       borderColor: s.color,
       backgroundColor: 'transparent',
       fill: false,
@@ -1950,6 +2044,8 @@ function buildStreamerDatasets() {
 
 function updateStreamerChart() {
   if (!streamerCoinChartInstance) return;
+  var indices = getFilteredIndices();
+  streamerCoinChartInstance.data.labels = indices.map(function(i) { return STREAMER_MONTH_LABELS[i]; });
   streamerCoinChartInstance.data.datasets = buildStreamerDatasets();
   streamerCoinChartInstance.update();
 }
@@ -1970,10 +2066,7 @@ function initStreamerCoinChart() {
     options: {
       responsive: true,
       maintainAspectRatio: false,
-      interaction: {
-        mode: 'index',
-        intersect: false
-      },
+      interaction: { mode: 'index', intersect: false },
       plugins: {
         legend: { display: false },
         tooltip: {
@@ -2001,43 +2094,20 @@ function initStreamerCoinChart() {
           ticks: { color: textColor, font: { size: 11 } }
         },
         yRevenue: {
-          type: 'linear',
-          position: 'left',
+          type: 'linear', position: 'left',
           grid: { color: gridColor },
-          ticks: {
-            color: textColor,
-            font: { size: 11 },
-            callback: function(v) {
-              if (v >= 1000000) return (v / 1000000).toFixed(1) + 'M';
-              if (v >= 1000) return (v / 1000).toFixed(0) + 'K';
-              return v;
-            }
+          ticks: { color: textColor, font: { size: 11 },
+            callback: function(v) { if (v >= 1000000) return (v/1000000).toFixed(1)+'M'; if (v >= 1000) return (v/1000).toFixed(0)+'K'; return v; }
           },
-          title: {
-            display: true,
-            text: '業績 (NT$)',
-            color: textColor,
-            font: { size: 11 }
-          }
+          title: { display: true, text: '業績 (NT$)', color: textColor, font: { size: 11 } }
         },
         yCoins: {
-          type: 'linear',
-          position: 'right',
+          type: 'linear', position: 'right',
           grid: { drawOnChartArea: false },
-          ticks: {
-            color: textColor,
-            font: { size: 11 },
-            callback: function(v) {
-              if (v >= 1000) return (v / 1000).toFixed(0) + 'K';
-              return v;
-            }
+          ticks: { color: textColor, font: { size: 11 },
+            callback: function(v) { if (v >= 1000) return (v/1000).toFixed(0)+'K'; return v; }
           },
-          title: {
-            display: true,
-            text: '蝦幣投放 (NT$)',
-            color: textColor,
-            font: { size: 11 }
-          }
+          title: { display: true, text: '蝦幣投放 (NT$)', color: textColor, font: { size: 11 } }
         }
       }
     }
@@ -2048,7 +2118,11 @@ function updateStreamerTable() {
   var tbody = document.getElementById('streamerCoinTableBody');
   if (!tbody) return;
   tbody.innerHTML = '';
-  STREAMER_MONTH_LABELS.forEach(function(month, i) {
+  var indices = getFilteredIndices();
+  indices.forEach(function(i) {
+    var month = STREAMER_MONTH_LABELS[i];
+    var seasonColor = getSeasonColor(month);
+    var seasonTag = '<span style="font-size:10px;font-weight:700;color:' + seasonColor + ';margin-left:4px;vertical-align:middle;">' + getSeasonLabel(month) + '</span>';
     // Individual streamer rows
     Object.keys(STREAMER_DATA).forEach(function(name) {
       var s = STREAMER_DATA[name];
@@ -2059,7 +2133,7 @@ function updateStreamerTable() {
       var pct = rev > 0 ? (coin / rev * 100).toFixed(2) + '%' : '—';
       var tr = document.createElement('tr');
       tr.innerHTML =
-        '<td>' + month + '</td>' +
+        '<td><span style="color:' + seasonColor + ';">' + month + '</span>' + seasonTag + '</td>' +
         '<td><span style="color:' + s.color + ';font-weight:600;">' + name + '</span></td>' +
         '<td>NT$' + rev.toLocaleString('en-US') + '</td>' +
         '<td>NT$' + coin.toLocaleString('en-US') + '</td>' +
@@ -2079,7 +2153,7 @@ function updateStreamerTable() {
       var totalTr = document.createElement('tr');
       totalTr.style.cssText = 'background:rgba(196,181,220,0.06);font-weight:600;';
       totalTr.innerHTML =
-        '<td>' + month + '</td>' +
+        '<td><span style="color:' + seasonColor + ';">' + month + '</span>' + seasonTag + '</td>' +
         '<td><span style="color:#c4b5dc;font-weight:600;">合計</span></td>' +
         '<td>NT$' + totalRev.toLocaleString('en-US') + '</td>' +
         '<td>NT$' + totalCoin.toLocaleString('en-US') + '</td>' +
@@ -2090,25 +2164,63 @@ function updateStreamerTable() {
   });
 }
 
-// Initialize when sales tab is first visited
-(function() {
-  var salesTabBtn = document.querySelector('[data-tab="sales"]');
-  var initialized = false;
-  function tryInit() {
-    if (initialized) return;
-    var canvas = document.getElementById('streamerCoinChart');
-    if (canvas && canvas.offsetParent !== null) {
-      initialized = true;
-      initStreamerCheckboxes();
-      initStreamerCoinChart();
-      updateStreamerTable();
-    }
-  }
-  if (salesTabBtn) {
-    salesTabBtn.addEventListener('click', function() {
-      setTimeout(tryInit, 100);
+// Streamer Picker: convert MM/YY label to YYYYMM numeric for createPicker compatibility
+function streamerMonthToNum(label) {
+  var parts = label.split('/');
+  return parseInt('20' + parts[1] + parts[0]);
+}
+
+function applyStreamerFilter(from, to) {
+  var indices = [];
+  STREAMER_MONTH_LABELS.forEach(function(label, i) {
+    var num = streamerMonthToNum(label);
+    if (num >= from && num <= to) indices.push(i);
+  });
+  if (indices.length === 0) indices = null; // show all
+  streamerFilterIndices = indices;
+  updateStreamerChart();
+  updateStreamerTable();
+}
+
+// Initialize when shopee-live sub-panel is first shown
+var streamerChartInitialized = false;
+function tryInitStreamerChart() {
+  if (streamerChartInitialized) return;
+  var canvas = document.getElementById('streamerCoinChart');
+  if (canvas && canvas.offsetParent !== null) {
+    streamerChartInitialized = true;
+    initStreamerCheckboxes();
+    initStreamerCoinChart();
+    updateStreamerTable();
+    // Create date picker for streamer section
+    createPicker({
+      triggerId: 'streamerPickerTrigger',
+      popoverId: 'streamerPickerPopover',
+      areaId:    'streamerPickerArea',
+      labelId:   'streamerPickerLabel',
+      selectedLabelId: 'streamerSelectedLabel',
+      applyId:   'streamerRangeApply',
+      onApply: function(from, to) {
+        applyStreamerFilter(from, to);
+      }
     });
   }
-  // Also try on load in case sales tab is already active
-  setTimeout(tryInit, 500);
-})();
+}
+// Hook into sub-panel switching
+var origSwitchSub = switchSalesSubPanel;
+switchSalesSubPanel = function(subId) {
+  origSwitchSub(subId);
+  if (subId === 'sales-shopee-live') {
+    setTimeout(tryInitStreamerChart, 100);
+  }
+};
+// Also listen for dropdown item clicks as backup
+document.querySelectorAll('.tab-dropdown-item').forEach(function(item) {
+  item.addEventListener('click', function() {
+    if (item.dataset.sub === 'sales-shopee-live') {
+      setTimeout(tryInitStreamerChart, 150);
+    }
+  });
+});
+// Try on load in case already active
+setTimeout(tryInitStreamerChart, 500);
