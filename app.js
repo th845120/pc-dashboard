@@ -1919,9 +1919,6 @@ function isPeakMonth(monthLabel) {
 function getSeasonColor(monthLabel) {
   return isPeakMonth(monthLabel) ? '#e05555' : '#5b9bd5';
 }
-function getSeasonLabel(monthLabel) {
-  return isPeakMonth(monthLabel) ? '旺' : '淡';
-}
 
 function initStreamerCheckboxes() {
   var group = document.getElementById('streamerCheckboxGroup');
@@ -2119,10 +2116,26 @@ function updateStreamerTable() {
   if (!tbody) return;
   tbody.innerHTML = '';
   var indices = getFilteredIndices();
+
+  // Collect all individual streamer revenues to find top 3 (by unique rank)
+  var revEntries = [];
+  indices.forEach(function(i) {
+    Object.keys(STREAMER_DATA).forEach(function(name) {
+      var s = STREAMER_DATA[name];
+      if (!s.active) return;
+      revEntries.push({ key: name + '|' + i, rev: s.revenue[i] });
+    });
+  });
+  revEntries.sort(function(a, b) { return b.rev - a.rev; });
+  var top3Keys = {};
+  for (var t = 0; t < Math.min(3, revEntries.length); t++) {
+    top3Keys[revEntries[t].key] = true;
+  }
+
   indices.forEach(function(i) {
     var month = STREAMER_MONTH_LABELS[i];
     var seasonColor = getSeasonColor(month);
-    var seasonTag = '<span style="font-size:10px;font-weight:700;color:' + seasonColor + ';margin-left:4px;vertical-align:middle;">' + getSeasonLabel(month) + '</span>';
+    // Season color only — no text label
     // Individual streamer rows
     Object.keys(STREAMER_DATA).forEach(function(name) {
       var s = STREAMER_DATA[name];
@@ -2131,11 +2144,13 @@ function updateStreamerTable() {
       var coin = s.coins[i];
       var roi = coin > 0 ? (rev / coin).toFixed(1) + 'x' : '—';
       var pct = rev > 0 ? (coin / rev * 100).toFixed(2) + '%' : '—';
+      var isTop3 = top3Keys[name + '|' + i] === true;
+      var revStyle = isTop3 ? 'color:#e8a825;font-weight:700;' : '';
       var tr = document.createElement('tr');
       tr.innerHTML =
-        '<td><span style="color:' + seasonColor + ';">' + month + '</span>' + seasonTag + '</td>' +
+        '<td><span style="color:' + seasonColor + ';">' + month + '</span></td>' +
         '<td><span style="color:' + s.color + ';font-weight:600;">' + name + '</span></td>' +
-        '<td>NT$' + rev.toLocaleString('en-US') + '</td>' +
+        '<td><span style="' + revStyle + '">NT$' + rev.toLocaleString('en-US') + '</span></td>' +
         '<td>NT$' + coin.toLocaleString('en-US') + '</td>' +
         '<td>' + roi + '</td>' +
         '<td>' + pct + '</td>';
@@ -2153,7 +2168,7 @@ function updateStreamerTable() {
       var totalTr = document.createElement('tr');
       totalTr.style.cssText = 'background:rgba(196,181,220,0.06);font-weight:600;';
       totalTr.innerHTML =
-        '<td><span style="color:' + seasonColor + ';">' + month + '</span>' + seasonTag + '</td>' +
+        '<td><span style="color:' + seasonColor + ';">' + month + '</span></td>' +
         '<td><span style="color:#c4b5dc;font-weight:600;">合計</span></td>' +
         '<td>NT$' + totalRev.toLocaleString('en-US') + '</td>' +
         '<td>NT$' + totalCoin.toLocaleString('en-US') + '</td>' +
