@@ -665,8 +665,9 @@
   draw();
 
   // --- Dismiss splash (shared logic) ---
-  function dismissSplash() {
-    stopSplashBGM();
+  function dismissSplash(keepAudio) {
+    // If keepAudio is true, let the BGM 5s+2s fade-out finish naturally
+    if (!keepAudio) stopSplashBGM();
     splash.classList.add('fade-out');
     mainApp.classList.remove('hidden');
     setTimeout(function() {
@@ -679,7 +680,7 @@
   // --- Click to dismiss ---
   var splashClicked = false;
   splash.addEventListener('click', function() {
-    // On first click, ensure audio plays (browser autoplay policy)
+    // On first click, start audio (browser autoplay policy requires user gesture)
     if (!splashClicked) {
       splashClicked = true;
       if (splashAudio.paused) playSplashBGM();
@@ -689,13 +690,13 @@
       gyroPermissionRequested = true;
       DeviceOrientationEvent.requestPermission().then(function(state) {
         if (state === 'granted') addGyroListener();
-        dismissSplash();
+        dismissSplash(true); // keep BGM playing through transition
       }).catch(function() {
         gyroPermissionRequested = false;
-        dismissSplash();
+        dismissSplash(true);
       });
     } else {
-      dismissSplash();
+      dismissSplash(true); // keep BGM playing through transition
     }
   });
 

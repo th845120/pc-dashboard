@@ -27,15 +27,10 @@ document.querySelectorAll('.tab-btn').forEach(function(btn) {
   btn.addEventListener('click', function(e) {
     var target = btn.dataset.tab;
     if (target === 'sales') {
-      switchMainTab('sales', btn);
-      switchSalesSubPanel(activeSalesSub);
-      // Toggle dropdown open/close on click
-      var dd = btn.closest('.tab-dropdown');
-      if (dd) dd.classList.toggle('open');
+      // Do nothing on click — dropdown shows on hover only,
+      // actual navigation happens via dropdown sub-items
+      return;
     } else {
-      // Close sales dropdown when switching to other tabs
-      var salesDd = document.querySelector('.tab-dropdown');
-      if (salesDd) salesDd.classList.remove('open');
       switchMainTab(target, btn);
     }
   });
@@ -64,24 +59,21 @@ document.querySelectorAll('.tab-dropdown-item').forEach(function(item) {
   var salesBtn = dropdown.querySelector('.tab-btn');
   var touchOpened = false;
 
-  // On touch devices, first tap opens dropdown, second tap navigates
+  // On touch devices, tap toggles dropdown open
   salesBtn.addEventListener('touchstart', function(e) {
-    if (!dropdown.classList.contains('open') && !touchOpened) {
+    if (!touchOpened) {
       e.preventDefault();
       dropdown.classList.add('open');
       touchOpened = true;
+    } else {
+      dropdown.classList.remove('open');
+      touchOpened = false;
     }
   }, { passive: false });
 
   // Close dropdown when tapping outside
   document.addEventListener('touchstart', function(e) {
     if (touchOpened && !dropdown.contains(e.target)) {
-      dropdown.classList.remove('open');
-      touchOpened = false;
-    }
-  });
-  document.addEventListener('click', function(e) {
-    if (!dropdown.contains(e.target)) {
       dropdown.classList.remove('open');
       touchOpened = false;
     }
