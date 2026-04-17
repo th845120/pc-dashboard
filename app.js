@@ -26,14 +26,16 @@ function switchSalesSubPanel(subId) {
 document.querySelectorAll('.tab-btn').forEach(function(btn) {
   btn.addEventListener('click', function(e) {
     var target = btn.dataset.tab;
-    // If this is the sales dropdown btn, switch to sales tab + current sub
     if (target === 'sales') {
       switchMainTab('sales', btn);
       switchSalesSubPanel(activeSalesSub);
-      // Close dropdown
+      // Toggle dropdown open/close on click
       var dd = btn.closest('.tab-dropdown');
-      if (dd) dd.classList.remove('open');
+      if (dd) dd.classList.toggle('open');
     } else {
+      // Close sales dropdown when switching to other tabs
+      var salesDd = document.querySelector('.tab-dropdown');
+      if (salesDd) salesDd.classList.remove('open');
       switchMainTab(target, btn);
     }
   });
