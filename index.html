@@ -34,7 +34,7 @@
         <img src="brand-text.png" alt="聚寶水晶 Precious Crystal" class="brand-text-img" />
       </a>
       <div class="header-right">
-        <span class="update-badge">最後更新：2026-04-17 12:41 (UTC+8)</span>
+        <span class="update-badge">最後更新：2026-04-17 14:45 (UTC+8)</span>
         <button class="theme-toggle" data-theme-toggle aria-label="切換深色模式">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
         </button>
@@ -721,7 +721,40 @@
       <section class="section fade-in-up">
         <div class="section-header">
           <h2 class="section-title">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20V10"/><path d="M18 20V4"/><path d="M6 20v-4"/><circle cx="12" cy="6" r="2"/></svg>
+            直播主蝦幣 vs 業績
+          </h2>
+          <span class="section-badge" style="background:rgba(196,181,220,0.15);color:#c4b5dc;">邊際效益追蹤</span>
+        </div>
+        <div class="streamer-controls">
+          <div class="streamer-checkbox-group" id="streamerCheckboxGroup"></div>
+        </div>
+        <div class="chart-card">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px;">
+            <h3 class="chart-title" style="margin:0;">月營業額 vs 蝦幣投放走勢</h3>
+            <div class="streamer-legend" id="streamerLegend"></div>
+          </div>
+          <div class="chart-wrap" style="height:320px;"><canvas id="streamerCoinChart"></canvas></div>
+          <div class="info-note" style="margin-top:10px;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+            實線為業績（左軸），虛線為個人蝦幣（右軸），柱狀為每月總蝦幣投放。勾選可切換顯示。數據由蝦幣交易 CSV 與 Notion 業績表彙整
+          </div>
+        </div>
+        <div class="streamer-coin-table-wrap" style="margin-top:24px;">
+          <div style="font-size:var(--text-xs);color:var(--color-text-muted);margin-bottom:8px;font-weight:600;letter-spacing:0.06em;">蝦幣投放與業績明細</div>
+          <div class="data-table-wrap">
+            <table class="data-table" id="streamerCoinTable">
+              <thead><tr><th>月份</th><th>直播主</th><th>業績</th><th>蝦幣投放</th><th>ROI</th><th>蝦幣占比</th></tr></thead>
+              <tbody id="streamerCoinTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <section class="section fade-in-up">
+        <div class="section-header">
+          <h2 class="section-title">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2h11"/></svg>
             銷售行動建議
           </h2>
         </div>

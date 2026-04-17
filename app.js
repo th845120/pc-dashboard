@@ -1797,3 +1797,318 @@ var YEARLY_PERFORMANCE = [
   elements.forEach(function(el) { observer.observe(el); });
 })();
 
+
+// ===== 直播主蝦幣 vs 業績走勢 =====
+var STREAMER_DATA = {
+  "靚靚": {
+    color: "#e8a825",
+    colorBg: "rgba(232,168,37,0.08)",
+    active: true,
+    months:  ["04/25","05/25","06/25","07/25","08/25","09/25","10/25","11/25","12/25","01/26","02/26","03/26"],
+    revenue: [336608, 419659, 432458, 346822, 524539, 306556, 243695, 351457, 373365, 307606, 366878, 359056],
+    coins:   [3874, 30210, 20960, 18248, 22210, 9748, 6046, 22251, 15834, 24167, 14839, 5490]
+  },
+  "珍妮": {
+    color: "#3dbf7a",
+    colorBg: "rgba(61,191,122,0.08)",
+    active: true,
+    months:  ["04/25","05/25","06/25","07/25","08/25","09/25","10/25","11/25","12/25","01/26","02/26","03/26"],
+    revenue: [189218, 288450, 444869, 1051585, 422988, 234448, 349019, 344127, 207265, 323967, 512241, 279763],
+    coins:   [967, 28604, 20405, 23182, 15499, 7990, 1785, 10917, 13903, 23267, 20769, 1455]
+  }
+};
+
+var STREAMER_MONTH_LABELS = ["04/25","05/25","06/25","07/25","08/25","09/25","10/25","11/25","12/25","01/26","02/26","03/26"];
+
+// Pre-compute total monthly coins (sum across ALL streamers regardless of toggle)
+var TOTAL_MONTHLY_COINS = STREAMER_MONTH_LABELS.map(function(_, i) {
+  var sum = 0;
+  Object.keys(STREAMER_DATA).forEach(function(name) {
+    sum += STREAMER_DATA[name].coins[i];
+  });
+  return sum;
+});
+
+var showTotalCoins = true;
+var streamerCoinChartInstance = null;
+
+function initStreamerCheckboxes() {
+  var group = document.getElementById('streamerCheckboxGroup');
+  if (!group) return;
+  group.innerHTML = '';
+
+  // Per-streamer checkboxes
+  Object.keys(STREAMER_DATA).forEach(function(name) {
+    var s = STREAMER_DATA[name];
+    var label = document.createElement('label');
+    label.style.setProperty('--streamer-color', s.color);
+    var input = document.createElement('input');
+    input.type = 'checkbox';
+    input.name = 'streamerToggle';
+    input.value = name;
+    input.checked = s.active;
+    input.addEventListener('change', function() {
+      STREAMER_DATA[name].active = this.checked;
+      updateStreamerChart();
+      updateStreamerTable();
+    });
+    var span = document.createElement('span');
+    span.textContent = name;
+    label.appendChild(input);
+    label.appendChild(span);
+    group.appendChild(label);
+  });
+
+  // Total coins checkbox
+  var totalLabel = document.createElement('label');
+  totalLabel.style.setProperty('--streamer-color', '#c4b5dc');
+  var totalInput = document.createElement('input');
+  totalInput.type = 'checkbox';
+  totalInput.name = 'streamerToggle';
+  totalInput.value = '總投放';
+  totalInput.checked = showTotalCoins;
+  totalInput.addEventListener('change', function() {
+    showTotalCoins = this.checked;
+    updateStreamerChart();
+    updateStreamerTable();
+  });
+  var totalSpan = document.createElement('span');
+  totalSpan.textContent = '總蝦幣投放';
+  totalLabel.appendChild(totalInput);
+  totalLabel.appendChild(totalSpan);
+  group.appendChild(totalLabel);
+
+  // Legend
+  var legend = document.getElementById('streamerLegend');
+  if (legend) {
+    legend.innerHTML =
+      '<span class="streamer-legend-item"><span class="streamer-legend-line" style="background:var(--color-text-muted);"></span>業績</span>' +
+      '<span class="streamer-legend-item"><span class="streamer-legend-dash" style="border-color:var(--color-text-muted);"></span>蝦幣</span>' +
+      '<span class="streamer-legend-item"><span class="streamer-legend-bar" style="background:#c4b5dc;"></span>總投放</span>';
+  }
+}
+
+function buildStreamerDatasets() {
+  var datasets = [];
+
+  // Total coins bar (behind everything) — always uses full sum
+  if (showTotalCoins) {
+    datasets.push({
+      label: '總蝦幣投放',
+      data: TOTAL_MONTHLY_COINS,
+      type: 'bar',
+      backgroundColor: 'rgba(196,181,220,0.18)',
+      borderColor: 'rgba(196,181,220,0.4)',
+      borderWidth: 1,
+      borderRadius: 4,
+      barPercentage: 0.5,
+      categoryPercentage: 0.6,
+      yAxisID: 'yCoins',
+      order: 3
+    });
+  }
+
+  Object.keys(STREAMER_DATA).forEach(function(name) {
+    var s = STREAMER_DATA[name];
+    if (!s.active) return;
+    // Revenue line (left Y axis) - solid
+    datasets.push({
+      label: name + ' 業績',
+      data: s.revenue,
+      borderColor: s.color,
+      backgroundColor: s.colorBg,
+      fill: false,
+      tension: 0.35,
+      pointRadius: 4,
+      pointHoverRadius: 6,
+      pointBackgroundColor: s.color,
+      pointBorderColor: 'rgba(0,0,0,0.1)',
+      borderWidth: 2.5,
+      yAxisID: 'yRevenue',
+      order: 1
+    });
+    // Coins line (right Y axis) - dashed
+    datasets.push({
+      label: name + ' 蝦幣',
+      data: s.coins,
+      borderColor: s.color,
+      backgroundColor: 'transparent',
+      fill: false,
+      tension: 0.35,
+      pointRadius: 3,
+      pointHoverRadius: 5,
+      pointBackgroundColor: s.color,
+      pointBorderColor: 'rgba(0,0,0,0.1)',
+      borderWidth: 2,
+      borderDash: [6, 4],
+      yAxisID: 'yCoins',
+      order: 2
+    });
+  });
+  return datasets;
+}
+
+function updateStreamerChart() {
+  if (!streamerCoinChartInstance) return;
+  streamerCoinChartInstance.data.datasets = buildStreamerDatasets();
+  streamerCoinChartInstance.update();
+}
+
+function initStreamerCoinChart() {
+  var canvas = document.getElementById('streamerCoinChart');
+  if (!canvas) return;
+  var ctx = canvas.getContext('2d');
+  var gridColor = getComputedStyle(document.documentElement).getPropertyValue('--color-border').trim() || 'rgba(255,255,255,0.06)';
+  var textColor = getComputedStyle(document.documentElement).getPropertyValue('--color-text-muted').trim() || 'rgba(255,255,255,0.45)';
+
+  streamerCoinChartInstance = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: STREAMER_MONTH_LABELS,
+      datasets: buildStreamerDatasets()
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: {
+        mode: 'index',
+        intersect: false
+      },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: 'rgba(30,25,40,0.95)',
+          titleColor: '#fff',
+          bodyColor: 'rgba(255,255,255,0.8)',
+          borderColor: 'rgba(196,181,220,0.2)',
+          borderWidth: 1,
+          padding: 12,
+          cornerRadius: 10,
+          titleFont: { size: 13, weight: '600' },
+          bodyFont: { size: 12 },
+          callbacks: {
+            label: function(ctx) {
+              var label = ctx.dataset.label || '';
+              var val = ctx.parsed.y;
+              return label + '：NT$' + Math.round(val).toLocaleString('en-US');
+            }
+          }
+        }
+      },
+      scales: {
+        x: {
+          grid: { color: gridColor },
+          ticks: { color: textColor, font: { size: 11 } }
+        },
+        yRevenue: {
+          type: 'linear',
+          position: 'left',
+          grid: { color: gridColor },
+          ticks: {
+            color: textColor,
+            font: { size: 11 },
+            callback: function(v) {
+              if (v >= 1000000) return (v / 1000000).toFixed(1) + 'M';
+              if (v >= 1000) return (v / 1000).toFixed(0) + 'K';
+              return v;
+            }
+          },
+          title: {
+            display: true,
+            text: '業績 (NT$)',
+            color: textColor,
+            font: { size: 11 }
+          }
+        },
+        yCoins: {
+          type: 'linear',
+          position: 'right',
+          grid: { drawOnChartArea: false },
+          ticks: {
+            color: textColor,
+            font: { size: 11 },
+            callback: function(v) {
+              if (v >= 1000) return (v / 1000).toFixed(0) + 'K';
+              return v;
+            }
+          },
+          title: {
+            display: true,
+            text: '蝦幣投放 (NT$)',
+            color: textColor,
+            font: { size: 11 }
+          }
+        }
+      }
+    }
+  });
+}
+
+function updateStreamerTable() {
+  var tbody = document.getElementById('streamerCoinTableBody');
+  if (!tbody) return;
+  tbody.innerHTML = '';
+  STREAMER_MONTH_LABELS.forEach(function(month, i) {
+    // Individual streamer rows
+    Object.keys(STREAMER_DATA).forEach(function(name) {
+      var s = STREAMER_DATA[name];
+      if (!s.active) return;
+      var rev = s.revenue[i];
+      var coin = s.coins[i];
+      var roi = coin > 0 ? (rev / coin).toFixed(1) + 'x' : '—';
+      var pct = rev > 0 ? (coin / rev * 100).toFixed(2) + '%' : '—';
+      var tr = document.createElement('tr');
+      tr.innerHTML =
+        '<td>' + month + '</td>' +
+        '<td><span style="color:' + s.color + ';font-weight:600;">' + name + '</span></td>' +
+        '<td>NT$' + rev.toLocaleString('en-US') + '</td>' +
+        '<td>NT$' + coin.toLocaleString('en-US') + '</td>' +
+        '<td>' + roi + '</td>' +
+        '<td>' + pct + '</td>';
+      tbody.appendChild(tr);
+    });
+    // Total row for this month
+    if (showTotalCoins) {
+      var totalCoin = TOTAL_MONTHLY_COINS[i];
+      var totalRev = 0;
+      Object.keys(STREAMER_DATA).forEach(function(name) {
+        if (STREAMER_DATA[name].active) totalRev += STREAMER_DATA[name].revenue[i];
+      });
+      var totalRoi = totalCoin > 0 ? (totalRev / totalCoin).toFixed(1) + 'x' : '—';
+      var totalPct = totalRev > 0 ? (totalCoin / totalRev * 100).toFixed(2) + '%' : '—';
+      var totalTr = document.createElement('tr');
+      totalTr.style.cssText = 'background:rgba(196,181,220,0.06);font-weight:600;';
+      totalTr.innerHTML =
+        '<td>' + month + '</td>' +
+        '<td><span style="color:#c4b5dc;font-weight:600;">合計</span></td>' +
+        '<td>NT$' + totalRev.toLocaleString('en-US') + '</td>' +
+        '<td>NT$' + totalCoin.toLocaleString('en-US') + '</td>' +
+        '<td>' + totalRoi + '</td>' +
+        '<td>' + totalPct + '</td>';
+      tbody.appendChild(totalTr);
+    }
+  });
+}
+
+// Initialize when sales tab is first visited
+(function() {
+  var salesTabBtn = document.querySelector('[data-tab="sales"]');
+  var initialized = false;
+  function tryInit() {
+    if (initialized) return;
+    var canvas = document.getElementById('streamerCoinChart');
+    if (canvas && canvas.offsetParent !== null) {
+      initialized = true;
+      initStreamerCheckboxes();
+      initStreamerCoinChart();
+      updateStreamerTable();
+    }
+  }
+  if (salesTabBtn) {
+    salesTabBtn.addEventListener('click', function() {
+      setTimeout(tryInit, 100);
+    });
+  }
+  // Also try on load in case sales tab is already active
+  setTimeout(tryInit, 500);
+})();
