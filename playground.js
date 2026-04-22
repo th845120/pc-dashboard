@@ -9,11 +9,52 @@
     initParticles();
   }
 
-  // Listen for tab switch
+  // Refit counters — exposed globally so tab switcher can call it
+  window.__pgRefit = function() {
+    var grid = document.getElementById('pgCounterGrid');
+    if (!grid) return;
+    var els = grid.querySelectorAll('.pg-counter-value');
+    if (!els.length) return;
+    // 重計算每個卡的字體 fit size（使用完整 dataset 值）
+    els.forEach(function(el) {
+      var target = parseFloat(el.dataset.target);
+      var prefix = el.dataset.prefix || '';
+      var suffix = el.dataset.suffix || '';
+      var isDecimal = target % 1 !== 0;
+      var finalText = isDecimal
+        ? prefix + target.toFixed(2) + suffix
+        : prefix + target.toLocaleString('en-US') + suffix;
+      // inline calcFitSize 避免依賴
+      var card = el.closest('.pg-counter-card');
+      if (!card || card.clientWidth === 0) return; // 卡未可見時不算
+      var cardW = card.clientWidth - 48;
+      var span = document.createElement('span');
+      span.style.cssText = 'position:absolute;visibility:hidden;white-space:nowrap;font-weight:700;font-variant-numeric:tabular-nums;';
+      span.textContent = finalText;
+      document.body.appendChild(span);
+      var size = 44;
+      span.style.fontSize = size + 'px';
+      while (span.scrollWidth > cardW && size > 14) {
+        size -= 1;
+        span.style.fontSize = size + 'px';
+      }
+      document.body.removeChild(span);
+      el.style.fontSize = size + 'px';
+    });
+  };
+
+  // Listen for tab switch — 每次切到里程碑都要 init（首次）+ refit（每次）
   document.querySelectorAll('.tab-btn').forEach(function(btn) {
     btn.addEventListener('click', function() {
       if (btn.dataset.tab === 'playground') {
-        requestAnimationFrame(function() { setTimeout(initPlayground, 80); });
+        // 延遲足夠讓 .tab-panel.active 完成 reflow，卡片才有正確 clientWidth
+        requestAnimationFrame(function() {
+          setTimeout(function() {
+            initPlayground();
+            // 類似「切走再切回」時頭一次已 init 過但需重算字體
+            if (window.__pgRefit) window.__pgRefit();
+          }, 120);
+        });
       }
     });
   });
@@ -145,18 +186,9 @@
       requestAnimationFrame(tick);
     });
 
-    // Re-fit on resize
+    // Re-fit on resize (也包括 orientation change)
     window.addEventListener('resize', function() {
-      els.forEach(function(el) {
-        var target = parseFloat(el.dataset.target);
-        var prefix = el.dataset.prefix;
-        var suffix = el.dataset.suffix;
-        var isDecimal = target % 1 !== 0;
-        var finalText = isDecimal
-          ? prefix + target.toFixed(2) + suffix
-          : prefix + target.toLocaleString('en-US') + suffix;
-        el.style.fontSize = calcFitSize(el, finalText) + 'px';
-      });
+      if (window.__pgRefit) window.__pgRefit();
     });
   }
 
