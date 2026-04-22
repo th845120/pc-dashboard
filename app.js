@@ -1556,8 +1556,9 @@ function initRevRaceChart() {
   var margin = { top: 30, right: 120, bottom: 10, left: 50 };
   var barHeight = 42;
 
-  function renderFrame(idx) {
+  function renderFrame(idx, animate) {
     if (idx >= allFrames.length) return;
+    if (animate === undefined) animate = true;
     var frame = allFrames[idx];
     var maxBars = 3;
     var data = frame.data.slice(0, maxBars);
@@ -1593,21 +1594,25 @@ function initRevRaceChart() {
       .attr('class', 'pg-race-label')
       .text(function(d) { return d.year; });
 
-    var raceDuration = 1200;
+    var raceDuration = animate ? 1200 : 0;
 
-    bars.append('rect')
+    // 實心 bar
+    var mainBar = bars.append('rect')
       .attr('x', margin.left)
       .attr('y', 0)
       .attr('height', barHeight)
       .attr('rx', 6)
       .attr('fill', function(d) { return d.color; })
-      .attr('width', 0)
-      .transition()
-      .duration(raceDuration)
-      .ease(d3.easeCubicOut)
-      .attr('width', function(d) { return Math.max(0, x(d.value) - margin.left); });
+      .attr('width', animate ? 0 : function(d) { return Math.max(0, x(d.value) - margin.left); });
+    if (animate) {
+      mainBar.transition()
+        .duration(raceDuration)
+        .ease(d3.easeCubicOut)
+        .attr('width', function(d) { return Math.max(0, x(d.value) - margin.left); });
+    }
 
-    bars.append('rect')
+    // glow bar
+    var glowBar = bars.append('rect')
       .attr('x', margin.left)
       .attr('y', 0)
       .attr('height', barHeight)
@@ -1615,36 +1620,46 @@ function initRevRaceChart() {
       .attr('fill', function(d) { return d.color; })
       .attr('opacity', 0.15)
       .attr('filter', 'blur(8px)')
-      .attr('width', 0)
-      .transition()
-      .duration(raceDuration)
-      .ease(d3.easeCubicOut)
-      .attr('width', function(d) { return Math.max(0, x(d.value) - margin.left); });
+      .attr('width', animate ? 0 : function(d) { return Math.max(0, x(d.value) - margin.left); });
+    if (animate) {
+      glowBar.transition()
+        .duration(raceDuration)
+        .ease(d3.easeCubicOut)
+        .attr('width', function(d) { return Math.max(0, x(d.value) - margin.left); });
+    }
 
     // Runner emoji at the end of each bar
-    bars.append('text')
+    var runner = bars.append('text')
       .attr('y', barHeight / 2 + 6)
-      .attr('x', margin.left)
+      .attr('x', animate ? margin.left : function(d) { return x(d.value) + 2; })
       .attr('font-size', '20px')
       .attr('class', 'pg-race-runner')
-      .text('🏃')
-      .transition()
-      .duration(raceDuration)
-      .ease(d3.easeCubicOut)
-      .attr('x', function(d) { return x(d.value) + 2; });
+      .text('🏃');
+    if (animate) {
+      runner.transition()
+        .duration(raceDuration)
+        .ease(d3.easeCubicOut)
+        .attr('x', function(d) { return x(d.value) + 2; });
+    }
 
-    bars.append('text')
+    // Value label
+    var valueText = bars.append('text')
       .attr('y', barHeight / 2 + 5)
       .attr('class', 'pg-race-value')
-      .attr('x', margin.left + 4)
-      .transition()
-      .duration(raceDuration)
-      .ease(d3.easeCubicOut)
-      .attr('x', function(d) { return x(d.value) + 26; })
-      .textTween(function(d) {
-        var i = d3.interpolateNumber(0, d.value);
-        return function(t) { return 'NT$' + Math.round(i(t)).toLocaleString('en-US'); };
-      });
+      .attr('x', animate ? margin.left + 4 : function(d) { return x(d.value) + 26; });
+    if (animate) {
+      valueText.transition()
+        .duration(raceDuration)
+        .ease(d3.easeCubicOut)
+        .attr('x', function(d) { return x(d.value) + 26; })
+        .textTween(function(d) {
+          var i = d3.interpolateNumber(0, d.value);
+          return function(t) { return 'NT$' + Math.round(i(t)).toLocaleString('en-US'); };
+        });
+    } else {
+      // 無動畫：直接設最終文字
+      valueText.text(function(d) { return 'NT$' + Math.round(d.value).toLocaleString('en-US'); });
+    }
   }
 
   timelineEl.innerHTML = '';
@@ -1655,12 +1670,28 @@ function initRevRaceChart() {
     dot.addEventListener('click', function() {
       timelineEl.querySelectorAll('.pg-race-dot').forEach(function(d) { d.classList.remove('active'); });
       dot.classList.add('active');
-      renderFrame(i);
+      renderFrame(i, true);
     });
     timelineEl.appendChild(dot);
   });
 
-  renderFrame(0);
+  // 首次渲染不動畫，避免 iOS Safari 切標籤時 transition 卡住造成 bar 齊平
+  renderFrame(0, false);
+
+  // 切換到賽跑圖時 re-render·因為切換 rev-view-btn 的 handler 在下面 IIFE，這裡 expose 一個 refit 函數
+  window.__revRaceRefit = function() {
+    // 若容器可見且 SVG 存在，重新渲染首幀 (不動畫)
+    if (container.clientWidth > 0 && allFrames.length > 0) {
+      // 找到目前 active 的 dot
+      var activeDot = timelineEl.querySelector('.pg-race-dot.active');
+      var idx = 0;
+      if (activeDot) {
+        var dots = timelineEl.querySelectorAll('.pg-race-dot');
+        idx = Array.prototype.indexOf.call(dots, activeDot);
+      }
+      renderFrame(idx, false);
+    }
+  };
 
   var playing = false;
   var timer = null;
@@ -1678,7 +1709,7 @@ function initRevRaceChart() {
     timer = setInterval(function() {
       dots.forEach(function(d) { d.classList.remove('active'); });
       dots[idx].classList.add('active');
-      renderFrame(idx);
+      renderFrame(idx, true);
       idx++;
       if (idx >= allFrames.length) {
         clearInterval(timer);
@@ -1702,13 +1733,13 @@ function initRevRaceChart() {
         dot.addEventListener('click', function() {
           timelineEl.querySelectorAll('.pg-race-dot').forEach(function(d) { d.classList.remove('active'); });
           dot.classList.add('active');
-          renderFrame(i);
+          renderFrame(i, true);
         });
         timelineEl.appendChild(dot);
       });
-      // 渲染第一幀
+      // 渲染第一幀 (不動畫)
       if (allFrames.length > 0) {
-        renderFrame(0);
+        renderFrame(0, false);
       } else {
         container.innerHTML = '';
       }
@@ -1734,6 +1765,13 @@ function initRevRaceChart() {
         lineView.style.display = 'none';
         raceView.style.display = '';
         initRevRaceChart();
+        // 切到賽跑圖時，延遲重新渲染首幀 (不動畫)
+        // 確保容器可見後，bar 寬度依正確的 maxVal 計算
+        requestAnimationFrame(function() {
+          setTimeout(function() {
+            if (window.__revRaceRefit) window.__revRaceRefit();
+          }, 100);
+        });
       }
     });
   });
