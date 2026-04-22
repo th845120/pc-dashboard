@@ -34,7 +34,7 @@
         <img src="brand-text.png" alt="聚寶水晶 Precious Crystal" class="brand-text-img" />
       </a>
       <div class="header-right">
-        <span class="update-badge">最後更新：2026-04-22 14:33 (UTC+8)</span>
+        <span class="update-badge">最後更新：2026-04-22 14:58 (UTC+8)</span>
         <button class="theme-toggle" data-theme-toggle aria-label="切換深色模式">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
         </button>
@@ -796,10 +796,34 @@
     </div>
     <main class="main">
       <section class="section fade-in-up">
-        <div class="sales-empty-state">
-          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="opacity:0.3;"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
-          <div class="sales-empty-title">Meta 直播數據</div>
-          <div class="sales-empty-desc">此頁面尚在規劃中，待未來接入 Meta 直播數據後啟用。</div>
+        <div class="section-header">
+          <h2 class="section-title">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
+            月 GMV vs 廣告投入走勢
+          </h2>
+        </div>
+        <div class="chart-card">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px;">
+            <h3 class="chart-title" style="margin:0;">Meta 直播 GMV &amp; Ads 月趨勢</h3>
+            <div style="display:flex;gap:16px;font-size:var(--text-xs);color:var(--color-text-muted);">
+              <span style="display:flex;align-items:center;gap:5px;"><span style="display:inline-block;width:28px;height:3px;background:#53406e;border-radius:2px;"></span>GMV</span>
+              <span style="display:flex;align-items:center;gap:5px;"><span style="display:inline-block;width:28px;height:2px;border-top:2px dashed #e8a825;"></span>廣告費</span>
+            </div>
+          </div>
+          <div class="chart-wrap" style="height:320px;"><canvas id="metaLiveChart"></canvas></div>
+          <div class="info-note" style="margin-top:10px;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+            柱狀為 GMV（左軸），虛線為廣告費（左軸）。數據來源：DB1 每月運營狀況（GMV/Ads）× DB2 直播排程（ADO）。
+          </div>
+        </div>
+        <div class="data-table-wrap" style="margin-top:24px;">
+          <div style="font-size:var(--text-xs);color:var(--color-text-muted);margin-bottom:8px;font-weight:600;letter-spacing:0.06em;">Meta 直播月度明細</div>
+          <div class="data-table-wrap">
+            <table class="data-table" id="metaLiveTable">
+              <thead><tr><th>月份</th><th>GMV</th><th>廣告費</th><th>ROAS</th><th>ADO</th><th>AOV</th></tr></thead>
+              <tbody id="metaLiveTableBody"></tbody>
+            </table>
+          </div>
         </div>
       </section>
     </main>

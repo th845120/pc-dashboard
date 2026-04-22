@@ -2267,3 +2267,155 @@ document.querySelectorAll('.tab-dropdown-item').forEach(function(item) {
 });
 // Try on load in case already active
 setTimeout(tryInitStreamerChart, 500);
+
+// ===== META LIVE PANEL =====
+var META_LIVE_DATA = {
+  months: ["12/24","02/25","03/25","04/25","05/25","06/25","08/25","09/25","11/25","12/25","01/26","02/26","03/26"],
+  gmv:    [2512239,1667665,2045910,1436299,1856686,1148138,1784880,1994413,1687690,1498333,1952667,1382277,3127433],
+  ads:    [98839,187602,364067,159923,258652,183845,244212,410019,311245,281486,344094,100235,103303],
+  ado:    [613,101,202,175,824,1144,641,1551,834,736,915,20,297],
+  aov:    [4098,16512,10128,8207,2253,1004,2785,1286,2024,2036,2134,69114,10530],
+  roas:   [25.4,8.9,5.6,9.0,7.2,6.2,7.3,4.9,5.4,5.3,5.7,13.8,30.3]
+};
+
+var metaLiveChartInstance = null;
+
+function renderMetaLiveChart() {
+  var canvas = document.getElementById('metaLiveChart');
+  if (!canvas) return;
+  if (metaLiveChartInstance) { metaLiveChartInstance.destroy(); metaLiveChartInstance = null; }
+  var ctx = canvas.getContext('2d');
+  var gridColor = getComputedStyle(document.documentElement).getPropertyValue('--color-border').trim() || 'rgba(255,255,255,0.06)';
+  var textColor = getComputedStyle(document.documentElement).getPropertyValue('--color-text-muted').trim() || 'rgba(255,255,255,0.45)';
+
+  metaLiveChartInstance = new Chart(ctx, {
+    data: {
+      labels: META_LIVE_DATA.months,
+      datasets: [
+        {
+          type: 'bar',
+          label: 'GMV',
+          data: META_LIVE_DATA.gmv,
+          backgroundColor: 'rgba(83,64,110,0.7)',
+          borderColor: '#53406e',
+          borderWidth: 1,
+          borderRadius: 4,
+          yAxisID: 'yLeft',
+          order: 2
+        },
+        {
+          type: 'line',
+          label: '廣告費',
+          data: META_LIVE_DATA.ads,
+          borderColor: '#e8a825',
+          borderWidth: 2,
+          borderDash: [6,3],
+          pointBackgroundColor: '#e8a825',
+          pointRadius: 4,
+          pointHoverRadius: 6,
+          fill: false,
+          tension: 0.3,
+          yAxisID: 'yLeft',
+          order: 1
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: 'rgba(30,25,40,0.95)',
+          titleColor: '#fff',
+          bodyColor: 'rgba(255,255,255,0.8)',
+          borderColor: 'rgba(196,181,220,0.2)',
+          borderWidth: 1,
+          padding: 12,
+          cornerRadius: 10,
+          titleFont: { size: 13, weight: '600' },
+          bodyFont: { size: 12 },
+          callbacks: {
+            label: function(context) {
+              var label = context.dataset.label || '';
+              var val = context.parsed.y;
+              return label + '：NT$' + Math.round(val).toLocaleString('en-US');
+            }
+          }
+        }
+      },
+      scales: {
+        x: {
+          grid: { color: gridColor },
+          ticks: { color: textColor, font: { size: 11 } }
+        },
+        yLeft: {
+          type: 'linear',
+          position: 'left',
+          grid: { color: gridColor },
+          ticks: {
+            color: textColor,
+            font: { size: 11 },
+            callback: function(v) {
+              if (v >= 1000000) return (v / 1000000).toFixed(1) + 'M';
+              if (v >= 1000) return (v / 1000).toFixed(0) + 'K';
+              return v;
+            }
+          },
+          title: { display: true, text: 'NT$', color: textColor, font: { size: 11 } }
+        }
+      }
+    }
+  });
+}
+
+function renderMetaLiveTable() {
+  var tbody = document.getElementById('metaLiveTableBody');
+  if (!tbody) return;
+  var html = '';
+  var d = META_LIVE_DATA;
+  for (var i = d.months.length - 1; i >= 0; i--) {
+    var roas = d.roas[i];
+    var roasCls = roas >= 10 ? 'kpi-delta up' : roas >= 6 ? '' : 'kpi-delta down';
+    html += '<tr>';
+    html += '<td style="font-weight:600;">' + d.months[i] + '</td>';
+    html += '<td>NT$' + d.gmv[i].toLocaleString('en-US') + '</td>';
+    html += '<td>NT$' + d.ads[i].toLocaleString('en-US') + '</td>';
+    html += '<td><span class="' + roasCls + '">' + roas.toFixed(1) + 'x</span></td>';
+    html += '<td>' + d.ado[i].toLocaleString('en-US') + '</td>';
+    html += '<td>NT$' + d.aov[i].toLocaleString('en-US') + '</td>';
+    html += '</tr>';
+  }
+  tbody.innerHTML = html;
+}
+
+// Initialize when Meta-live sub-panel is first shown
+var metaLiveChartInitialized = false;
+function tryInitMetaLiveChart() {
+  if (metaLiveChartInitialized) return;
+  var canvas = document.getElementById('metaLiveChart');
+  if (canvas && canvas.offsetParent !== null) {
+    metaLiveChartInitialized = true;
+    renderMetaLiveChart();
+    renderMetaLiveTable();
+  }
+}
+
+// Hook into sub-panel switching (extend existing override)
+var _origSwitchSubMeta = switchSalesSubPanel;
+switchSalesSubPanel = function(subId) {
+  _origSwitchSubMeta(subId);
+  if (subId === 'sales-meta-live') {
+    setTimeout(tryInitMetaLiveChart, 100);
+  }
+};
+document.querySelectorAll('.tab-dropdown-item').forEach(function(item) {
+  item.addEventListener('click', function() {
+    if (item.dataset.sub === 'sales-meta-live') {
+      setTimeout(tryInitMetaLiveChart, 150);
+    }
+  });
+});
+// Try on load in case already active
+setTimeout(tryInitMetaLiveChart, 600);
