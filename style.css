@@ -90,6 +90,12 @@ html {
   scroll-padding-top: 120px;
   overflow-x: hidden;
   max-width: 100vw;
+  /* 關鍵：禁用 iOS Safari 的自動放大文字（auto text-sizing boost）
+     否則 iOS 會對段落文字放大 130%~170%，但只對部分容器生效，
+     導致「優先」卡字正常而「中等／持續」卡字變大且溢出 */
+  -webkit-text-size-adjust: 100%;
+  -moz-text-size-adjust: 100%;
+  text-size-adjust: 100%;
 }
 body {
   font-family: var(--font-body);
@@ -688,8 +694,9 @@ h1, h2, h3, h4, h5, h6, p, li, td, th, span, div, label, a {
 .action-item.high .action-priority { background: var(--color-bad-bg); color: var(--color-bad); }
 .action-item.mid .action-priority { background: var(--color-warn-bg); color: var(--color-warn); }
 .action-item.low .action-priority { background: var(--color-good-bg); color: var(--color-good); }
-.action-title { font-weight: 600; font-size: var(--text-sm); margin-bottom: 6px; word-break: break-word; overflow-wrap: anywhere; }
-.action-desc { font-size: var(--text-sm); color: var(--color-text-muted); line-height: 1.7; word-break: break-word; overflow-wrap: anywhere; }
+.action-content { min-width: 0; flex: 1; max-width: 100%; }
+.action-title { font-weight: 600; font-size: var(--text-sm); margin-bottom: 6px; word-break: break-word; overflow-wrap: anywhere; -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+.action-desc { font-size: var(--text-sm); color: var(--color-text-muted); line-height: 1.7; word-break: break-word; overflow-wrap: anywhere; -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
 
 /* ===== INFO NOTE ===== */
 .info-note {
