@@ -88,6 +88,8 @@ html {
   -moz-osx-font-smoothing: grayscale;
   scroll-behavior: smooth;
   scroll-padding-top: 120px;
+  overflow-x: hidden;
+  max-width: 100vw;
 }
 body {
   font-family: var(--font-body);
@@ -96,8 +98,12 @@ body {
   background: var(--color-bg);
   min-height: 100dvh;
   line-height: 1.65;
-  word-break: keep-all;
-  overflow-wrap: break-word;
+  /* CJK 對於英數、標點混排：預設允許任何字元間斷字，避免「KOL合作」連体撠破容器 */
+  word-break: normal;
+  overflow-wrap: anywhere;
+  line-break: auto;
+  overflow-x: hidden;
+  max-width: 100vw;
 }
 img, svg { display: block; max-width: 100%; }
 button { cursor: pointer; background: none; border: none; font: inherit; color: inherit; }
@@ -682,8 +688,8 @@ h1, h2, h3, h4, h5, h6, p, li, td, th, span, div, label, a {
 .action-item.high .action-priority { background: var(--color-bad-bg); color: var(--color-bad); }
 .action-item.mid .action-priority { background: var(--color-warn-bg); color: var(--color-warn); }
 .action-item.low .action-priority { background: var(--color-good-bg); color: var(--color-good); }
-.action-title { font-weight: 600; font-size: var(--text-sm); margin-bottom: 6px; }
-.action-desc { font-size: var(--text-sm); color: var(--color-text-muted); line-height: 1.7; }
+.action-title { font-weight: 600; font-size: var(--text-sm); margin-bottom: 6px; word-break: break-word; overflow-wrap: anywhere; }
+.action-desc { font-size: var(--text-sm); color: var(--color-text-muted); line-height: 1.7; word-break: break-word; overflow-wrap: anywhere; }
 
 /* ===== INFO NOTE ===== */
 .info-note {
@@ -696,8 +702,14 @@ h1, h2, h3, h4, h5, h6, p, li, td, th, span, div, label, a {
   background: var(--color-surface);
   border-radius: 12px;
   border: 1px solid var(--color-border);
+  /* 防止中英混排長句溢出容器 */
+  word-break: break-word;
+  overflow-wrap: anywhere;
+  min-width: 0;
+  max-width: 100%;
 }
 .info-note svg { flex-shrink: 0; margin-top: 1px; }
+.info-note > span, .info-note > div { min-width: 0; flex: 1; }
 
 /* ===== DATA TABLES ===== */
 .data-table-wrap {
