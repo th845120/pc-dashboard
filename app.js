@@ -2281,6 +2281,31 @@ var META_LIVE_DATA = {
 };
 
 var metaLiveChartInstance = null;
+var metaFilterIndices = null; // null = 全部
+
+// 按 MM/YY 轉為 YYYYMM 數字
+function metaMonthToNum(label) {
+  var parts = label.split('/');
+  return parseInt('20' + parts[1] + parts[0]);
+}
+
+function applyMetaFilter(from, to) {
+  var indices = [];
+  META_LIVE_DATA.months.forEach(function(label, i) {
+    var num = metaMonthToNum(label);
+    if (num >= from && num <= to) indices.push(i);
+  });
+  metaFilterIndices = indices.length === 0 ? null : indices;
+  renderMetaLiveChart();
+  renderMetaLiveTable();
+}
+
+function getMetaFiltered() {
+  var d = META_LIVE_DATA;
+  if (!metaFilterIndices) return {months:d.months, gmv:d.gmv, ads:d.ads, ado:d.ado, aov:d.aov, roas:d.roas};
+  var pick = function(arr) { return metaFilterIndices.map(function(i){ return arr[i]; }); };
+  return {months:pick(d.months), gmv:pick(d.gmv), ads:pick(d.ads), ado:pick(d.ado), aov:pick(d.aov), roas:pick(d.roas)};
+}
 
 function renderMetaLiveChart() {
   var canvas = document.getElementById('metaLiveChart');
@@ -2289,15 +2314,16 @@ function renderMetaLiveChart() {
   var ctx = canvas.getContext('2d');
   var gridColor = getComputedStyle(document.documentElement).getPropertyValue('--color-border').trim() || 'rgba(255,255,255,0.06)';
   var textColor = getComputedStyle(document.documentElement).getPropertyValue('--color-text-muted').trim() || 'rgba(255,255,255,0.45)';
+  var f = getMetaFiltered();
 
   metaLiveChartInstance = new Chart(ctx, {
     data: {
-      labels: META_LIVE_DATA.months,
+      labels: f.months,
       datasets: [
         {
           type: 'bar',
           label: 'GMV',
-          data: META_LIVE_DATA.gmv,
+          data: f.gmv,
           backgroundColor: 'rgba(83,64,110,0.7)',
           borderColor: '#53406e',
           borderWidth: 1,
@@ -2308,7 +2334,7 @@ function renderMetaLiveChart() {
         {
           type: 'line',
           label: '廣告費',
-          data: META_LIVE_DATA.ads,
+          data: f.ads,
           borderColor: '#e8a825',
           borderWidth: 2,
           borderDash: [6,3],
@@ -2376,7 +2402,7 @@ function renderMetaLiveTable() {
   var tbody = document.getElementById('metaLiveTableBody');
   if (!tbody) return;
   var html = '';
-  var d = META_LIVE_DATA;
+  var d = getMetaFiltered();
   for (var i = d.months.length - 1; i >= 0; i--) {
     var roas = d.roas[i];
     var roasCls = roas >= 10 ? 'kpi-delta up' : roas >= 6 ? '' : 'kpi-delta down';
@@ -2401,6 +2427,18 @@ function tryInitMetaLiveChart() {
     metaLiveChartInitialized = true;
     renderMetaLiveChart();
     renderMetaLiveTable();
+    // 時間選單
+    if (typeof createPicker === 'function') {
+      createPicker({
+        triggerId: 'metaPickerTrigger',
+        popoverId: 'metaPickerPopover',
+        areaId:    'metaPickerArea',
+        labelId:   'metaPickerLabel',
+        selectedLabelId: 'metaSelectedLabel',
+        applyId:   'metaRangeApply',
+        onApply: function(from, to) { applyMetaFilter(from, to); }
+      });
+    }
   }
 }
 

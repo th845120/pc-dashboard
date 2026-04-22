@@ -13,40 +13,76 @@
   var mouseX = -999, mouseY = -999;
   var milkyWayCanvas = null; // off-screen pre-rendered galaxy band
 
-  // ===== SPLASH BGM (5s play + 2s fade-out) =====
+  // ===== SPLASH BGM (即刻播放 + 柔和淡出) =====
+  // 策略：利用 muted autoplay 規則—静音自動播放合法，任何第一個互動 (pointermove/scroll/key/touch)
+  // 即可 unmute，等於「一到頁就唱」。淡出延長至 4 秒且用 ease-in 曲線，感覺更柔。
   var splashAudio = new Audio('splash-bgm.mp3');
-  splashAudio.volume = 0.6;
   splashAudio.loop = false;
+  splashAudio.muted = true;        // 先静音→允許自動播放
+  splashAudio.volume = 0.6;
+  splashAudio.preload = 'auto';
+  var TARGET_VOLUME = 0.6;
+  var PLAY_DURATION_MS = 6000;     // 全音量播放時長
+  var FADE_DURATION_MS = 4000;     // 淡出時長（2s→ 4s）
   var audioFadeTimer = null;
   var audioPlayTimer = null;
+  var unmuteListenersAdded = false;
 
   function playSplashBGM() {
     clearTimeout(audioFadeTimer);
     clearTimeout(audioPlayTimer);
     splashAudio.currentTime = 0;
-    splashAudio.volume = 0.6;
-    splashAudio.play().catch(function() { /* autoplay blocked, will play on click */ });
-    // After 5 seconds, start 2-second fade-out
+    splashAudio.volume = TARGET_VOLUME;
+    splashAudio.muted = true; // 默認静音開始（符合自動播放政策）
+    var playPromise = splashAudio.play();
+    if (playPromise && typeof playPromise.catch === 'function') {
+      playPromise.catch(function() { /* autoplay 被擋就等 user gesture */ });
+    }
+    addUnmuteListeners();
+    // 到達預設時長後開始淡出
     audioPlayTimer = setTimeout(function() {
       fadeSplashBGM();
-    }, 5000);
+    }, PLAY_DURATION_MS);
+  }
+
+  // 第一個 user interaction → unmute（毫無声音地解除静音）
+  function addUnmuteListeners() {
+    if (unmuteListenersAdded) return;
+    unmuteListenersAdded = true;
+    var events = ['pointerdown','pointermove','keydown','scroll','touchstart','wheel'];
+    function unmute() {
+      if (splashAudio.muted) {
+        splashAudio.muted = false;
+        // 若 play() 先前失敗，現在有手勢了再試一次
+        if (splashAudio.paused) {
+          splashAudio.play().catch(function(){});
+        }
+      }
+      events.forEach(function(ev){ window.removeEventListener(ev, unmute, {passive:true}); });
+    }
+    events.forEach(function(ev){ window.addEventListener(ev, unmute, {passive:true, once:false}); });
   }
 
   function fadeSplashBGM() {
-    var fadeSteps = 40; // 2000ms / 50ms = 40 steps
-    var fadeInterval = 50;
-    var step = splashAudio.volume / fadeSteps;
+    // ease-in-out cubic—前段慢降、中段急降、末段再慢降，比線性柔和很多
+    var startVolume = splashAudio.volume;
+    var startTime = performance.now();
+    var duration = FADE_DURATION_MS;
     clearTimeout(audioFadeTimer);
-    function doFade() {
-      if (splashAudio.volume > step) {
-        splashAudio.volume = Math.max(0, splashAudio.volume - step);
-        audioFadeTimer = setTimeout(doFade, fadeInterval);
+    function tick() {
+      var elapsed = performance.now() - startTime;
+      var t = Math.min(1, elapsed / duration);
+      // ease-in cubic：t^3 —開始幾乎不動、最後才快速降到 0，避免生硬結尾
+      var factor = 1 - (t * t * t);
+      splashAudio.volume = Math.max(0, startVolume * factor);
+      if (t < 1) {
+        audioFadeTimer = setTimeout(tick, 40);
       } else {
         splashAudio.volume = 0;
         splashAudio.pause();
       }
     }
-    doFade();
+    tick();
   }
 
   function stopSplashBGM() {
@@ -56,7 +92,7 @@
     splashAudio.currentTime = 0;
   }
 
-  // Try autoplay on load (most browsers block this, so also play on first click)
+  // 立即開始播放（静音 autoplay → 首次互動時 unmute）
   playSplashBGM();
 
   // ===== MOBILE GYROSCOPE PARALLAX =====
@@ -678,12 +714,11 @@
   }
 
   // --- Click to dismiss ---
-  var splashClicked = false;
   splash.addEventListener('click', function() {
-    // On first click, start audio (browser autoplay policy requires user gesture)
-    if (!splashClicked) {
-      splashClicked = true;
-      if (splashAudio.paused) playSplashBGM();
+    // 點擊也算手勢—立即 unmute（如果還静音）
+    if (splashAudio.muted) {
+      splashAudio.muted = false;
+      if (splashAudio.paused) splashAudio.play().catch(function(){});
     }
     if (needsIOSGyroPermission && !gyroPermissionRequested) {
       // iOS 13+: first click requests gyro permission, THEN dismisses
