@@ -239,10 +239,6 @@ const kpiData = [
   // { id: 'kpi-meta-fans', val: 16000 },
   { id: 'kpi-meta-recommend', val: 100, suffix: '%' },
   { id: 'kpi-meta-engagement', val: 279 },
-  // Instagram
-  { id: 'kpi-ig-fans', val: 4226 },
-  { id: 'kpi-ig-posts', val: 245 },
-  { id: 'kpi-ig-following', val: 155 },
   // Google Business Profile
   { id: 'kpi-google-rating', val: 5.0, float: true },
   { id: 'kpi-google-reviews', val: 55 },
