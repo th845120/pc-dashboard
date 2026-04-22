@@ -81,7 +81,7 @@
     var milestoneArea = document.createElement('div');
     milestoneArea.className = 'pg-milestone-area';
     var isTouchHint = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
-    var defaultHint = isTouchHint ? '點擊上方卡片，查看裡程碑感言 ✨' : '將游標移到上方卡片，查看裡程碑感言 ✨';
+    var defaultHint = isTouchHint ? '點擊上方卡片，查看里程碑感言 ✨' : '將游標移到上方卡片，查看里程碑感言 ✨';
     milestoneArea.innerHTML = '<div class="pg-milestone-text">' + defaultHint + '</div>';
     section.appendChild(milestoneArea);
     var milestoneText = milestoneArea.querySelector('.pg-milestone-text');
