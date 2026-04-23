@@ -92,6 +92,10 @@ function applyRoute(path) {
   if (route.tab === 'sales') {
     switchSalesSubPanel(route.sub || 'sales-overview', true);
   }
+  // 切完 tab/sub 後強制重繪圖表（避免 Chart.js 在 hidden 時建立的 300x150 頭玉尺寸被 freeze）
+  try { pcRedrawAllCharts(); } catch(e){}
+  setTimeout(function(){ try { pcRedrawAllCharts(); } catch(e){} }, 150);
+  setTimeout(function(){ try { pcRedrawAllCharts(); } catch(e){} }, 600);
 }
 
 // popstate：處理瀏覽器上一頁 / 下一頁
@@ -103,16 +107,37 @@ window.addEventListener('popstate', function() {
 
 // 重繪所有 Chart.js 圖表的工具函數
 function pcRedrawAllCharts() {
-  if (typeof Chart === 'undefined' || !Chart.instances) return;
+  // Chart.js v4 的 Chart.instances 是 Map；v3 是 object。兩者都儲理
   try {
-    var instances = Chart.instances;
-    Object.keys(instances).forEach(function(k) {
-      var inst = instances[k];
-      if (inst && typeof inst.resize === 'function') {
-        try { inst.resize(); inst.update('none'); } catch(e) {}
+    if (typeof Chart !== 'undefined' && Chart.instances) {
+      // v4 Map
+      if (typeof Chart.instances.forEach === 'function' && Chart.instances instanceof Map) {
+        Chart.instances.forEach(function(inst){
+          try { inst.resize(); inst.update('none'); } catch(e) {}
+        });
+      } else if (typeof Chart.instances === 'object') {
+        // 有可能是 v3 object 或 v4 Map（ducktype）
+        try {
+          Object.keys(Chart.instances).forEach(function(k){
+            var inst = Chart.instances[k];
+            if (inst && typeof inst.resize === 'function') {
+              try { inst.resize(); inst.update('none'); } catch(e) {}
+            }
+          });
+        } catch(e) {}
+        // v4 Map fallback
+        try {
+          if (typeof Chart.instances.forEach === 'function') {
+            Chart.instances.forEach(function(inst){
+              try { inst.resize(); inst.update('none'); } catch(e) {}
+            });
+          }
+        } catch(e) {}
       }
-    });
+    }
   } catch(e) {}
+  // 也觸發 window resize 事件，讓 Chart.js 內部 ResizeObserver 手動觸發
+  try { window.dispatchEvent(new Event('resize')); } catch(e) {}
 }
 
 // 頁面載入後記住目標路徑，但先不 apply（避免 Chart.js 在 splash 下初始化時 canvas 尺寸錯誤）
