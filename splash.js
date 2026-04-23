@@ -706,10 +706,14 @@
     if (!keepAudio) stopSplashBGM();
     splash.classList.add('fade-out');
     mainApp.classList.remove('hidden');
+    // 通知 app.js：splash 已關，可以套用路由 + 重繪圖表
+    try { window.dispatchEvent(new CustomEvent('pc:splash-dismissed')); } catch (e) {}
     setTimeout(function() {
       splash.style.display = 'none';
       cancelAnimationFrame(animId);
       animId = null;
+      // 二次通知：fade 已完成，確保圖表按新尺寸重繪
+      try { window.dispatchEvent(new CustomEvent('pc:splash-fully-gone')); } catch (e) {}
     }, 800);
   }
 

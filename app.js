@@ -97,12 +97,50 @@ function applyRoute(path) {
 // popstate：處理瀏覽器上一頁 / 下一頁
 window.addEventListener('popstate', function() {
   applyRoute(location.pathname);
+  // 為了避免 Chart.js canvas 尺寸錯誤，觸發 resize
+  try { window.dispatchEvent(new Event('resize')); } catch(e){}
 });
 
-// 頁面載入後，依照當前 URL 顯示對應 tab
-// 注意：Splash Screen 存在，但 tab 本身仍要預先切對，避免 Splash 結束閃現錯誤 tab
-document.addEventListener('DOMContentLoaded', function() {
-  applyRoute(location.pathname);
+// 重繪所有 Chart.js 圖表的工具函數
+function pcRedrawAllCharts() {
+  if (typeof Chart === 'undefined' || !Chart.instances) return;
+  try {
+    var instances = Chart.instances;
+    Object.keys(instances).forEach(function(k) {
+      var inst = instances[k];
+      if (inst && typeof inst.resize === 'function') {
+        try { inst.resize(); inst.update('none'); } catch(e) {}
+      }
+    });
+  } catch(e) {}
+}
+
+// 頁面載入後記住目標路徑，但先不 apply（避免 Chart.js 在 splash 下初始化時 canvas 尺寸錯誤）
+// 等 splash dismiss 後才 apply + 重繪
+var _pcPendingRoute = null;
+function schedulePcRouteApply() {
+  _pcPendingRoute = location.pathname;
+}
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', schedulePcRouteApply);
+} else {
+  schedulePcRouteApply();
+}
+
+// 收到 splash dismiss 事件 → 套用路由 + 重繪圖表
+window.addEventListener('pc:splash-dismissed', function() {
+  if (_pcPendingRoute) {
+    applyRoute(_pcPendingRoute);
+    _pcPendingRoute = null;
+  }
+  // 立即並延遲 2 次重繪，因為 splash fade-out 在 800ms 內
+  pcRedrawAllCharts();
+  setTimeout(pcRedrawAllCharts, 100);
+  setTimeout(pcRedrawAllCharts, 500);
+});
+window.addEventListener('pc:splash-fully-gone', function() {
+  // splash 完全移除後再重繪一次，確保尺寸正確
+  pcRedrawAllCharts();
 });
 
 document.querySelectorAll('.tab-btn').forEach(function(btn) {
