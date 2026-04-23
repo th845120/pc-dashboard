@@ -92,10 +92,19 @@ function applyRoute(path) {
   if (route.tab === 'sales') {
     switchSalesSubPanel(route.sub || 'sales-overview', true);
   }
+  // 觸發對應 tab 的 lazy chart 初始化（原本由 tab-btn click 觸發，但 applyRoute 不是真的 click）
+  try {
+    if (route.tab === 'sales' && typeof initSalesCharts === 'function') {
+      requestAnimationFrame(function(){ setTimeout(initSalesCharts, 50); });
+    }
+    if (route.tab === 'service' && typeof initServiceCharts === 'function') {
+      requestAnimationFrame(function(){ setTimeout(initServiceCharts, 50); });
+    }
+  } catch(e){}
   // 切完 tab/sub 後強制重繪圖表（避免 Chart.js 在 hidden 時建立的 300x150 頭玉尺寸被 freeze）
   try { pcRedrawAllCharts(); } catch(e){}
-  setTimeout(function(){ try { pcRedrawAllCharts(); } catch(e){} }, 150);
-  setTimeout(function(){ try { pcRedrawAllCharts(); } catch(e){} }, 600);
+  setTimeout(function(){ try { pcRedrawAllCharts(); } catch(e){} }, 300);
+  setTimeout(function(){ try { pcRedrawAllCharts(); } catch(e){} }, 900);
 }
 
 // popstate：處理瀏覽器上一頁 / 下一頁
