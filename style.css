@@ -1252,9 +1252,9 @@ h1, h2, h3, h4, h5, h6, p, li, td, th, span, div, label, a {
   .tab-btn { padding: 6px 10px; }
 }
 
-/* ===== Meta 直播密碼鎖 ===== */
-#sales-meta-live { position: relative; }
-.meta-lock {
+/* ===== 銷售數據密碼鎖 ===== */
+#tab-sales { position: relative; }
+.sales-lock {
   position: absolute;
   inset: 0;
   z-index: 50;
@@ -1262,21 +1262,21 @@ h1, h2, h3, h4, h5, h6, p, li, td, th, span, div, label, a {
   align-items: flex-start;
   justify-content: center;
   padding-top: clamp(40px, 10vh, 120px);
-  background: linear-gradient(180deg, rgba(46,35,68,0.92) 0%, rgba(46,35,68,0.98) 60%);
+  background: linear-gradient(180deg, rgba(46,35,68,0.94) 0%, rgba(46,35,68,0.99) 60%);
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
   border-radius: inherit;
   transition: opacity 0.4s ease, visibility 0.4s;
 }
-html[data-theme="light"] .meta-lock {
-  background: linear-gradient(180deg, rgba(250,249,247,0.92) 0%, rgba(250,249,247,0.98) 60%);
+html[data-theme="light"] .sales-lock {
+  background: linear-gradient(180deg, rgba(250,249,247,0.94) 0%, rgba(250,249,247,0.99) 60%);
 }
-.meta-lock.unlocked {
+.sales-lock.unlocked {
   opacity: 0;
   visibility: hidden;
   pointer-events: none;
 }
-.meta-lock-card {
+.sales-lock-card {
   width: min(92%, 420px);
   padding: 44px 36px 36px;
   border-radius: var(--radius-lg);
@@ -1286,7 +1286,7 @@ html[data-theme="light"] .meta-lock {
   text-align: center;
   position: relative;
 }
-.meta-lock-card::before {
+.sales-lock-card::before {
   content: '';
   position: absolute;
   top: 0; left: 10%; right: 10%;
@@ -1294,7 +1294,7 @@ html[data-theme="light"] .meta-lock {
   background: linear-gradient(90deg, transparent, #c4b5dc, transparent);
   border-radius: 2px;
 }
-.meta-lock-icon {
+.sales-lock-icon {
   width: 72px; height: 72px;
   border-radius: 50%;
   margin: 0 auto 18px;
@@ -1303,12 +1303,12 @@ html[data-theme="light"] .meta-lock {
   color: #c4b5dc;
   border: 1px solid rgba(196,181,220,0.22);
 }
-html[data-theme="light"] .meta-lock-icon {
+html[data-theme="light"] .sales-lock-icon {
   background: linear-gradient(135deg, rgba(83,64,110,0.12), rgba(83,64,110,0.02));
   color: #53406e;
   border-color: rgba(83,64,110,0.22);
 }
-.meta-lock-title {
+.sales-lock-title {
   font-family: 'DM Serif Display', serif;
   font-size: 28px;
   font-weight: 400;
@@ -1316,21 +1316,21 @@ html[data-theme="light"] .meta-lock-icon {
   margin: 0 0 6px;
   letter-spacing: 0.02em;
 }
-.meta-lock-subtitle {
+.sales-lock-subtitle {
   font-size: var(--text-sm, 13px);
   color: var(--color-text-muted);
   margin: 0 0 24px;
   word-break: keep-all;
   overflow-wrap: break-word;
 }
-.meta-lock-form {
+.sales-lock-form {
   display: flex;
   flex-direction: column;
   gap: 10px;
   margin: 0 auto;
   max-width: 280px;
 }
-.meta-lock-input {
+.sales-lock-input {
   width: 100%;
   padding: 12px 14px;
   font-size: 15px;
@@ -1344,15 +1344,15 @@ html[data-theme="light"] .meta-lock-icon {
   font-family: inherit;
   transition: border-color 0.2s, box-shadow 0.2s;
 }
-.meta-lock-input:focus {
+.sales-lock-input:focus {
   border-color: #c4b5dc;
   box-shadow: 0 0 0 3px rgba(196,181,220,0.14);
 }
-html[data-theme="light"] .meta-lock-input:focus {
+html[data-theme="light"] .sales-lock-input:focus {
   border-color: #53406e;
   box-shadow: 0 0 0 3px rgba(83,64,110,0.12);
 }
-.meta-lock-submit {
+.sales-lock-submit {
   width: 100%;
   padding: 11px 14px;
   font-size: 14px;
@@ -1365,27 +1365,26 @@ html[data-theme="light"] .meta-lock-input:focus {
   letter-spacing: 0.1em;
   transition: transform 0.15s ease, box-shadow 0.2s;
 }
-.meta-lock-submit:hover {
+.sales-lock-submit:hover {
   transform: translateY(-1px);
   box-shadow: 0 8px 20px rgba(83,64,110,0.35);
 }
-.meta-lock-submit:active { transform: translateY(0); }
-.meta-lock-error {
+.sales-lock-submit:active { transform: translateY(0); }
+.sales-lock-error {
   margin-top: 14px;
   font-size: 13px;
   color: #e05555;
   min-height: 18px;
   letter-spacing: 0.02em;
 }
-.meta-lock-error.shake { animation: metaLockShake 0.45s ease; }
-@keyframes metaLockShake {
+.sales-lock-error.shake { animation: salesLockShake 0.45s ease; }
+@keyframes salesLockShake {
   0%, 100% { transform: translateX(0); }
   25% { transform: translateX(-6px); }
   50% { transform: translateX(6px); }
   75% { transform: translateX(-3px); }
 }
-
-.meta-lock-warning {
+.sales-lock-warning {
   margin-top: 18px;
   padding-top: 14px;
   border-top: 1px dashed rgba(224,85,85,0.28);
@@ -1396,12 +1395,12 @@ html[data-theme="light"] .meta-lock-input:focus {
   letter-spacing: 0.04em;
   text-align: center;
 }
-html[data-theme="light"] .meta-lock-warning {
+html[data-theme="light"] .sales-lock-warning {
   color: #c23b3b;
   border-top-color: rgba(194,59,59,0.28);
 }
 @media (max-width: 480px) {
-  .meta-lock-card { padding: 36px 22px 28px; }
-  .meta-lock-title { font-size: 24px; }
-  .meta-lock-warning { font-size: 11px; }
+  .sales-lock-card { padding: 36px 22px 28px; }
+  .sales-lock-title { font-size: 24px; }
+  .sales-lock-warning { font-size: 11px; }
 }

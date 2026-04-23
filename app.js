@@ -2460,11 +2460,11 @@ document.querySelectorAll('.tab-dropdown-item').forEach(function(item) {
 // Try on load in case already active
 setTimeout(tryInitMetaLiveChart, 600);
 
-/* ===== Meta 直播密碼鎖 ===== */
-(function initMetaLock() {
+/* ===== 銷售數據密碼鎖 ===== */
+(function initSalesLock() {
   if (typeof window === 'undefined') return;
   var PASSWORD_SHA256 = 'e545a508ecaccdca607cbd8acbfbf5442ea495da296de8b36c09db869e9ee940';
-  var STORAGE_KEY = 'pc_meta_unlock_v1';
+  var STORAGE_KEY = 'pc_sales_unlock_v1';
 
   async function sha256Hex(str) {
     var buf = new TextEncoder().encode(str);
@@ -2482,15 +2482,15 @@ setTimeout(tryInitMetaLiveChart, 600);
   }
 
   function applyUnlockUI() {
-    var lock = document.getElementById('metaLock');
+    var lock = document.getElementById('salesLock');
     if (lock) lock.classList.add('unlocked');
   }
 
   function bind() {
-    var lock = document.getElementById('metaLock');
-    var form = document.getElementById('metaLockForm');
-    var input = document.getElementById('metaLockInput');
-    var err = document.getElementById('metaLockError');
+    var lock = document.getElementById('salesLock');
+    var form = document.getElementById('salesLockForm');
+    var input = document.getElementById('salesLockInput');
+    var err = document.getElementById('salesLockError');
     if (!lock || !form || !input || !err) return;
 
     if (isUnlocked()) { applyUnlockUI(); return; }
@@ -2518,12 +2518,12 @@ setTimeout(tryInitMetaLiveChart, 600);
       }
     });
 
-    // 當切換到 Meta 直播子面板時 autofocus
-    document.querySelectorAll('[data-sub="sales-meta-live"]').forEach(function (btn) {
+    // 當切換到銷售數據分頁時 autofocus
+    document.querySelectorAll('[data-tab="sales"]').forEach(function (btn) {
       btn.addEventListener('click', function () {
         if (isUnlocked()) return;
         setTimeout(function () {
-          var inp = document.getElementById('metaLockInput');
+          var inp = document.getElementById('salesLockInput');
           if (inp) inp.focus();
         }, 120);
       });
