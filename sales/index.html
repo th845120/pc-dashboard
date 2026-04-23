@@ -35,7 +35,7 @@
         <img src="brand-text.png" alt="聚寶水晶 Precious Crystal" class="brand-text-img" />
       </a>
       <div class="header-right">
-        <span class="update-badge">最後更新：2026-04-23 21:01 (UTC+8)</span>
+        <span class="update-badge">最後更新：2026-04-23 21:38 (UTC+8)</span>
         <button class="theme-toggle" data-theme-toggle aria-label="切換深色模式">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
         </button>
@@ -76,6 +76,10 @@
       <button class="tab-btn" data-tab="playground" role="tab" aria-selected="false">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
         里程碑
+      </button>
+      <button class="tab-btn" data-tab="hr" role="tab" aria-selected="false">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        人資系統
       </button>
     </nav>
   </header>
@@ -893,6 +897,64 @@
           </h2>
         </div>
         <div class="pg-counter-grid" id="pgCounterGrid"></div>
+      </section>
+    </main>
+  </div>
+
+  <!-- ===== TAB: 人資系統 ===== -->
+  <div class="tab-panel" id="tab-hr">
+
+    <!-- 人資系統密碼鎖 -->
+    <div id="hrLock" class="hr-lock" aria-hidden="false">
+      <div class="hr-lock-card">
+        <div class="hr-lock-icon" aria-hidden="true">
+          <svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="10" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        </div>
+        <h2 class="hr-lock-title">人資系統</h2>
+        <p class="hr-lock-subtitle">此頁面僅限員工存取，請輸入密碼</p>
+        <form class="hr-lock-form" id="hrLockForm" autocomplete="off">
+          <input type="password" id="hrLockInput" class="hr-lock-input" placeholder="請輸入密碼" autocomplete="off" />
+          <button type="submit" class="hr-lock-submit">解鎖</button>
+        </form>
+        <div class="hr-lock-error" id="hrLockError" role="alert"></div>
+        <div class="hr-lock-warning">⚠ 僅限聚寶水晶員工使用，請勿分享密碼。</div>
+      </div>
+    </div>
+
+    <div class="page-subtitle">
+      <h1>人資系統</h1>
+      <div class="accent-line"></div>
+    </div>
+    <main class="main">
+      <section class="section fade-in-up">
+        <div class="section-header">
+          <h2 class="section-title">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            詢問公司制度
+          </h2>
+          <span class="section-badge" style="background:rgba(196,181,220,0.15);color:#c4b5dc;">AI 助理</span>
+        </div>
+
+        <div class="hr-chat-wrapper">
+          <div class="hr-chat-intro">
+            你好，我是聚寶水晶的 AI 人資助理，可以協助你查詢公司規章、出勤、請假、薪資與福利等問題。請以「員工視角」提問，避免輸入個人機密資料。
+          </div>
+
+          <div class="hr-chat-messages" id="hrChatMessages" role="log" aria-live="polite"></div>
+
+          <form class="hr-chat-form" id="hrChatForm" autocomplete="off">
+            <textarea id="hrChatInput" class="hr-chat-input" placeholder="請輸入你的問題（最多 500 字）⋯⋯" maxlength="500" rows="2"></textarea>
+            <div class="hr-chat-actions">
+              <span class="hr-chat-meta" id="hrChatMeta">0 / 500</span>
+              <span class="hr-chat-quota" id="hrChatQuota">今日剩餘 20 題</span>
+              <button type="submit" class="hr-chat-submit" id="hrChatSubmit">送出</button>
+            </div>
+          </form>
+
+          <div class="hr-chat-footnote">
+            ⚠ 本 AI 回答僅供參考，若與紙本規章衝突，以紙本為準。如有爭議請聯繫人資窗口。
+          </div>
+        </div>
       </section>
     </main>
   </div>

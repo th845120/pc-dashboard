@@ -6,6 +6,7 @@
     { "source": "/sales", "destination": "/index.html" },
     { "source": "/sales/:path*", "destination": "/index.html" },
     { "source": "/service", "destination": "/index.html" },
-    { "source": "/playground", "destination": "/index.html" }
+    { "source": "/playground", "destination": "/index.html" },
+    { "source": "/hr", "destination": "/index.html" }
   ]
 }

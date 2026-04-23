@@ -11,13 +11,15 @@ var PATH_TO_TAB = {
   '/sales/shopee': { tab: 'sales', sub: 'sales-shopee-live' },
   '/sales/meta': { tab: 'sales', sub: 'sales-meta-live' },
   '/service': { tab: 'service' },
-  '/playground': { tab: 'playground' }
+  '/playground': { tab: 'playground' },
+  '/hr': { tab: 'hr' }
 };
 var TAB_TO_PATH = {
   sentiment: '/brand',
   sales: '/sales',
   service: '/service',
-  playground: '/playground'
+  playground: '/playground',
+  hr: '/hr'
 };
 var SALES_SUB_TO_PATH = {
   'sales-overview': '/sales',
@@ -2688,6 +2690,211 @@ setTimeout(tryInitMetaLiveChart, 600);
           if (inp) inp.focus();
         }, 120);
       });
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', bind);
+  } else {
+    bind();
+  }
+})();
+
+/* ===== 人資系統密碼鎖 ===== */
+(function initHrLock() {
+  if (typeof window === 'undefined') return;
+  var PASSWORD_SHA256 = '7ffce1a42462734b67f5bf4cf1185b5c61c18bd16a1695ff1d45ee7b29d08328';
+  var STORAGE_KEY = 'pc_hr_unlock_v1';
+
+  async function sha256Hex(str) {
+    var buf = new TextEncoder().encode(str);
+    var hash = await crypto.subtle.digest('SHA-256', buf);
+    return Array.from(new Uint8Array(hash))
+      .map(function (b) { return b.toString(16).padStart(2, '0'); })
+      .join('');
+  }
+
+  function isUnlocked() {
+    try { return sessionStorage.getItem(STORAGE_KEY) === '1'; } catch (e) { return false; }
+  }
+  function setUnlocked() {
+    try { sessionStorage.setItem(STORAGE_KEY, '1'); } catch (e) {}
+  }
+
+  function applyUnlockUI() {
+    var lock = document.getElementById('hrLock');
+    if (lock) lock.classList.add('unlocked');
+  }
+
+  function bind() {
+    var lock = document.getElementById('hrLock');
+    var form = document.getElementById('hrLockForm');
+    var input = document.getElementById('hrLockInput');
+    var err = document.getElementById('hrLockError');
+    if (!lock || !form || !input || !err) return;
+
+    if (isUnlocked()) { applyUnlockUI(); }
+
+    form.addEventListener('submit', async function (e) {
+      e.preventDefault();
+      var val = (input.value || '').trim();
+      err.textContent = '';
+      err.classList.remove('shake');
+      if (!val) return;
+      try {
+        var hex = await sha256Hex(val);
+        if (hex === PASSWORD_SHA256) {
+          setUnlocked();
+          applyUnlockUI();
+        } else {
+          err.textContent = '密碼錯誤，請再試一次';
+          void err.offsetWidth;
+          err.classList.add('shake');
+          input.select();
+        }
+      } catch (ex) {
+        err.textContent = '驗證失敗，請重新整理頁面';
+      }
+    });
+
+    // 切到人資系統分頁時自動 focus
+    document.querySelectorAll('[data-tab="hr"]').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        if (isUnlocked()) return;
+        setTimeout(function () {
+          var inp = document.getElementById('hrLockInput');
+          if (inp) inp.focus();
+        }, 120);
+      });
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', bind);
+  } else {
+    bind();
+  }
+})();
+
+/* ===== 人資系統聊天功能 ===== */
+(function initHrChat() {
+  if (typeof window === 'undefined') return;
+  var DAILY_LIMIT = 20;
+  var MAX_LEN = 500;
+  var API_ENDPOINT = '/api/hr-chat';
+
+  function todayKey() {
+    var d = new Date();
+    return 'pc_hr_chat_count_' + d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate();
+  }
+  function getUsed() {
+    try { return parseInt(localStorage.getItem(todayKey()) || '0', 10) || 0; } catch (e) { return 0; }
+  }
+  function addUsed() {
+    try { localStorage.setItem(todayKey(), String(getUsed() + 1)); } catch (e) {}
+  }
+  function remaining() { return Math.max(0, DAILY_LIMIT - getUsed()); }
+
+  function el(tag, cls, text) {
+    var e = document.createElement(tag);
+    if (cls) e.className = cls;
+    if (text != null) e.textContent = text;
+    return e;
+  }
+
+  function appendMsg(role, text, extraCls) {
+    var list = document.getElementById('hrChatMessages');
+    if (!list) return null;
+    var wrap = el('div', 'hr-msg ' + role + (extraCls ? ' ' + extraCls : ''));
+    var roleLabel = el('div', 'hr-msg-role', role === 'user' ? '你' : 'AI 助理');
+    var bubble = el('div', 'hr-msg-bubble', text || '');
+    wrap.appendChild(roleLabel);
+    wrap.appendChild(bubble);
+    list.appendChild(wrap);
+    list.scrollTop = list.scrollHeight;
+    return bubble;
+  }
+
+  function updateQuota() {
+    var q = document.getElementById('hrChatQuota');
+    if (q) q.textContent = '今日剩餘 ' + remaining() + ' 題';
+  }
+  function updateMeta(len) {
+    var m = document.getElementById('hrChatMeta');
+    if (m) m.textContent = len + ' / ' + MAX_LEN;
+  }
+
+  function bind() {
+    var form = document.getElementById('hrChatForm');
+    var input = document.getElementById('hrChatInput');
+    var submit = document.getElementById('hrChatSubmit');
+    if (!form || !input || !submit) return;
+
+    updateQuota();
+    updateMeta(0);
+
+    input.addEventListener('input', function () {
+      updateMeta((input.value || '').length);
+    });
+
+    // Enter 送出、Shift+Enter 換行
+    input.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        form.requestSubmit();
+      }
+    });
+
+    form.addEventListener('submit', async function (e) {
+      e.preventDefault();
+      var q = (input.value || '').trim();
+      if (!q) return;
+      if (q.length > MAX_LEN) {
+        appendMsg('ai', '問題超過 ' + MAX_LEN + ' 字，請縮短後再試。', 'error');
+        return;
+      }
+      if (remaining() <= 0) {
+        appendMsg('ai', '今日已達 ' + DAILY_LIMIT + ' 題上限，明日再來。', 'error');
+        return;
+      }
+
+      appendMsg('user', q);
+      input.value = '';
+      updateMeta(0);
+      submit.disabled = true;
+      var loadingBubble = appendMsg('ai', '思考中', 'loading');
+
+      try {
+        var resp = await fetch(API_ENDPOINT, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ question: q })
+        });
+        var data;
+        try { data = await resp.json(); } catch (e) { data = null; }
+
+        // 移除 loading 泡泡
+        var loadingMsg = loadingBubble && loadingBubble.parentNode;
+        if (loadingMsg && loadingMsg.parentNode) loadingMsg.parentNode.removeChild(loadingMsg);
+
+        if (!resp.ok) {
+          var errMsg = (data && data.error) ? data.error : ('伺服器錯誤 (' + resp.status + ')');
+          appendMsg('ai', errMsg, 'error');
+        } else if (data && data.answer) {
+          appendMsg('ai', data.answer);
+          addUsed();
+          updateQuota();
+        } else {
+          appendMsg('ai', '未收到有效回覆，請稍後再試。', 'error');
+        }
+      } catch (ex) {
+        var loadingMsg2 = loadingBubble && loadingBubble.parentNode;
+        if (loadingMsg2 && loadingMsg2.parentNode) loadingMsg2.parentNode.removeChild(loadingMsg2);
+        appendMsg('ai', '連線失敗：' + (ex && ex.message ? ex.message : '未知錯誤'), 'error');
+      } finally {
+        submit.disabled = false;
+        input.focus();
+      }
     });
   }
 
