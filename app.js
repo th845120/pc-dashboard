@@ -169,12 +169,11 @@ if (document.readyState === 'loading') {
   schedulePcRouteApply();
 }
 
-// 收到 splash dismiss 事件 → 套用路由 + 重繪圖表
+// 收到 splash dismiss 事件 → 以當前 pathname 為準套用路由 + 重繪圖表
+// （每次 dismiss 都重新讀 URL，不依賴 pending，避免重進 splash 仍在舊 tab 的 bug）
 window.addEventListener('pc:splash-dismissed', function() {
-  if (_pcPendingRoute) {
-    applyRoute(_pcPendingRoute);
-    _pcPendingRoute = null;
-  }
+  applyRoute(location.pathname);
+  _pcPendingRoute = null;
   // 立即並延遲 2 次重繪，因為 splash fade-out 在 800ms 內
   pcRedrawAllCharts();
   setTimeout(pcRedrawAllCharts, 100);
