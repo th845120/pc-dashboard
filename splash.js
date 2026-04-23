@@ -751,5 +751,11 @@
     initField();
     if (!animId) draw();
     playSplashBGM();
+    // 回到首頁 → URL 重設為 /（避免停留在 /brand /sales 等子路徑）
+    try {
+      if (location.pathname !== '/') {
+        history.pushState({ path: '/' }, '', '/');
+      }
+    } catch (err) {}
   });
 })();

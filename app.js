@@ -109,6 +109,14 @@ function applyRoute(path) {
 
 // popstate：處理瀏覽器上一頁 / 下一頁
 window.addEventListener('popstate', function() {
+  // 若 splash 還在（點了 brandHomeLink 回首頁的狀態），不動 tab，但 pathname 已由瀏覽器更新
+  var splashEl = document.getElementById('splashScreen');
+  var splashVisible = splashEl && splashEl.style.display !== 'none' && !splashEl.classList.contains('fade-out');
+  if (splashVisible) {
+    // 僅記住 pending route，等下次 splash dismiss 才 apply
+    _pcPendingRoute = location.pathname;
+    return;
+  }
   applyRoute(location.pathname);
   // 為了避免 Chart.js canvas 尺寸錯誤，觸發 resize
   try { window.dispatchEvent(new Event('resize')); } catch(e){}
