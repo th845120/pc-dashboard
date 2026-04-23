@@ -18,7 +18,7 @@ const MAX_NEST_DEPTH = 3;       // 子 block 遞迴最大深度
 let rulesCache = null;
 let rulesCacheAt = 0;
 const RULES_TTL_MS = 10 * 60 * 1000; // 10 分鐘
-const CACHE_VERSION = 'v3-table'; // 更動版本即可作廢快取
+const CACHE_VERSION = 'v4-props'; // 更動版本即可作廢快取
 
 function setCors(req, res) {
   const allow = process.env.HR_ALLOWED_ORIGIN || 'https://preciouscrystal.com.tw';
@@ -112,6 +112,81 @@ function getPageTitle(page) {
   return '(未命名)';
 }
 
+// 將 Notion page properties （Description、Bonus、Select 等）轉成文字
+// child_database 裡的很多规章內容在這裡，不在 block 裡
+function extractPagePropertiesText(page) {
+  const props = page && page.properties ? page.properties : {};
+  const lines = [];
+  for (const key of Object.keys(props)) {
+    const p = props[key];
+    if (!p) continue;
+    // 跳過 title（已經先被當標題用了）
+    if (p.type === 'title') continue;
+    let val = '';
+    switch (p.type) {
+      case 'rich_text':
+        val = extractRichText(p.rich_text);
+        break;
+      case 'number':
+        val = (p.number == null) ? '' : String(p.number);
+        break;
+      case 'select':
+        val = (p.select && p.select.name) || '';
+        break;
+      case 'multi_select':
+        val = (p.multi_select || []).map(o => o.name).filter(Boolean).join(', ');
+        break;
+      case 'status':
+        val = (p.status && p.status.name) || '';
+        break;
+      case 'checkbox':
+        val = p.checkbox ? '是' : '否';
+        break;
+      case 'date':
+        val = (p.date && (p.date.start || '')) + (p.date && p.date.end ? ' ~ ' + p.date.end : '');
+        break;
+      case 'url':
+        val = p.url || '';
+        break;
+      case 'email':
+        val = p.email || '';
+        break;
+      case 'phone_number':
+        val = p.phone_number || '';
+        break;
+      case 'people':
+        val = (p.people || []).map(u => u.name).filter(Boolean).join(', ');
+        break;
+      case 'formula':
+        if (p.formula) {
+          if (p.formula.type === 'string') val = p.formula.string || '';
+          else if (p.formula.type === 'number') val = (p.formula.number == null) ? '' : String(p.formula.number);
+          else if (p.formula.type === 'boolean') val = p.formula.boolean ? '是' : '否';
+          else if (p.formula.type === 'date' && p.formula.date) val = p.formula.date.start || '';
+        }
+        break;
+      case 'rollup':
+        if (p.rollup) {
+          if (p.rollup.type === 'number') val = (p.rollup.number == null) ? '' : String(p.rollup.number);
+          else if (p.rollup.type === 'array') {
+            val = (p.rollup.array || []).map(item => {
+              if (item.type === 'rich_text') return extractRichText(item.rich_text);
+              if (item.type === 'title') return extractRichText(item.title);
+              if (item.type === 'number') return String(item.number || '');
+              return '';
+            }).filter(Boolean).join(', ');
+          }
+        }
+        break;
+      default:
+        val = '';
+    }
+    val = (val || '').toString().trim();
+    if (val) lines.push('- ' + key + '：' + val);
+  }
+  return lines.join('\n');
+}
+
 async function fetchBlockChildren(blockId, token, depth) {
   depth = depth || 0;
   if (depth > MAX_NEST_DEPTH) return '';
@@ -196,10 +271,16 @@ async function fetchDatabaseAsText(dbId, token, depth) {
       collected++;
       const title = getPageTitle(page);
       out += '\n### ' + title + '\n';
+
+      // 1. 先把 properties （Description、Bonus等欄位）轉成文字
+      const propsText = extractPagePropertiesText(page);
+      if (propsText) out += propsText + '\n';
+
+      // 2. 再把 page 內的 blocks（含 table、段落等）抹上來
       try {
         const body = await fetchBlockChildren(page.id, token, depth + 1);
         if (body && body.trim()) out += body + '\n';
-        else out += '(此條目無內文)\n';
+        else if (!propsText) out += '(此條目無內文)\n';
       } catch (e) {
         out += '[讀取內文失敗]\n';
       }
