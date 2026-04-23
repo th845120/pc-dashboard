@@ -2779,21 +2779,7 @@ setTimeout(tryInitMetaLiveChart, 600);
 /* ===== 人資系統聊天功能 ===== */
 (function initHrChat() {
   if (typeof window === 'undefined') return;
-  var DAILY_LIMIT = 20;
-  var MAX_LEN = 500;
   var API_ENDPOINT = '/api/hr-chat';
-
-  function todayKey() {
-    var d = new Date();
-    return 'pc_hr_chat_count_' + d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate();
-  }
-  function getUsed() {
-    try { return parseInt(localStorage.getItem(todayKey()) || '0', 10) || 0; } catch (e) { return 0; }
-  }
-  function addUsed() {
-    try { localStorage.setItem(todayKey(), String(getUsed() + 1)); } catch (e) {}
-  }
-  function remaining() { return Math.max(0, DAILY_LIMIT - getUsed()); }
 
   function el(tag, cls, text) {
     var e = document.createElement(tag);
@@ -2815,27 +2801,11 @@ setTimeout(tryInitMetaLiveChart, 600);
     return bubble;
   }
 
-  function updateQuota() {
-    var q = document.getElementById('hrChatQuota');
-    if (q) q.textContent = '今日剩餘 ' + remaining() + ' 題';
-  }
-  function updateMeta(len) {
-    var m = document.getElementById('hrChatMeta');
-    if (m) m.textContent = len + ' / ' + MAX_LEN;
-  }
-
   function bind() {
     var form = document.getElementById('hrChatForm');
     var input = document.getElementById('hrChatInput');
     var submit = document.getElementById('hrChatSubmit');
     if (!form || !input || !submit) return;
-
-    updateQuota();
-    updateMeta(0);
-
-    input.addEventListener('input', function () {
-      updateMeta((input.value || '').length);
-    });
 
     // 中文輸入法（IME）組字狀態追蹤：組字中按 Enter 只是確認選字，不可送出
     var isComposing = false;
@@ -2855,18 +2825,9 @@ setTimeout(tryInitMetaLiveChart, 600);
       e.preventDefault();
       var q = (input.value || '').trim();
       if (!q) return;
-      if (q.length > MAX_LEN) {
-        appendMsg('ai', '問題超過 ' + MAX_LEN + ' 字，請縮短後再試。', 'error');
-        return;
-      }
-      if (remaining() <= 0) {
-        appendMsg('ai', '今日已達 ' + DAILY_LIMIT + ' 題上限，明日再來。', 'error');
-        return;
-      }
 
       appendMsg('user', q);
       input.value = '';
-      updateMeta(0);
       submit.disabled = true;
       var loadingBubble = appendMsg('ai', '思考中', 'loading');
 
@@ -2888,8 +2849,6 @@ setTimeout(tryInitMetaLiveChart, 600);
           appendMsg('ai', errMsg, 'error');
         } else if (data && data.answer) {
           appendMsg('ai', data.answer);
-          addUsed();
-          updateQuota();
         } else {
           appendMsg('ai', '未收到有效回覆，請稍後再試。', 'error');
         }
