@@ -18,6 +18,7 @@ const MAX_NEST_DEPTH = 3;       // 子 block 遞迴最大深度
 let rulesCache = null;
 let rulesCacheAt = 0;
 const RULES_TTL_MS = 10 * 60 * 1000; // 10 分鐘
+const CACHE_VERSION = 'v3-table'; // 更動版本即可作廢快取
 
 function setCors(req, res) {
   const allow = process.env.HR_ALLOWED_ORIGIN || 'https://preciouscrystal.com.tw';
@@ -70,6 +71,17 @@ function blockToText(block, indent) {
   const type = block.type;
   const data = block[type];
   if (!data) return '';
+
+  // table_row ：cells 是二維陣列 rich_text
+  if (type === 'table_row') {
+    const cells = (data.cells || []).map(cellRt => extractRichText(cellRt).replace(/\s+/g, ' ').trim());
+    // 過濾全空列
+    if (cells.every(c => !c)) return '';
+    return pad + '| ' + cells.join(' | ') + ' |';
+  }
+  // table：本身沒有 text，內容全在 children (table_row)
+  if (type === 'table') return '';
+
   const rt = data.rich_text;
   const text = extractRichText(rt);
   switch (type) {
@@ -205,9 +217,9 @@ async function fetchNotionPageText(pageId, token) {
   return await fetchBlockChildren(pageId, token, 0);
 }
 
-async function getRules(token, pageId) {
+async function getRules(token, pageId, bypassCache) {
   const now = Date.now();
-  if (rulesCache && (now - rulesCacheAt) < RULES_TTL_MS) {
+  if (!bypassCache && rulesCache && (now - rulesCacheAt) < RULES_TTL_MS) {
     return rulesCache;
   }
   const text = await fetchNotionPageText(pageId, token);
@@ -249,9 +261,15 @@ module.exports = async function handler(req, res) {
 
     const pageId = normalizePageId(rawPageId);
 
+    // 支援 ?refresh=1 強迫重新抓取
+    const bypassCache = (function(){
+      try { return new URL(req.url,'http://x').searchParams.get('refresh') === '1'; }
+      catch(e){ return false; }
+    })();
+
     let rules = '';
     try {
-      rules = await getRules(notionToken, pageId);
+      rules = await getRules(notionToken, pageId, bypassCache);
     } catch (e) {
       res.status(502).json({ error: '讀取公司規章失敗：' + (e.message || '未知錯誤') + '。請確認 Notion integration 已被 share 至該頁面。' });
       return;
