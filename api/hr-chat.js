@@ -10,7 +10,9 @@
 const NOTION_VERSION = '2022-06-28';
 const OPENAI_MODEL = 'gpt-4o-mini';
 const MAX_QUESTION_LEN = 500;
-const MAX_RULES_CHARS = 18000; // 限制 system prompt 長度，避免費用爆炸
+const MAX_RULES_CHARS = 30000; // 限制 system prompt 長度，避免費用爆炸
+const MAX_DB_ROWS = 60;         // 單一子資料庫最多抓幾筆
+const MAX_NEST_DEPTH = 3;       // 子 block 遞迴最大深度
 
 // 簡單的記憶體快取（同一個 serverless 容器共用）
 let rulesCache = null;
@@ -63,54 +65,79 @@ function extractRichText(rt) {
   return rt.map(t => (t && t.plain_text) ? t.plain_text : '').join('');
 }
 
-function blockToText(block) {
+function blockToText(block, indent) {
+  const pad = '  '.repeat(indent || 0);
   const type = block.type;
   const data = block[type];
   if (!data) return '';
   const rt = data.rich_text;
   const text = extractRichText(rt);
   switch (type) {
-    case 'heading_1': return '\n# ' + text + '\n';
-    case 'heading_2': return '\n## ' + text + '\n';
-    case 'heading_3': return '\n### ' + text + '\n';
-    case 'bulleted_list_item': return '- ' + text;
-    case 'numbered_list_item': return '1. ' + text;
-    case 'to_do': return '[' + (data.checked ? 'x' : ' ') + '] ' + text;
-    case 'toggle': return text;
-    case 'quote': return '> ' + text;
-    case 'callout': return text;
-    case 'code': return '```\n' + text + '\n```';
-    case 'divider': return '---';
-    case 'paragraph': return text;
-    default: return text;
+    case 'heading_1': return '\n' + pad + '# ' + text;
+    case 'heading_2': return '\n' + pad + '## ' + text;
+    case 'heading_3': return '\n' + pad + '### ' + text;
+    case 'bulleted_list_item': return pad + '- ' + text;
+    case 'numbered_list_item': return pad + '1. ' + text;
+    case 'to_do': return pad + '[' + (data.checked ? 'x' : ' ') + '] ' + text;
+    case 'toggle': return pad + text;
+    case 'quote': return pad + '> ' + text;
+    case 'callout': return pad + text;
+    case 'code': return pad + '```\n' + text + '\n' + pad + '```';
+    case 'divider': return pad + '---';
+    case 'paragraph': return pad + text;
+    default: return pad + text;
   }
 }
 
-async function fetchNotionPageText(pageId, token) {
-  // Notion blocks list 是平坦的（最多一層需要遞迴子 blocks）
-  // 為效能考量先抓一層，規章通常用 heading / list 已足夠
+function getPageTitle(page) {
+  const props = page && page.properties ? page.properties : {};
+  for (const key of Object.keys(props)) {
+    const p = props[key];
+    if (p && p.type === 'title') {
+      return extractRichText(p.title) || '(未命名)';
+    }
+  }
+  return '(未命名)';
+}
+
+async function fetchBlockChildren(blockId, token, depth) {
+  depth = depth || 0;
+  if (depth > MAX_NEST_DEPTH) return '';
   let text = '';
   let cursor = null;
   let safety = 0;
   do {
-    const url = 'https://api.notion.com/v1/blocks/' + encodeURIComponent(pageId) + '/children?page_size=100' +
+    const url = 'https://api.notion.com/v1/blocks/' + encodeURIComponent(blockId) + '/children?page_size=100' +
       (cursor ? '&start_cursor=' + encodeURIComponent(cursor) : '');
-    const data = await notionFetch(url, token);
+    let data;
+    try { data = await notionFetch(url, token); }
+    catch (e) { break; }
+
     for (const b of (data.results || [])) {
-      const line = blockToText(b);
+      // 遇到子資料庫 → query 並把每一筆抓進來
+      if (b.type === 'child_database') {
+        try {
+          text += '\n' + (await fetchDatabaseAsText(b.id, token, depth + 1)) + '\n';
+        } catch (e) {
+          text += '\n[讀取子資料庫失敗: ' + (e.message || '') + ']\n';
+        }
+        continue;
+      }
+      // 遇到子頁面 → 遞迴抓頁面內容
+      if (b.type === 'child_page') {
+        const title = (b.child_page && b.child_page.title) || '(子頁面)';
+        text += '\n## ' + title + '\n';
+        try {
+          text += await fetchBlockChildren(b.id, token, depth + 1);
+        } catch (e) {}
+        continue;
+      }
+      const line = blockToText(b, depth);
       if (line) text += line + '\n';
-      // 抓第一層子區塊（toggle / list 常有巢狀）
       if (b.has_children) {
         try {
-          const childUrl = 'https://api.notion.com/v1/blocks/' + encodeURIComponent(b.id) + '/children?page_size=100';
-          const childData = await notionFetch(childUrl, token);
-          for (const cb of (childData.results || [])) {
-            const cLine = blockToText(cb);
-            if (cLine) text += '  ' + cLine + '\n';
-          }
-        } catch (e) {
-          // 忽略單一子區塊錯誤
-        }
+          text += await fetchBlockChildren(b.id, token, depth + 1);
+        } catch (e) {}
       }
     }
     cursor = data.has_more ? data.next_cursor : null;
@@ -119,16 +146,83 @@ async function fetchNotionPageText(pageId, token) {
   return text;
 }
 
+async function fetchDatabaseAsText(dbId, token, depth) {
+  depth = depth || 0;
+  // 取資料庫標題（若有）
+  let dbTitle = '';
+  try {
+    const meta = await notionFetch('https://api.notion.com/v1/databases/' + encodeURIComponent(dbId), token);
+    if (meta && Array.isArray(meta.title)) dbTitle = extractRichText(meta.title);
+  } catch (e) { /* 忽略 */ }
+
+  let out = dbTitle ? ('\n===== 資料庫：' + dbTitle + ' =====\n') : '\n===== 子資料庫 =====\n';
+
+  // query 資料庫所有 page
+  let cursor = null;
+  let collected = 0;
+  let safety = 0;
+  do {
+    const body = { page_size: Math.min(100, MAX_DB_ROWS - collected) };
+    if (cursor) body.start_cursor = cursor;
+    let data;
+    try {
+      const r = await fetch('https://api.notion.com/v1/databases/' + encodeURIComponent(dbId) + '/query', {
+        method: 'POST',
+        headers: {
+          'Authorization': 'Bearer ' + token,
+          'Notion-Version': NOTION_VERSION,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(body),
+      });
+      if (!r.ok) break;
+      data = await r.json();
+    } catch (e) { break; }
+
+    for (const page of (data.results || [])) {
+      if (collected >= MAX_DB_ROWS) break;
+      collected++;
+      const title = getPageTitle(page);
+      out += '\n### ' + title + '\n';
+      try {
+        const body = await fetchBlockChildren(page.id, token, depth + 1);
+        if (body && body.trim()) out += body + '\n';
+        else out += '(此條目無內文)\n';
+      } catch (e) {
+        out += '[讀取內文失敗]\n';
+      }
+    }
+
+    cursor = data.has_more ? data.next_cursor : null;
+    safety++;
+  } while (cursor && collected < MAX_DB_ROWS && safety < 10);
+
+  return out;
+}
+
+async function fetchNotionPageText(pageId, token) {
+  // 直接遞迴讀取整個頁面（包含 child_database 和 child_page）
+  return await fetchBlockChildren(pageId, token, 0);
+}
+
 async function getRules(token, pageId) {
   const now = Date.now();
   if (rulesCache && (now - rulesCacheAt) < RULES_TTL_MS) {
     return rulesCache;
   }
   const text = await fetchNotionPageText(pageId, token);
-  const trimmed = text.slice(0, MAX_RULES_CHARS);
+  const trimmed = (text || '').slice(0, MAX_RULES_CHARS);
   rulesCache = trimmed;
   rulesCacheAt = now;
   return trimmed;
+}
+
+// 除錯用：?debug=1 可看抓到的規章原文
+function isDebug(req) {
+  try {
+    const url = new URL(req.url, 'http://x');
+    return url.searchParams.get('debug') === '1';
+  } catch (e) { return false; }
 }
 
 module.exports = async function handler(req, res) {
@@ -163,8 +257,13 @@ module.exports = async function handler(req, res) {
       return;
     }
 
+    if (isDebug(req)) {
+      res.status(200).json({ debug: true, rules_length: rules.length, rules_preview: rules.slice(0, 4000) });
+      return;
+    }
+
     if (!rules || rules.length < 20) {
-      res.status(502).json({ error: '公司規章內容為空或過短，請確認 Notion 頁面有內容且已 share 給 integration。' });
+      res.status(502).json({ error: '公司規章內容為空或過短（實際長度：' + (rules ? rules.length : 0) + ' 字）。請確認 Notion 頁面 + 子資料庫都已 share 給 integration。' });
       return;
     }
 
