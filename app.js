@@ -2837,12 +2837,18 @@ setTimeout(tryInitMetaLiveChart, 600);
       updateMeta((input.value || '').length);
     });
 
-    // Enter 送出、Shift+Enter 換行
+    // 中文輸入法（IME）組字狀態追蹤：組字中按 Enter 只是確認選字，不可送出
+    var isComposing = false;
+    input.addEventListener('compositionstart', function () { isComposing = true; });
+    input.addEventListener('compositionend', function () { isComposing = false; });
+
+    // Enter 送出、Shift+Enter 換行（IME 組字中完全忽略）
     input.addEventListener('keydown', function (e) {
-      if (e.key === 'Enter' && !e.shiftKey) {
-        e.preventDefault();
-        form.requestSubmit();
-      }
+      if (e.key !== 'Enter' || e.shiftKey) return;
+      // 三重防線：原生 isComposing 旗標、keyCode 229（組字中）、自己追蹤的狀態
+      if (isComposing || e.isComposing || e.keyCode === 229) return;
+      e.preventDefault();
+      form.requestSubmit();
     });
 
     form.addEventListener('submit', async function (e) {
