@@ -34,7 +34,7 @@
         <img src="brand-text.png" alt="聚寶水晶 Precious Crystal" class="brand-text-img" />
       </a>
       <div class="header-right">
-        <span class="update-badge">最後更新：2026-04-23 05:12 (UTC+8)</span>
+        <span class="update-badge">最後更新：2026-04-23 17:09 (UTC+8)</span>
         <button class="theme-toggle" data-theme-toggle aria-label="切換深色模式">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
         </button>
@@ -790,6 +790,21 @@
 
     <!-- Sub-panel: Meta 直播 -->
     <div class="sales-sub-panel" id="sales-meta-live">
+    <!-- Meta 直播密碼鎖 -->
+    <div id="metaLock" class="meta-lock" aria-hidden="false">
+      <div class="meta-lock-card">
+        <div class="meta-lock-icon" aria-hidden="true">
+          <svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="10" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        </div>
+        <h2 class="meta-lock-title">Meta 直播</h2>
+        <p class="meta-lock-subtitle">此頁面需輸入密碼才能瀏覽</p>
+        <form class="meta-lock-form" id="metaLockForm" autocomplete="off">
+          <input type="password" id="metaLockInput" class="meta-lock-input" placeholder="請輸入密碼" inputmode="numeric" autocomplete="off" />
+          <button type="submit" class="meta-lock-submit">解鎖</button>
+        </form>
+        <div class="meta-lock-error" id="metaLockError" role="alert"></div>
+      </div>
+    </div>
     <div class="page-subtitle">
       <h1>Meta 直播</h1>
       <div class="accent-line"></div>

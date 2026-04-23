@@ -2459,3 +2459,80 @@ document.querySelectorAll('.tab-dropdown-item').forEach(function(item) {
 });
 // Try on load in case already active
 setTimeout(tryInitMetaLiveChart, 600);
+
+/* ===== Meta 直播密碼鎖 ===== */
+(function initMetaLock() {
+  if (typeof window === 'undefined') return;
+  var PASSWORD_SHA256 = 'e545a508ecaccdca607cbd8acbfbf5442ea495da296de8b36c09db869e9ee940';
+  var STORAGE_KEY = 'pc_meta_unlock_v1';
+
+  async function sha256Hex(str) {
+    var buf = new TextEncoder().encode(str);
+    var hash = await crypto.subtle.digest('SHA-256', buf);
+    return Array.from(new Uint8Array(hash))
+      .map(function (b) { return b.toString(16).padStart(2, '0'); })
+      .join('');
+  }
+
+  function isUnlocked() {
+    try { return sessionStorage.getItem(STORAGE_KEY) === '1'; } catch (e) { return false; }
+  }
+  function setUnlocked() {
+    try { sessionStorage.setItem(STORAGE_KEY, '1'); } catch (e) {}
+  }
+
+  function applyUnlockUI() {
+    var lock = document.getElementById('metaLock');
+    if (lock) lock.classList.add('unlocked');
+  }
+
+  function bind() {
+    var lock = document.getElementById('metaLock');
+    var form = document.getElementById('metaLockForm');
+    var input = document.getElementById('metaLockInput');
+    var err = document.getElementById('metaLockError');
+    if (!lock || !form || !input || !err) return;
+
+    if (isUnlocked()) { applyUnlockUI(); return; }
+
+    form.addEventListener('submit', async function (e) {
+      e.preventDefault();
+      var val = (input.value || '').trim();
+      err.textContent = '';
+      err.classList.remove('shake');
+      if (!val) return;
+      try {
+        var hex = await sha256Hex(val);
+        if (hex === PASSWORD_SHA256) {
+          setUnlocked();
+          applyUnlockUI();
+        } else {
+          err.textContent = '密碼錯誤，請再試一次';
+          // force reflow for shake restart
+          void err.offsetWidth;
+          err.classList.add('shake');
+          input.select();
+        }
+      } catch (ex) {
+        err.textContent = '驗證失敗，請重新整理頁面';
+      }
+    });
+
+    // 當切換到 Meta 直播子面板時 autofocus
+    document.querySelectorAll('[data-sub="sales-meta-live"]').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        if (isUnlocked()) return;
+        setTimeout(function () {
+          var inp = document.getElementById('metaLockInput');
+          if (inp) inp.focus();
+        }, 120);
+      });
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', bind);
+  } else {
+    bind();
+  }
+})();
