@@ -2463,8 +2463,8 @@ setTimeout(tryInitMetaLiveChart, 600);
 /* ===== 銷售數據密碼鎖 ===== */
 (function initSalesLock() {
   if (typeof window === 'undefined') return;
-  var PASSWORD_SHA256 = 'e545a508ecaccdca607cbd8acbfbf5442ea495da296de8b36c09db869e9ee940';
-  var STORAGE_KEY = 'pc_sales_unlock_v1';
+  var PASSWORD_SHA256 = 'c793577fdaf4b7499c31eb4b78419bd0d7984f1c23029f2cde7d0aaecc42b007';
+  var STORAGE_KEY = 'pc_sales_unlock_v2';
 
   async function sha256Hex(str) {
     var buf = new TextEncoder().encode(str);
