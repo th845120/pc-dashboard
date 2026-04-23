@@ -1,18 +1,71 @@
 // ===== TAB SWITCHING =====
 var activeSalesSub = 'sales-overview';
 
-function switchMainTab(target, fromBtn) {
+// ===== URL ROUTING =====
+// 路徑 → tab 名稱（tab ID 為 sentiment / sales / service / playground）
+var PATH_TO_TAB = {
+  '/': { tab: 'sentiment' },
+  '/brand': { tab: 'sentiment' },
+  '/sales': { tab: 'sales', sub: 'sales-overview' },
+  '/sales/overview': { tab: 'sales', sub: 'sales-overview' },
+  '/sales/shopee': { tab: 'sales', sub: 'sales-shopee-live' },
+  '/sales/meta': { tab: 'sales', sub: 'sales-meta-live' },
+  '/service': { tab: 'service' },
+  '/playground': { tab: 'playground' }
+};
+var TAB_TO_PATH = {
+  sentiment: '/brand',
+  sales: '/sales',
+  service: '/service',
+  playground: '/playground'
+};
+var SALES_SUB_TO_PATH = {
+  'sales-overview': '/sales',
+  'sales-shopee-live': '/sales/shopee',
+  'sales-meta-live': '/sales/meta'
+};
+
+function updateUrl(path, replace) {
+  try {
+    var current = location.pathname;
+    if (current === path) return;
+    if (replace) {
+      history.replaceState({ path: path }, '', path);
+    } else {
+      history.pushState({ path: path }, '', path);
+    }
+  } catch (e) { /* ignore */ }
+}
+
+function switchMainTab(target, fromBtn, skipUrl) {
   document.querySelectorAll('.tab-btn').forEach(function(b) {
     b.classList.remove('active');
     b.setAttribute('aria-selected', 'false');
   });
   document.querySelectorAll('.tab-panel').forEach(function(p) { p.classList.remove('active'); });
-  fromBtn.classList.add('active');
-  fromBtn.setAttribute('aria-selected', 'true');
-  document.getElementById('tab-' + target).classList.add('active');
+  if (fromBtn) {
+    fromBtn.classList.add('active');
+    fromBtn.setAttribute('aria-selected', 'true');
+  } else {
+    var btn = document.querySelector('.tab-btn[data-tab="' + target + '"]');
+    if (btn) {
+      btn.classList.add('active');
+      btn.setAttribute('aria-selected', 'true');
+    }
+  }
+  var panel = document.getElementById('tab-' + target);
+  if (panel) panel.classList.add('active');
+  if (!skipUrl && TAB_TO_PATH[target]) {
+    // 若切到 sales，預設帶上當前 sub
+    var path = TAB_TO_PATH[target];
+    if (target === 'sales' && SALES_SUB_TO_PATH[activeSalesSub]) {
+      path = SALES_SUB_TO_PATH[activeSalesSub];
+    }
+    updateUrl(path, false);
+  }
 }
 
-function switchSalesSubPanel(subId) {
+function switchSalesSubPanel(subId, skipUrl) {
   activeSalesSub = subId;
   document.querySelectorAll('.sales-sub-panel').forEach(function(p) { p.classList.remove('active'); });
   var panel = document.getElementById(subId);
@@ -21,7 +74,36 @@ function switchSalesSubPanel(subId) {
   document.querySelectorAll('.tab-dropdown-item').forEach(function(item) {
     item.classList.toggle('active', item.dataset.sub === subId);
   });
+  if (!skipUrl && SALES_SUB_TO_PATH[subId]) {
+    updateUrl(SALES_SUB_TO_PATH[subId], false);
+  }
 }
+
+// 根據路徑套用對應的 tab / sub（不改變 URL）
+function applyRoute(path) {
+  var route = PATH_TO_TAB[path];
+  if (!route) {
+    // 未知路徑 → 回到首頁 sentiment（replace 掉錯誤 URL）
+    route = { tab: 'sentiment' };
+    updateUrl('/brand', true);
+  }
+  var btn = document.querySelector('.tab-btn[data-tab="' + route.tab + '"]');
+  switchMainTab(route.tab, btn, true);
+  if (route.tab === 'sales') {
+    switchSalesSubPanel(route.sub || 'sales-overview', true);
+  }
+}
+
+// popstate：處理瀏覽器上一頁 / 下一頁
+window.addEventListener('popstate', function() {
+  applyRoute(location.pathname);
+});
+
+// 頁面載入後，依照當前 URL 顯示對應 tab
+// 注意：Splash Screen 存在，但 tab 本身仍要預先切對，避免 Splash 結束閃現錯誤 tab
+document.addEventListener('DOMContentLoaded', function() {
+  applyRoute(location.pathname);
+});
 
 document.querySelectorAll('.tab-btn').forEach(function(btn) {
   btn.addEventListener('click', function(e) {
@@ -42,9 +124,9 @@ document.querySelectorAll('.tab-dropdown-item').forEach(function(item) {
     e.stopPropagation();
     var subId = item.dataset.sub;
     var salesBtn = document.querySelector('[data-tab="sales"]');
-    // Switch to sales tab first
-    switchMainTab('sales', salesBtn);
-    // Then switch sub-panel
+    // Switch to sales tab first（不要讓這步寫 URL，等下方 sub 寫）
+    switchMainTab('sales', salesBtn, true);
+    // Then switch sub-panel（由此步負責更新 URL 到 /sales/xxx）
     switchSalesSubPanel(subId);
     // Close dropdown
     var dd = item.closest('.tab-dropdown');
