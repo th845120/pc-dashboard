@@ -1385,7 +1385,23 @@ html[data-theme="light"] .meta-lock-input:focus {
   75% { transform: translateX(-3px); }
 }
 
+.meta-lock-warning {
+  margin-top: 18px;
+  padding-top: 14px;
+  border-top: 1px dashed rgba(224,85,85,0.28);
+  font-size: 12px;
+  line-height: 1.55;
+  color: #e05555;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-align: center;
+}
+html[data-theme="light"] .meta-lock-warning {
+  color: #c23b3b;
+  border-top-color: rgba(194,59,59,0.28);
+}
 @media (max-width: 480px) {
   .meta-lock-card { padding: 36px 22px 28px; }
   .meta-lock-title { font-size: 24px; }
+  .meta-lock-warning { font-size: 11px; }
 }
