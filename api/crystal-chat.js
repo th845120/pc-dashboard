@@ -10,7 +10,13 @@
 const fs = require('fs');
 const path = require('path');
 
-const OPENAI_CHAT_MODEL = 'gpt-4o-mini';
+// 聊天模型：優先用 OpenRouter（可切 Claude/GPT/Gemini），fallback 用 OpenAI
+// 環境變數：
+//   OPENROUTER_API_KEY（推薦，一個 key 所有模型）
+//   OPENROUTER_MODEL（預設 anthropic/claude-sonnet-4）
+//   OPENAI_API_KEY（embedding 必需、chat fallback）
+const OPENROUTER_MODEL_DEFAULT = 'anthropic/claude-sonnet-4';
+const OPENAI_CHAT_MODEL = 'gpt-4o-mini';  // fallback
 const OPENAI_EMBED_MODEL = 'text-embedding-3-small';
 const MAX_QUESTION_LEN = 500;
 const TOP_K = 8;
@@ -358,11 +364,35 @@ module.exports = async function handler(req, res) {
     for (const m of history) chatMessages.push(m);
     chatMessages.push({ role: 'user', content: question });
 
-    const openaiResp = await fetch('https://api.openai.com/v1/chat/completions', {
+    // 優先 OpenRouter（用 Claude Sonnet 4），fallback OpenAI
+    const openrouterKey = process.env.OPENROUTER_API_KEY;
+    const openrouterModel = process.env.OPENROUTER_MODEL || OPENROUTER_MODEL_DEFAULT;
+    let chatApiUrl, chatApiKey, chatApiModel, chatApiHeaders;
+    if (openrouterKey) {
+      chatApiUrl = 'https://openrouter.ai/api/v1/chat/completions';
+      chatApiKey = openrouterKey;
+      chatApiModel = openrouterModel;
+      chatApiHeaders = {
+        'Authorization': 'Bearer ' + openrouterKey,
+        'Content-Type': 'application/json',
+        'HTTP-Referer': 'https://preciouscrystal.com.tw',
+        'X-Title': 'Precious Crystal 水晶小妹',
+      };
+    } else {
+      chatApiUrl = 'https://api.openai.com/v1/chat/completions';
+      chatApiKey = openaiKey;
+      chatApiModel = OPENAI_CHAT_MODEL;
+      chatApiHeaders = {
+        'Authorization': 'Bearer ' + openaiKey,
+        'Content-Type': 'application/json',
+      };
+    }
+
+    const openaiResp = await fetch(chatApiUrl, {
       method: 'POST',
-      headers: { 'Authorization': 'Bearer ' + openaiKey, 'Content-Type': 'application/json' },
+      headers: chatApiHeaders,
       body: JSON.stringify({
-        model: OPENAI_CHAT_MODEL,
+        model: chatApiModel,
         temperature: 0.3,
         max_tokens: 900,
         messages: chatMessages,
@@ -406,6 +436,8 @@ module.exports = async function handler(req, res) {
         singleBookWarning,
         citationStripped: stripped,
         historyTurns: history.length,
+        model: chatApiModel,
+        provider: openrouterKey ? 'openrouter' : 'openai',
       },
     });
   } catch (e) {
