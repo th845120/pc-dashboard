@@ -2987,6 +2987,54 @@ setTimeout(tryInitMetaLiveChart, 600);
     bubble.parentNode.appendChild(bar);
   }
 
+  // 複製按鈕：點一下把 AI 回答內容複製到剪貼簿
+  function attachCopyButton(bubble, text) {
+    if (!bubble) return;
+    var btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'crystal-copy-btn';
+    btn.title = '複製這段回答';
+    btn.setAttribute('aria-label', '複製回答');
+    btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>';
+    btn.style.cssText = 'position:absolute;top:6px;right:6px;width:28px;height:28px;padding:0;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);border-radius:6px;color:inherit;cursor:pointer;opacity:0.5;transition:opacity 0.15s,background 0.15s;';
+    btn.addEventListener('mouseenter', function(){ btn.style.opacity = '1'; btn.style.background = 'rgba(255,255,255,0.18)'; });
+    btn.addEventListener('mouseleave', function(){ btn.style.opacity = '0.5'; btn.style.background = 'rgba(255,255,255,0.08)'; });
+    btn.addEventListener('click', function(e){
+      e.stopPropagation();
+      var copyText = text;
+      var doCopy = function() {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          return navigator.clipboard.writeText(copyText);
+        }
+        // fallback
+        var ta = document.createElement('textarea');
+        ta.value = copyText;
+        ta.style.cssText = 'position:fixed;left:-9999px;';
+        document.body.appendChild(ta);
+        ta.select();
+        try { document.execCommand('copy'); } catch(e) {}
+        document.body.removeChild(ta);
+        return Promise.resolve();
+      };
+      doCopy().then(function(){
+        btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>';
+        btn.style.color = '#8ee58e';
+        btn.style.opacity = '1';
+        setTimeout(function(){
+          btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>';
+          btn.style.color = 'inherit';
+          btn.style.opacity = '0.5';
+        }, 1500);
+      });
+    });
+    // 確保 bubble 有 position relative 才能 absolute 放按鈕
+    var prev = bubble.style.position;
+    if (!prev || prev === 'static') bubble.style.position = 'relative';
+    // bubble 右內邊距留給按鈕
+    bubble.style.paddingRight = '42px';
+    bubble.appendChild(btn);
+  }
+
   function el(tag, cls, text) {
     var e = document.createElement(tag);
     if (cls) e.className = cls;
@@ -3046,6 +3094,7 @@ setTimeout(tryInitMetaLiveChart, 600);
           appendMsg('ai', errMsg, 'error');
         } else if (data && data.answer) {
           var aiBubble = appendMsg('ai', data.answer);
+          attachCopyButton(aiBubble, data.answer);
           attachReportButton(aiBubble, q, data.answer, data.sources);
           // 成功的問答才存進 history（錯誤不存，避免污染下次上下文）
           crystalHistory.push({ role: 'user', content: q });

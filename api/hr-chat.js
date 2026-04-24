@@ -1,14 +1,17 @@
 // Vercel Serverless Function: /api/hr-chat
-// 員工人資 AI 問答：抓 Notion 規章頁面 + 呼叫 OpenAI
+// 員工人資 AI 問答：抓 Notion 規章頁面 + 呼叫 OpenRouter (Claude Sonnet 4) 或 OpenAI
 //
 // 環境變數（必須在 Vercel 後台設定）：
-//   OPENAI_API_KEY       OpenAI API key
+//   OPENROUTER_API_KEY   OpenRouter API key（優先使用；走 Claude Sonnet 4）
+//   OPENROUTER_MODEL     （選配）OpenRouter 模型，預設 anthropic/claude-sonnet-4
+//   OPENAI_API_KEY       OpenAI API key（fallback，若沒設 OPENROUTER_API_KEY 時使用）
 //   NOTION_TOKEN         Notion integration token（需 share 規章頁面給 integration）
 //   NOTION_HR_PAGE_ID    Notion 規章頁面 ID（含或不含 dash 皆可）
 //   HR_ALLOWED_ORIGIN    （選配）CORS 允許的 origin，預設 https://preciouscrystal.com.tw
 
 const NOTION_VERSION = '2022-06-28';
 const OPENAI_MODEL = 'gpt-4o-mini';
+const DEFAULT_OPENROUTER_MODEL = 'anthropic/claude-sonnet-4';
 const MAX_QUESTION_LEN = 500;
 const MAX_RULES_CHARS = 30000; // 限制 system prompt 長度，避免費用爆炸
 const MAX_DB_ROWS = 60;         // 單一子資料庫最多抓幾筆
@@ -333,10 +336,12 @@ module.exports = async function handler(req, res) {
       return;
     }
 
+    const openrouterKey = process.env.OPENROUTER_API_KEY;
+    const openrouterModel = process.env.OPENROUTER_MODEL || DEFAULT_OPENROUTER_MODEL;
     const openaiKey = process.env.OPENAI_API_KEY;
     const notionToken = process.env.NOTION_TOKEN;
     const rawPageId = process.env.NOTION_HR_PAGE_ID;
-    if (!openaiKey) { res.status(500).json({ error: '伺服器未設定 OPENAI_API_KEY' }); return; }
+    if (!openrouterKey && !openaiKey) { res.status(500).json({ error: '伺服器未設定 OPENROUTER_API_KEY 或 OPENAI_API_KEY' }); return; }
     if (!notionToken) { res.status(500).json({ error: '伺服器未設定 NOTION_TOKEN' }); return; }
     if (!rawPageId) { res.status(500).json({ error: '伺服器未設定 NOTION_HR_PAGE_ID' }); return; }
 
@@ -388,32 +393,58 @@ module.exports = async function handler(req, res) {
       '9. 回答若有引用規章，用輕鬆方式標註，例如「（這寫在福利制度裡）」「（公司規範第 26 條有寫）」。\n' +
       '10. 繁體中文、台灣用語。長問題 200-400 字、短問題 50-150 字，不要長篇大論。';
 
-    const openaiResp = await fetch('https://api.openai.com/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Authorization': 'Bearer ' + openaiKey,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: OPENAI_MODEL,
-        temperature: 0.3,
-        max_tokens: 700,
-        messages: [
-          { role: 'system', content: systemPrompt },
-          { role: 'user', content: question },
-        ],
-      }),
-    });
+    // 優先走 OpenRouter (Claude Sonnet 4)，沒設才退回 OpenAI gpt-4o-mini
+    let llmResp;
+    let providerLabel;
+    if (openrouterKey) {
+      providerLabel = 'OpenRouter';
+      llmResp = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Authorization': 'Bearer ' + openrouterKey,
+          'Content-Type': 'application/json',
+          'HTTP-Referer': 'https://preciouscrystal.com.tw',
+          'X-Title': 'Precious Crystal HR Chat',
+        },
+        body: JSON.stringify({
+          model: openrouterModel,
+          temperature: 0.3,
+          max_tokens: 700,
+          messages: [
+            { role: 'system', content: systemPrompt },
+            { role: 'user', content: question },
+          ],
+        }),
+      });
+    } else {
+      providerLabel = 'OpenAI';
+      llmResp = await fetch('https://api.openai.com/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Authorization': 'Bearer ' + openaiKey,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          model: OPENAI_MODEL,
+          temperature: 0.3,
+          max_tokens: 700,
+          messages: [
+            { role: 'system', content: systemPrompt },
+            { role: 'user', content: question },
+          ],
+        }),
+      });
+    }
 
-    if (!openaiResp.ok) {
-      const errText = await openaiResp.text();
-      res.status(502).json({ error: 'OpenAI API 錯誤 (' + openaiResp.status + ')：' + errText.slice(0, 300) });
+    if (!llmResp.ok) {
+      const errText = await llmResp.text();
+      res.status(502).json({ error: providerLabel + ' API 錯誤 (' + llmResp.status + ')：' + errText.slice(0, 300) });
       return;
     }
-    const openaiData = await openaiResp.json();
-    const answer = openaiData && openaiData.choices && openaiData.choices[0] &&
-                   openaiData.choices[0].message && openaiData.choices[0].message.content;
-    if (!answer) { res.status(502).json({ error: 'OpenAI 回傳無內容' }); return; }
+    const llmData = await llmResp.json();
+    const answer = llmData && llmData.choices && llmData.choices[0] &&
+                   llmData.choices[0].message && llmData.choices[0].message.content;
+    if (!answer) { res.status(502).json({ error: providerLabel + ' 回傳無內容' }); return; }
 
     res.status(200).json({ answer: answer.trim() });
   } catch (e) {
