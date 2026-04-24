@@ -208,6 +208,20 @@ module.exports = async function handler(req, res) {
       res.status(400).json({ error: '問題不得超過 ' + MAX_QUESTION_LEN + ' 字' }); return;
     }
 
+    // 上下文記憶：接收前端傳來的最近對話（最多 6 輪 = 12 則）
+    const rawHistory = Array.isArray(body.history) ? body.history : [];
+    const history = rawHistory
+      .filter(m => m && typeof m === 'object' && (m.role === 'user' || m.role === 'assistant') && typeof m.content === 'string')
+      .slice(-12)
+      .map(m => ({ role: m.role, content: m.content.slice(0, 1500) }));
+
+    // 把最近 user 問題當主題線索，讓檢索更聚焦（解決「還有其他顏色嗎」這種省略主詞的跟進問題）
+    let retrievalQuery = question;
+    const recentUserMsgs = history.filter(m => m.role === 'user').slice(-2);
+    if (recentUserMsgs.length > 0) {
+      retrievalQuery = recentUserMsgs.map(m => m.content).join(' ') + ' ' + question;
+    }
+
     const openaiKey = process.env.OPENAI_API_KEY;
     if (!openaiKey) { res.status(500).json({ error: '伺服器未設定 OPENAI_API_KEY' }); return; }
 
@@ -216,7 +230,7 @@ module.exports = async function handler(req, res) {
 
     let topChunks;
     try {
-      topChunks = await retrieveTopK(openaiKey, question, TOP_K);
+      topChunks = await retrieveTopK(openaiKey, retrievalQuery, TOP_K);
     } catch (e) {
       res.status(500).json({ error: '檢索失敗：' + (e.message || '未知') }); return;
     }
@@ -238,8 +252,8 @@ module.exports = async function handler(req, res) {
       return;
     }
 
-    // 關鍵字命中檢查
-    const keyTerms = queryKeyTerms(question);
+    // 關鍵字命中檢查（用合併後的 retrievalQuery，讓跟進問題也能命中前文主題）
+    const keyTerms = queryKeyTerms(retrievalQuery);
     const coreTerms = keyTerms.filter(t => t.length >= 2).slice(0, 8);
     let strongHits = 0;
     const hitTerms = new Set();
@@ -250,8 +264,8 @@ module.exports = async function handler(req, res) {
     });
     const maxCos = topChunks.reduce((m, c) => Math.max(m, c.cos || 0), 0);
 
-    // 白名單 fact 匹配
-    const whitelistHits = matchWhitelist(question);
+    // 白名單 fact 匹配（用合併後的 retrievalQuery）
+    const whitelistHits = matchWhitelist(retrievalQuery);
 
     // 極低信心：核心詞完全沒命中 → 拒答（但若命中白名單仍可答）
     const veryLowConfidence = (coreTerms.length > 0 && strongHits === 0);
@@ -311,13 +325,22 @@ module.exports = async function handler(req, res) {
       whitelistBlock +
       '\n' +
       '【【最重要的規則 —— 絕對不能編造】】\n' +
-      'A. 你只能回答「參考資料」中實際寫到的內容。參考資料沒寫的東西，你絕對不能講，也不能從你的訓練記憶裡補。\n' +
-      'B. 每段參考資料頭部都標了「高相關/中相關/低相關」。只有「高相關」跟「中相關」且內容直接提到問題關鍵字的段落才能當來源引用。「低相關」的段落即使找出來也不能當出處。\n' +
+      'A. 你只能回答「參考資料」或「常識事實校對表」中實際寫到的內容。兩邊都沒寫的東西，絕對不能講，也不能從你的訓練記憶裡補。\n' +
+      'B. 每段參考資料頭部都標了「高相關/中相關/低相關」。只有「高相關」跟「中相關」且內容直接提到問題關鍵字的段落才能採用。「低相關」段落即使找出來也不能用。\n' +
       'C. 若段落標記「⚠️OCR品質偏低」，代表書的 OCR 可能有錯字或胡言亂語，不可逐字照抄，只能提取明確合理的資訊。\n' +
-      'D. 【如何判斷沒寫】看「檢索診斷」那行。如果問題核心詞完全沒命中任何參考資料，那就是書裡沒寫。\n' +
-      'E. 【書裡沒寫時怎麼回】直接跟員工說「這個關鍵字在我知識庫的 14 本書裡都沒查到欸 QQ」或「書裡沒直接寫」，絕對不能編答案、也不能發明書名頁碼。\n' +
+      'D. 【如何判斷沒寫】看「檢索診斷」那行。如果問題核心詞完全沒命中任何參考資料，且沒有校對表可用，那就是沒資料可回答。\n' +
+      'E. 【沒資料時怎麼回】直接跟員工說「這個在我知識庫裡都沒查到欸 QQ」，絕對不能編答案。\n' +
       'F. 【單書來源警告】若診斷顯示「單書來源」，必須在回答開頭加警語：「目前只在 1 本書裡看到，僅供參考」。\n' +
-      'G. 【常識校對表最優先】若有提供「常識事實校對表」，當書上內容與校對表衝突時，以校對表為準，並在回答中指出書裡的錯誤（例如「書裡寫『紫水晶英文源自希臘文「深」』其實是錯的，正確應該是『不醉』(a-methystos)，這是 OCR 書本身的錯誤」）。\n' +
+      'G. 【常識校對表最優先】若有提供「常識事實校對表」，當書上內容與校對表衝突時，以校對表為準，並在回答中指出書裡的錯誤（例如「書裡寫『紫水晶英文源自希臘文「深」』其實是錯的，正確應該是『不醉』(a-methystos)」）。\n' +
+      'H. 【★★★ 出處規則 —— 絕對不可違反 ★★★】\n' +
+      '   絕對不可以在回答中出現「出自《某某書》」「p.某某」「頁」「書名」「參考資料」「校對表」這類字眼。\n' +
+      '   不要標書名、不要標頁碼、不要標章節、不要標出處。完全不標。\n' +
+      '   系統後端會自動幫你標註來源，你只要把內容本身寫好就好。\n' +
+      '   若你擅自加上書名頁碼，會被系統判定為幻覺並砍掉。\n' +
+      '\n' +
+      '【上下文記憶】\n' +
+      '系統會把最近幾則對話的歷史一起傳給你。若用戶用「它」「他」「還有嗎」「其他的呢」「再多講一點」這類省略主詞的跟進問題，你「必須」根據上一則自己的回答或用戶的上一個問題，判斷主題是什麼，繼續同一個主題回答。不要跳主題。\n' +
+      '例：上一題問「方解石有什麼顏色」→ 接「還有其他顏色嗎」時，你必須繼續講方解石的其他顏色，不能跑去講紫水晶白水晶。\n' +
       '\n' +
       '【人設規則】\n' +
       '你跟員工講話就像在跟閨蜜聊天。\n' +
@@ -325,10 +348,15 @@ module.exports = async function handler(req, res) {
       '2. 說人話。不要「根據參考資料」「建議您」這種開場，直接進正題。\n' +
       '3. 適度用顏文字：´･ω･`、(˘▾˘)、(¯﹃¯)、(*´ω`)、(＞ω＜)、ᕙ(⇀‸↼‶)ᕗ、QQ。一個回答 1-2 個就好。\n' +
       '4. OCR 文本可能有錯字，你懂意思就好。但錯字不等於可以編內容。\n' +
-      '5. 【最關鍵】若有動用參考資料內容，結尾必須標「—— 出自《書名》p.頁碼」（只能寫參考資料中真正提供答案的那幾段的書名頁碼）。若書裡沒寫這個問題，不要強採出處。\n' +
-      '6. 長問題 300-500 字、短問題 80-200 字。\n' +
-      '7. 問題跟水晶/寶石/礦石/療癒無關，幽默婉拒：「這我沒讀過欸 XD」。\n' +
-      '8. 繁體中文、台灣用語。';
+      '5. 長問題 300-500 字、短問題 80-200 字。\n' +
+      '6. 問題跟水晶/寶石/礦石/療癒無關，幽默婉拒：「這我沒讀過欸 XD」。\n' +
+      '7. 繁體中文、台灣用語。\n' +
+      '8. 回答結尾不要加任何「—— 出自...」「—— 來源...」「—— 參考...」這種句子。';
+
+    // 組 messages：system + history + 當前 user
+    const chatMessages = [{ role: 'system', content: systemPrompt }];
+    for (const m of history) chatMessages.push(m);
+    chatMessages.push({ role: 'user', content: question });
 
     const openaiResp = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
@@ -337,10 +365,7 @@ module.exports = async function handler(req, res) {
         model: OPENAI_CHAT_MODEL,
         temperature: 0.3,
         max_tokens: 900,
-        messages: [
-          { role: 'system', content: systemPrompt },
-          { role: 'user', content: question },
-        ],
+        messages: chatMessages,
       }),
     });
 
@@ -350,17 +375,37 @@ module.exports = async function handler(req, res) {
       return;
     }
     const openaiData = await openaiResp.json();
-    const answer = openaiData && openaiData.choices && openaiData.choices[0] &&
-                   openaiData.choices[0].message && openaiData.choices[0].message.content;
+    let answer = openaiData && openaiData.choices && openaiData.choices[0] &&
+                 openaiData.choices[0].message && openaiData.choices[0].message.content;
     if (!answer) { res.status(502).json({ error: 'OpenAI 回傳無內容' }); return; }
+    answer = answer.trim();
+
+    // ===== 強制砍掉 AI 擅自加的任何 citation（regex post-processing）=====
+    // 不管 AI 怎麼標，全部砍。靠後端攔截，不靠 prompt 自律。
+    const citationPatterns = [
+      /\s*[—\-–]{1,3}\s*(出自|引自|來源|參考|參見|資料來源|摘自)[\s\S]*$/g,
+      /\s*（\s*(出自|引自|來源|參考|參見|資料來源|摘自)[^）]*）\s*$/g,
+      /\s*\(\s*(出自|引自|來源|參考|參見|資料來源|摘自)[^)]*\)\s*$/g,
+      /\s*《[^》]+》\s*p\.?\s*\d+[^。\n]*$/gi,
+      /\s*[—\-–]{1,3}[^—\-\n]*《[^》]+》[^\n]*$/g,
+    ];
+    let stripped = false;
+    for (const re of citationPatterns) {
+      const before = answer;
+      answer = answer.replace(re, '');
+      if (answer !== before) stripped = true;
+    }
+    answer = answer.trim().replace(/[。\s]+$/g, function(m){ return m.includes('。') ? '。' : ''; });
 
     res.status(200).json({
-      answer: answer.trim(),
+      answer: answer,
       sources: topChunks.map(c => ({ book: c.book, page: c.page, quality: c.quality })),
       diagnostic: {
         strongHits, maxCosine: maxCos, numBooks,
         whitelistUsed: whitelistHits.map(m => m.name),
         singleBookWarning,
+        citationStripped: stripped,
+        historyTurns: history.length,
       },
     });
   } catch (e) {

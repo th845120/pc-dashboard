@@ -2952,6 +2952,10 @@ setTimeout(tryInitMetaLiveChart, 600);
   var API_ENDPOINT = '/api/crystal-chat';
   var REPORT_ENDPOINT = '/api/crystal-report';
 
+  // 上下文記憶：在前端存最近對話，送下一題時帶給後端
+  var crystalHistory = [];
+  var MAX_HISTORY = 12; // 6 輪
+
   function attachReportButton(bubble, question, answer, sources) {
     if (!bubble || !bubble.parentNode) return;
     var bar = document.createElement('div');
@@ -3031,7 +3035,7 @@ setTimeout(tryInitMetaLiveChart, 600);
         var resp = await fetch(API_ENDPOINT, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ question: q })
+          body: JSON.stringify({ question: q, history: crystalHistory.slice(-MAX_HISTORY) })
         });
         var data;
         try { data = await resp.json(); } catch (e) { data = null; }
@@ -3043,6 +3047,12 @@ setTimeout(tryInitMetaLiveChart, 600);
         } else if (data && data.answer) {
           var aiBubble = appendMsg('ai', data.answer);
           attachReportButton(aiBubble, q, data.answer, data.sources);
+          // 成功的問答才存進 history（錯誤不存，避免污染下次上下文）
+          crystalHistory.push({ role: 'user', content: q });
+          crystalHistory.push({ role: 'assistant', content: data.answer });
+          if (crystalHistory.length > MAX_HISTORY) {
+            crystalHistory = crystalHistory.slice(-MAX_HISTORY);
+          }
         } else {
           appendMsg('ai', '沒拿到回覆，再試一次吧', 'error');
         }
