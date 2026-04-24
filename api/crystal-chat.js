@@ -200,9 +200,25 @@ module.exports = async function handler(req, res) {
         }
       }
     });
-    // 信度判斷：如果 top 8 兩段以下有真命中關鍵詞，或最高 cosine < 0.3，視為「低信心」
+    // 信度判斷
     const maxCos = topChunks.reduce((m, c) => Math.max(m, c.cos || 0), 0);
     const lowConfidence = (strongHits < 2) || (maxCos < 0.30);
+    // 極低信心：完全沒命中關鍵字且 cosine < 0.35 → 直接拒答，不跟 GPT 談
+    const veryLowConfidence = (strongHits === 0 && maxCos < 0.35);
+
+    if (veryLowConfidence) {
+      const kwList = keyTerms.length > 0 ? `「${keyTerms.slice(0, 5).join('」「')}」` : '這個';
+      res.status(200).json({
+        answer: `${kwList}這個問題我在 14 本書裡都沒查到欸 QQ\n\n我只會回答書裡有寫的內容，書裡沒寫的我不敢亂編讓你跟客人講錯話 (¯﹃¯)\n\n建議你直接跟老闆或資深直播主確認，或者再換個問法試試看～`,
+        sources: [],
+        diagnostic: {
+          reason: 'no_keyword_hit',
+          keyTerms: keyTerms,
+          maxCosine: maxCos,
+        },
+      });
+      return;
+    }
 
     // 組 context。每段標出 cosine 分數讓 GPT 知道哪些是真相關
     let context = '';
