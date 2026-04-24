@@ -2950,6 +2950,38 @@ setTimeout(tryInitMetaLiveChart, 600);
 (function initCrystalChat() {
   if (typeof window === 'undefined') return;
   var API_ENDPOINT = '/api/crystal-chat';
+  var REPORT_ENDPOINT = '/api/crystal-report';
+
+  function attachReportButton(bubble, question, answer, sources) {
+    if (!bubble || !bubble.parentNode) return;
+    var bar = document.createElement('div');
+    bar.style.cssText = 'margin-top:8px;font-size:12px;opacity:0.7;';
+    var btn = document.createElement('button');
+    btn.type = 'button';
+    btn.textContent = '👎 這答案不對';
+    btn.style.cssText = 'background:transparent;border:1px solid rgba(255,255,255,0.3);color:inherit;padding:3px 10px;border-radius:12px;cursor:pointer;font-size:12px;opacity:0.7;';
+    btn.addEventListener('mouseenter', function(){ btn.style.opacity = '1'; });
+    btn.addEventListener('mouseleave', function(){ btn.style.opacity = '0.7'; });
+    btn.addEventListener('click', function () {
+      if (btn.disabled) return;
+      var reason = prompt('哪裡不對？（可空白、最多 500 字）\n這會被寄到 Notion 去給老闆看。', '');
+      if (reason === null) return;
+      btn.disabled = true;
+      btn.textContent = '回報中…';
+      fetch(REPORT_ENDPOINT, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ question: question, answer: answer, reason: reason, sources: sources || [] })
+      }).then(function(r){ return r.json().catch(function(){ return null; }); })
+        .then(function(d){
+          if (d && d.ok) { btn.textContent = '✅ 已回報給老闆'; }
+          else { btn.textContent = '❌ 回報失敗'; btn.disabled = false; }
+        })
+        .catch(function(){ btn.textContent = '❌ 回報失敗'; btn.disabled = false; });
+    });
+    bar.appendChild(btn);
+    bubble.parentNode.appendChild(bar);
+  }
 
   function el(tag, cls, text) {
     var e = document.createElement(tag);
