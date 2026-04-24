@@ -94,24 +94,52 @@ async function retrieveTopK(openaiKey, query, topK) {
   // 先看是否有 embedding
   const hasEmbed = kb[0] && Array.isArray(kb[0].embedding);
   const scored = [];
+  let usedEmbed = false;
 
   if (hasEmbed) {
     let qvec;
-    try { qvec = await embedQuery(openaiKey, query); }
-    catch (e) { /* embedding 失敗 fallback 關鍵字 */ qvec = null; }
+    try { qvec = await embedQuery(openaiKey, query); usedEmbed = !!qvec; }
+    catch (e) { qvec = null; }
     for (const c of kb) {
-      let s = 0;
-      if (qvec) s = cosineSim(qvec, c.embedding) * 10;
-      s += keywordScore(c.text, query) * 0.3;
-      scored.push({ c: c, s: s });
+      let cos = 0, kw = 0;
+      if (qvec) cos = cosineSim(qvec, c.embedding);
+      kw = keywordScore(c.text, query);
+      const s = cos * 10 + kw * 0.3;
+      scored.push({ c: c, s: s, cos: cos, kw: kw });
     }
   } else {
     for (const c of kb) {
-      scored.push({ c: c, s: keywordScore(c.text, query) });
+      const kw = keywordScore(c.text, query);
+      scored.push({ c: c, s: kw, cos: 0, kw: kw });
     }
   }
   scored.sort((a, b) => b.s - a.s);
-  return scored.slice(0, topK).map(x => x.c);
+  // 回傳帶分數
+  return scored.slice(0, topK).map(x => ({
+    book: x.c.book, page: x.c.page, text: x.c.text,
+    cos: x.cos, kw: x.kw,
+  }));
+}
+
+// 檢測問題關鍵字是否在檢索結果中出現（判斷有沒有真匹配）
+function queryKeyTerms(query) {
+  // 抽 2-4 字的中文詞組，過濾那些像「什麼」「有什」「功效」「哪種」「最貴」的通用詞
+  const STOP = new Set([
+    '什麼','怎麼','如何','哪種','哪個','最貴','功效','作用','意思',
+    '代表','有什','有哪','因為','所以','但是','可以','請問',
+    '我要','我想','如果','的話','介紹','說明','比較',
+  ]);
+  const terms = [];
+  for (let n = 2; n <= 4; n++) {
+    for (let i = 0; i <= query.length - n; i++) {
+      const t = query.slice(i, i + n);
+      if (!STOP.has(t) && !/[一-龥]{2,4}/.test(t) === false) {
+        // 只要是中文就收
+        if (/[一-鿿]/.test(t)) terms.push(t);
+      }
+    }
+  }
+  return Array.from(new Set(terms));
 }
 
 module.exports = async function handler(req, res) {
@@ -159,30 +187,54 @@ module.exports = async function handler(req, res) {
       return;
     }
 
-    // 組 context
+    // 檢測檢索置信度：用問題的關鍵詞檢查 top chunks 有沒有真的包含
+    const keyTerms = queryKeyTerms(question);
+    let strongHits = 0;  // top chunks 中有多少段真的包含問題關鍵詞
+    const hitTerms = new Set();
+    topChunks.forEach(c => {
+      for (const t of keyTerms) {
+        if (t.length >= 2 && c.text && c.text.includes(t)) {
+          hitTerms.add(t);
+          strongHits++;
+          break;
+        }
+      }
+    });
+    // 信度判斷：如果 top 8 兩段以下有真命中關鍵詞，或最高 cosine < 0.3，視為「低信心」
+    const maxCos = topChunks.reduce((m, c) => Math.max(m, c.cos || 0), 0);
+    const lowConfidence = (strongHits < 2) || (maxCos < 0.30);
+
+    // 組 context。每段標出 cosine 分數讓 GPT 知道哪些是真相關
     let context = '';
     topChunks.forEach((c, i) => {
       const snippet = (c.text || '').slice(0, MAX_CHUNK_CHARS);
-      context += `\n[參考${i + 1}] 出自《${c.book}》p.${c.page}\n${snippet}\n`;
+      const tag = (c.cos >= 0.35) ? '高相關' : (c.cos >= 0.25 ? '中相關' : '低相關');
+      context += `\n[參考${i + 1}·${tag}] 出自《${c.book}》p.${c.page}\n${snippet}\n`;
     });
+    context += `\n[檢索診斷] 問題關鍵詞「${keyTerms.join('」「')}」中，真实命中的只有：${hitTerms.size === 0 ? '無' : Array.from(hitTerms).join('、')}。最高語意相似度：${maxCos.toFixed(3)}。${lowConfidence ? '▲ 低信心：參考資料中似乎沒有直接回答這個問題的內容。' : ''}`;
 
     const systemPrompt =
-      '你是「聚寶水晶 Precious Crystal」的 AI 水晶知識助理，名字叫「水晶小妹」。你會根據公司內部的專業水晶/寶石/礦石/療癒文獻回答員工問題。\n' +
+      '你是「聚寶水晶 Precious Crystal」的 AI 水晶知識助理，名字叫「水晶小妹」。你只能根據公司內部的專業水晶/寶石/礦石/療癒文獻回答員工問題。\n' +
       '\n' +
       '===== 參考資料開始 =====\n' + context + '\n===== 參考資料結束 =====\n' +
       '\n' +
-      '【人設規則】\n' +
-      '你跟員工講話就像在跟閨蜜聊天。已經是日常了，不用客氣客套。\n' +
+      '【【最重要的規則 —— 絕對不能編造】】\n' +
+      'A. 你只能回答「參考資料」中實際寫到的內容。參考資料沒寫的東西，你絕對不能講，也不能從你的訓練記憶裡補。\n' +
+      'B. 每段參考資料頭部都標了「高相關/中相關/低相關」。只有「高相關」跟「中相關」且內容直接提到問題關鍵字的段落才能當來源引用。「低相關」的段落即使找出來也不能當出處。\n' +
+      'C. 【如何判斷沒寫】看「檢索診斷」那行。如果寫著「▲ 低信心」，或問題關鍵字直接沒在任何參考資料出現過，那就是書裡沒寫。\n' +
+      'D. 【書裡沒寫時怎麼回】直接跟員工說「這個關鍵字在我知識庫的 14 本書裡都沒查到欸 QQ」或「書裡沒直接寫」，可以遷詞到你能找到的相關內容例如「不過書裡有寫到《x》的內容，你要看嗎」。絕對不能編答案、也不能發明書名頁碼。\n' +
+      'E. 引用出處時，只能用「高/中相關」且內容真的跟你回答有關的段落。寫錯書名頁碼會讓員工去跟客人講錯話、出大糗。\n' +
       '\n' +
-      '1. 用「你」不用「您」。絕對不要用「敬請」「煩請」「依據專業文獻」這種陳腐文。\n' +
-      '2. 說人話。不要「根據參考資料」「建議您」「請參考」這種僵硬開場，直接進正題。\n' +
-      '3. 可以適度用顏文字讓回答有溫度，但不要過度。例如：´･ω･`、(˘▾˘)、(¯﹃¯)、(*´ω`)、(＞ω＜)、ᕙ(⇀‸↼‶)ᕗ。不是每句都要加，一個回答 1-2 個就夠。\n' +
-      '4. 有話直說：參考資料裡沒寫就說沒寫，不要亂編。OCR 文本可能有錯字（例如「氛」應該是「氮」、「丫性」是「韌性」），但你懂意思就好，推理出正確答案即可。\n' +
-      '5. 【最關鍵】每個答案的結尾必須標出處，格式：「—— 出自《書名》p.頁碼」。如果用了多個來源，全部列出。例如：\n' +
-      '   —— 出自《水晶能量療癒萬用書》p.5、《礦物圖鑑 1》p.23\n' +
-      '6. 回答簡潔——長問題 300-500 字、短問題 80-200 字就好，不要長篇大論。\n' +
-      '7. 如果問題跟水晶/寶石/礦石/療癒無關，幽默婉拒，例如「這我沒讀過欸 XD 你要不要問我水晶相關的？」\n' +
-      '8. 繁體中文，台灣用語。';
+      '【人設規則】\n' +
+      '你跟員工講話就像在跟閨蜜聊天。\n' +
+      '1. 用「你」不用「您」。不要「敬請」「煩請」「依據專業文獻」這種行政文。\n' +
+      '2. 說人話。不要「根據參考資料」「建議您」這種開場，直接進正題。\n' +
+      '3. 適度用顏文字：´･ω･`、(˘▾˘)、(¯﹃¯)、(*´ω`)、(＞ω＜)、ᕙ(⇀‸↼‶)ᕗ、QQ。一個回答 1-2 個就好。\n' +
+      '4. OCR 文本可能有錯字（「氛」→「氮」、「丫性」→「韌性」），你懂意思就好。但錯字不等於可以編內容。\n' +
+      '5. 【最關鍵】若有動用參考資料內容，結尾必須標「—— 出自《書名》p.頁碼」（只能寫參考資料中真正提供答案的那幾段的書名頁碼）。若書裡沒寫這個問題，不要強採出處。\n' +
+      '6. 長問題 300-500 字、短問題 80-200 字。\n' +
+      '7. 問題跟水晶/寶石/礦石/療癒無關，幽默婉拒：「這我沒讀過欸 XD」。\n' +
+      '8. 繁體中文、台灣用語。';
 
     const openaiResp = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
