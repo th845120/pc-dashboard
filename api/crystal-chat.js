@@ -376,7 +376,7 @@ module.exports = async function handler(req, res) {
         'Authorization': 'Bearer ' + openrouterKey,
         'Content-Type': 'application/json',
         'HTTP-Referer': 'https://preciouscrystal.com.tw',
-        'X-Title': 'Precious Crystal 水晶小妹',
+        'X-Title': 'Precious Crystal Crystal Chat',
       };
     } else {
       chatApiUrl = 'https://api.openai.com/v1/chat/completions';
