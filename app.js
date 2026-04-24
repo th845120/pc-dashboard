@@ -12,14 +12,16 @@ var PATH_TO_TAB = {
   '/sales/meta': { tab: 'sales', sub: 'sales-meta-live' },
   '/service': { tab: 'service' },
   '/playground': { tab: 'playground' },
-  '/hr': { tab: 'hr' }
+  '/hr': { tab: 'hr' },
+  '/crystal': { tab: 'crystal' }
 };
 var TAB_TO_PATH = {
   sentiment: '/brand',
   sales: '/sales',
   service: '/service',
   playground: '/playground',
-  hr: '/hr'
+  hr: '/hr',
+  crystal: '/crystal'
 };
 var SALES_SUB_TO_PATH = {
   'sales-overview': '/sales',
@@ -2851,6 +2853,165 @@ setTimeout(tryInitMetaLiveChart, 600);
           appendMsg('ai', data.answer);
         } else {
           appendMsg('ai', '未收到有效回覆，請稍後再試。', 'error');
+        }
+      } catch (ex) {
+        var loadingMsg2 = loadingBubble && loadingBubble.parentNode;
+        if (loadingMsg2 && loadingMsg2.parentNode) loadingMsg2.parentNode.removeChild(loadingMsg2);
+        appendMsg('ai', '連線失敗：' + (ex && ex.message ? ex.message : '未知錯誤'), 'error');
+      } finally {
+        submit.disabled = false;
+        input.focus();
+      }
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', bind);
+  } else {
+    bind();
+  }
+})();
+
+/* ===== 水晶知識庫密碼鎖 ===== */
+(function initCrystalLock() {
+  if (typeof window === 'undefined') return;
+  var PASSWORD_SHA256 = '7ffce1a42462734b67f5bf4cf1185b5c61c18bd16a1695ff1d45ee7b29d08328';
+  var STORAGE_KEY = 'pc_crystal_unlock_v1';
+
+  async function sha256Hex(str) {
+    var buf = new TextEncoder().encode(str);
+    var hash = await crypto.subtle.digest('SHA-256', buf);
+    return Array.from(new Uint8Array(hash))
+      .map(function (b) { return b.toString(16).padStart(2, '0'); })
+      .join('');
+  }
+
+  function isUnlocked() {
+    try { return sessionStorage.getItem(STORAGE_KEY) === '1'; } catch (e) { return false; }
+  }
+  function setUnlocked() {
+    try { sessionStorage.setItem(STORAGE_KEY, '1'); } catch (e) {}
+  }
+  function applyUnlockUI() {
+    var lock = document.getElementById('crystalLock');
+    if (lock) lock.classList.add('unlocked');
+  }
+
+  function bind() {
+    var lock = document.getElementById('crystalLock');
+    var form = document.getElementById('crystalLockForm');
+    var input = document.getElementById('crystalLockInput');
+    var err = document.getElementById('crystalLockError');
+    if (!lock || !form || !input || !err) return;
+
+    if (isUnlocked()) { applyUnlockUI(); }
+
+    form.addEventListener('submit', async function (e) {
+      e.preventDefault();
+      var val = (input.value || '').trim();
+      err.textContent = '';
+      err.classList.remove('shake');
+      if (!val) return;
+      try {
+        var hex = await sha256Hex(val);
+        if (hex === PASSWORD_SHA256) {
+          setUnlocked();
+          applyUnlockUI();
+        } else {
+          err.textContent = '密碼錯誤，請再試一次';
+          void err.offsetWidth;
+          err.classList.add('shake');
+          input.select();
+        }
+      } catch (ex) {
+        err.textContent = '驗證失敗，請重新整理頁面';
+      }
+    });
+
+    document.querySelectorAll('[data-tab="crystal"]').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        if (isUnlocked()) return;
+        setTimeout(function () {
+          var inp = document.getElementById('crystalLockInput');
+          if (inp) inp.focus();
+        }, 120);
+      });
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', bind);
+  } else {
+    bind();
+  }
+})();
+
+/* ===== 水晶知識庫聊天功能 ===== */
+(function initCrystalChat() {
+  if (typeof window === 'undefined') return;
+  var API_ENDPOINT = '/api/crystal-chat';
+
+  function el(tag, cls, text) {
+    var e = document.createElement(tag);
+    if (cls) e.className = cls;
+    if (text != null) e.textContent = text;
+    return e;
+  }
+
+  function appendMsg(role, text, extraCls) {
+    var list = document.getElementById('crystalChatMessages');
+    if (!list) return null;
+    var wrap = el('div', 'hr-msg ' + role + (extraCls ? ' ' + extraCls : ''));
+    var roleLabel = el('div', 'hr-msg-role', role === 'user' ? '你' : '水晶小妹');
+    var bubble = el('div', 'hr-msg-bubble', text || '');
+    wrap.appendChild(roleLabel);
+    wrap.appendChild(bubble);
+    list.appendChild(wrap);
+    list.scrollTop = list.scrollHeight;
+    return bubble;
+  }
+
+  function bind() {
+    var form = document.getElementById('crystalChatForm');
+    var input = document.getElementById('crystalChatInput');
+    var submit = document.getElementById('crystalChatSubmit');
+    if (!form || !input || !submit) return;
+
+    var isComposing = false;
+    input.addEventListener('compositionstart', function () { isComposing = true; });
+    input.addEventListener('compositionend', function () { isComposing = false; });
+    input.addEventListener('keydown', function (e) {
+      if (e.key !== 'Enter' || e.shiftKey) return;
+      if (isComposing || e.isComposing || e.keyCode === 229) return;
+      e.preventDefault();
+      form.requestSubmit();
+    });
+
+    form.addEventListener('submit', async function (e) {
+      e.preventDefault();
+      var q = (input.value || '').trim();
+      if (!q) return;
+      appendMsg('user', q);
+      input.value = '';
+      submit.disabled = true;
+      var loadingBubble = appendMsg('ai', '翻書中⋯', 'loading');
+      try {
+        var resp = await fetch(API_ENDPOINT, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ question: q })
+        });
+        var data;
+        try { data = await resp.json(); } catch (e) { data = null; }
+        var loadingMsg = loadingBubble && loadingBubble.parentNode;
+        if (loadingMsg && loadingMsg.parentNode) loadingMsg.parentNode.removeChild(loadingMsg);
+        if (!resp.ok) {
+          var errMsg = (data && data.error) ? data.error : ('伺服器錯誤 (' + resp.status + ')');
+          appendMsg('ai', errMsg, 'error');
+        } else if (data && data.answer) {
+          appendMsg('ai', data.answer);
+        } else {
+          appendMsg('ai', '沒拿到回覆，再試一次吧', 'error');
         }
       } catch (ex) {
         var loadingMsg2 = loadingBubble && loadingBubble.parentNode;

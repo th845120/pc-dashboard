@@ -1,0 +1,1036 @@
+<!DOCTYPE html>
+<html lang="zh-TW" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex, nofollow" />
+  <base href="/" />
+  <title>聚寶水晶 品牌儀表板</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=DM+Serif+Display&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- Splash Screen -->
+  <div id="splashScreen" class="splash-screen">
+    <canvas id="splashParticles" class="splash-particles-canvas"></canvas>
+    <div class="splash-overlay">
+      <img src="brand-logo-full.png" alt="聚寶水晶 Precious Crystal" class="splash-brand-img" />
+      <div class="splash-slogan">買得到寶藏，也買得到保障。</div>
+      <div class="splash-hint">點擊任意處進入</div>
+    </div>
+  </div>
+
+  <!-- Main App -->
+  <div id="mainApp" class="main-app hidden">
+
+  <!-- Header -->
+  <header class="header" id="siteHeader">
+    <div class="header-inner">
+      <a class="brand" href="#" id="brandHomeLink" title="回到首頁">
+        <img src="logo.png" alt="聚寶水晶" class="brand-logo" />
+        <img src="brand-text.png" alt="聚寶水晶 Precious Crystal" class="brand-text-img" />
+      </a>
+      <div class="header-right">
+        <span class="update-badge">最後更新：2026-04-23 23:39 (UTC+8)</span>
+        <button class="theme-toggle" data-theme-toggle aria-label="切換深色模式">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Tab Nav -->
+    <nav class="tab-nav" role="tablist">
+      <button class="tab-btn active" data-tab="sentiment" role="tab" aria-selected="true">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        品牌輿情
+      </button>
+      <div class="tab-dropdown">
+        <button class="tab-btn" data-tab="sales" data-sub="sales-overview" role="tab" aria-selected="false">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="20" x2="12" y2="10"/><line x1="18" y1="20" x2="18" y2="4"/><line x1="6" y1="20" x2="6" y2="16"/></svg>
+          銷售數據
+          <svg class="tab-dropdown-arrow" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <div class="tab-dropdown-menu">
+          <button class="tab-dropdown-item active" data-sub="sales-overview">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+            總覽
+          </button>
+          <button class="tab-dropdown-item" data-sub="sales-shopee-live">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/></svg>
+            蝦皮直播
+          </button>
+          <button class="tab-dropdown-item" data-sub="sales-meta-live">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
+            Meta 直播
+          </button>
+        </div>
+      </div>
+      <button class="tab-btn" data-tab="service" role="tab" aria-selected="false">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        客服數據
+      </button>
+      <button class="tab-btn" data-tab="playground" role="tab" aria-selected="false">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+        里程碑
+      </button>
+      <button class="tab-btn" data-tab="hr" role="tab" aria-selected="false">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        人資系統
+      </button>
+      <button class="tab-btn" data-tab="crystal" role="tab" aria-selected="false">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M6 3h12l4 6-10 12L2 9z"/><path d="M11 3L8 9l4 12 4-12-3-6"/><path d="M2 9h20"/></svg>
+        水晶知識
+      </button>
+    </nav>
+  </header>
+
+  <!-- ===== TAB: 品牌輿情 ===== -->
+  <div class="tab-panel active" id="tab-sentiment">
+    <div class="page-subtitle">
+      <h1>品牌輿情儀表板</h1>
+      <div class="accent-line"></div>
+    </div>
+    <main class="main">
+
+      <!-- Section: 蝦皮 -->
+      <section class="section fade-in-up">
+        <div class="section-header">
+          <h2 class="section-title">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+            蝦皮拍賣
+          </h2>
+          <span class="section-badge good">無風險</span>
+        </div>
+        <div class="kpi-grid">
+          <div class="kpi-card accent">
+            <div class="kpi-label">整體評分</div>
+            <div class="kpi-value" id="kpi-shopee-rating">4.99</div>
+            <div class="kpi-sub">滿分 5.00</div>
+            
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">好評率</div>
+            <div class="kpi-value" id="kpi-shopee-positive">99.75%</div>
+            <div class="kpi-sub">4-5 星評價佔比</div>
+            
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">蝦皮粉絲</div>
+            <div class="kpi-value" id="kpi-shopee-fans">142,363</div>
+            <div class="kpi-sub">累積追蹤人數</div>
+            
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">商品數</div>
+            <div class="kpi-value" id="kpi-shopee-products">366</div>
+            <div class="kpi-sub">上架商品總數</div>
+            
+          </div>
+          <div class="kpi-card warn">
+            <div class="kpi-label">回覆率</div>
+            <div class="kpi-value" id="kpi-shopee-reply">73%</div>
+            <div class="kpi-sub">蝦皮聊聊回覆率</div>
+          </div>
+        </div>
+        <div class="charts-row">
+          <div class="chart-card">
+            <h3 class="chart-title">評價分布</h3>
+            <div class="chart-wrap donut-wrap"><canvas id="ratingDonut"></canvas></div>
+            <div class="donut-legend">
+              <span class="legend-dot good"></span><span>好評 16,517</span>
+              <span class="legend-dot warn"></span><span>普通 33</span>
+              <span class="legend-dot bad"></span><span>差評 8</span>
+            </div>
+          </div>
+          <div class="chart-card">
+            <h3 class="chart-title">評價總量</h3>
+            <div class="chart-wrap"><canvas id="totalBar"></canvas></div>
+            <p class="chart-note">總評價數：<strong>16,558</strong> 則</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section: Meta -->
+      <section class="section fade-in-up">
+        <div class="section-header">
+          <h2 class="section-title">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
+            Meta
+          </h2>
+          <span class="section-badge good">無風險</span>
+        </div>
+        <div class="kpi-grid">
+          <div class="kpi-card accent">
+            <div class="kpi-label">粉絲數</div>
+            <div class="kpi-value" id="kpi-meta-fans">16K</div>
+            <div class="kpi-sub">Facebook 粉絲頁</div>
+            
+          </div>
+          <div class="kpi-card good">
+            <div class="kpi-label">推薦率</div>
+            <div class="kpi-value" id="kpi-meta-recommend">100%</div>
+            <div class="kpi-sub">共 37 則評論</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">近期互動</div>
+            <div class="kpi-value" id="kpi-meta-engagement">279</div>
+            <div class="kpi-sub">14 讚 + 261 留言 + 4 分享</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section: Google Business Profile -->
+      <section class="section fade-in-up">
+        <div class="section-header">
+          <h2 class="section-title">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            Google Business Profile
+          </h2>
+          <span class="section-badge good">無風險</span>
+        </div>
+        <div class="kpi-grid">
+          <div class="kpi-card accent">
+            <div class="kpi-label">Google 評分</div>
+            <div class="kpi-value" id="kpi-google-rating">5.0</div>
+            <div class="kpi-sub">滿分 5.0（全 5 星）</div>
+          </div>
+          <div class="kpi-card good">
+            <div class="kpi-label">評論數</div>
+            <div class="kpi-value" id="kpi-google-reviews">66</div>
+            <div class="kpi-sub">66 則全為 5 星</div>
+            
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">商家地址</div>
+            <div class="kpi-value kpi-address" style="font-size:var(--text-base);white-space:nowrap;">新北市板橋區華江一路580號</div>
+            <div class="kpi-sub">新北市板橋區</div>
+          </div>
+        </div>
+        <div class="reviews-section">
+          <h3 class="chart-title">Google 最新評論</h3>
+          <div class="review-list">
+            <div class="review-item">
+              <div class="review-header">
+                <span class="review-author">Chih-Chun Tu</span>
+                <span class="review-stars">★★★★★</span>
+                <span class="review-date">1天前</span>
+              </div>
+              <p class="review-text">聚寶水晶讚</p>
+            </div>
+            <div class="review-item">
+              <div class="review-header">
+                <span class="review-author">Yvonne Chan</span>
+                <span class="review-stars">★★★★★</span>
+                <span class="review-date">2天前</span>
+              </div>
+              <p class="review-text">無意間看到賣家的直播，開始試著下單，之後就一直買了。除了從台灣出貨讓我比較安心之外，水晶的品質真的很好，包裝也很完美，是一家可以很安心購物的賣家。</p>
+            </div>
+            <div class="review-item">
+              <div class="review-header">
+                <span class="review-author">Tintin Tai</span>
+                <span class="review-stars">★★★★★</span>
+                <span class="review-date">2天前</span>
+              </div>
+              <p class="review-text">沒有什麼比擁有自己心愛的水晶更開心的事了！老闆耐心地講解各種水晶，幫我找到我想要的品質。好開心在水晶之旅的初期就遇到了老闆！😊</p>
+            </div>
+            <div class="review-item">
+              <div class="review-header">
+                <span class="review-author">楊雅惠</span>
+                <span class="review-stars">★★★★★</span>
+                <span class="review-date">2天前（已編輯）</span>
+              </div>
+              <p class="review-text">在賣家買的水晶品質都很好，感謝賣家和聚寶直播主真誠介紹美麗的水晶。</p>
+            </div>
+            <div class="review-item">
+              <div class="review-header">
+                <span class="review-author">陳欣婷</span>
+                <span class="review-stars">★★★★★</span>
+                <span class="review-date">2天前</span>
+              </div>
+              <p class="review-text">賣家很好，品質有保證</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section: 輿情監測 -->
+      <section class="section fade-in-up">
+        <div class="section-header">
+          <h2 class="section-title">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            網路輿情監測
+          </h2>
+          <span class="section-badge good">整體正面</span>
+        </div>
+        <div class="platform-grid">
+          <div class="platform-card">
+            <div class="platform-header">
+              <span class="platform-name">PTT</span>
+              <span class="badge good">無風險</span>
+            </div>
+            <ul class="platform-list">
+              <li>無品牌直接討論</li>
+              <li>Crystal 板多為通用知識</li>
+              <li>無負評出現</li>
+            </ul>
+          </div>
+          <div class="platform-card warn">
+            <div class="platform-header">
+              <span class="platform-name">Dcard</span>
+              <span class="badge warn">聲量偏低</span>
+            </div>
+            <ul class="platform-list">
+              <li>無直接品牌討論</li>
+              <li>推薦文未收錄本品牌</li>
+              <li>競品：月色真美 luna 等</li>
+            </ul>
+          </div>
+          <div class="platform-card">
+            <div class="platform-header">
+              <span class="platform-name">Google Search</span>
+              <span class="badge good">無風險</span>
+            </div>
+            <ul class="platform-list">
+              <li>FB、直播影片正常索引</li>
+              <li>IG Reel 有收錄</li>
+              <li>無負面新聞或投訴</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section: 行動建議 -->
+      <section class="section fade-in-up">
+        <div class="section-header">
+          <h2 class="section-title">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+            本週行動建議
+          </h2>
+        </div>
+        <div class="action-list">
+          <div class="action-item high">
+            <div class="action-priority">優先</div>
+            <div class="action-content">
+              <div class="action-title">加強 Dcard 能見度</div>
+              <div class="action-desc">考慮在 Dcard 水晶板投稿開箱文或與 KOL 合作，目前競品推薦文未收錄聚寶水晶。</div>
+            </div>
+          </div>
+          <div class="action-item mid">
+            <div class="action-priority">中等</div>
+            <div class="action-content">
+              <div class="action-title">優化蝦皮搜尋關鍵字</div>
+              <div class="action-desc">商品標題可加入更多搜尋關鍵字，提升站內與 Google 自然流量。</div>
+            </div>
+          </div>
+          <div class="action-item low">
+            <div class="action-priority">持續</div>
+            <div class="action-content">
+              <div class="action-title">維持高好評率</div>
+              <div class="action-desc">目前 99.75% 好評率表現優異，建議持續追蹤並維持快速回覆。</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- ===== TAB: 客服數據 ===== -->
+  <div class="tab-panel" id="tab-service">
+    <div class="page-subtitle">
+      <h1>客服數據</h1>
+      <div class="accent-line"></div>
+    </div>
+    <main class="main">
+
+      <section class="section fade-in-up">
+        <div class="section-header">
+          <h2 class="section-title">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            2026年3月 聊聊概覽
+          </h2>
+          <span class="section-badge" style="background:rgba(196,181,220,0.15);color:#c4b5dc;">聊聊數據</span>
+        </div>
+        <div class="kpi-grid service-kpi-3">
+          <div class="kpi-card"><div class="kpi-label">聊聊諮詢</div><div class="kpi-value">347</div><div class="kpi-delta good-delta">▲ 4.52%</div></div>
+          <div class="kpi-card"><div class="kpi-label">已回覆聊聊</div><div class="kpi-value">314</div><div class="kpi-delta good-delta">▲ 14.18%</div></div>
+          <div class="kpi-card"><div class="kpi-label">未回覆聊聊</div><div class="kpi-value">33</div><div class="kpi-delta good-delta">▼ 42.11%</div></div>
+        </div>
+        <div class="kpi-grid service-kpi-3" style="margin-top:12px;">
+          <div class="kpi-card"><div class="kpi-label">詢問率</div><div class="kpi-value">0.15%</div><div class="kpi-sub">訪客 → 諮詢比率</div></div>
+          <div class="kpi-card"><div class="kpi-label">轉化率（回覆至下單）</div><div class="kpi-value">16.56%</div><div class="kpi-sub">從回覆到下單</div></div>
+          <div class="kpi-card"><div class="kpi-label">聊聊滿意度</div><div class="kpi-value">99.38%</div><div class="kpi-delta bad">▼ 0.03%</div></div>
+        </div>
+        <div class="kpi-grid service-kpi-3" style="margin-top:12px;">
+          <div class="kpi-card"><div class="kpi-label">營業額</div><div class="kpi-value" style="font-size:var(--text-xl);">NT$267,428</div><div class="kpi-delta bad">▼ 49.02%</div></div>
+          <div class="kpi-card"><div class="kpi-label">聊聊平均客單價</div><div class="kpi-value">NT$4,313</div><div class="kpi-sub">銷售額 ÷ 訂單數</div></div>
+          <div class="kpi-card"><div class="kpi-label">平均回應速度</div><div class="kpi-value" style="font-size:var(--text-xl);">01:23:35</div><div class="kpi-delta good-delta">▼ 6.99%（速度改善）</div></div>
+        </div>
+      </section>
+
+      <section class="section fade-in-up">
+        <div class="section-header">
+          <h2 class="section-title">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+            歷史趨勢
+          </h2>
+          <div class="month-range-control">
+            <button class="range-trigger-btn" id="serviceChartPickerTrigger">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+              <span id="serviceChartPickerLabel">全部期間</span>
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+            </button>
+          </div>
+          <div class="ym-popover" id="serviceChartPickerPopover">
+            <div class="ym-popover-inner">
+              <div class="ym-shortcuts">
+                <button class="ym-shortcut active" data-preset="all">全部</button>
+                <button class="ym-shortcut" data-preset="1m">近 1 個月</button>
+                <button class="ym-shortcut" data-preset="3m">近 3 個月</button>
+                <button class="ym-shortcut" data-preset="6m">近 6 個月</button>
+                <button class="ym-shortcut" data-preset="12m">近 12 個月</button>
+                <button class="ym-shortcut" data-preset="Q1">Q1</button>
+                <button class="ym-shortcut" data-preset="Q2">Q2</button>
+                <button class="ym-shortcut" data-preset="Q3">Q3</button>
+                <button class="ym-shortcut" data-preset="Q4">Q4</button>
+                <button class="ym-shortcut" data-preset="custom">自訂</button>
+              </div>
+              <div class="ym-picker-area" id="serviceChartPickerArea"></div>
+            </div>
+            <div class="ym-popover-footer">
+              <span class="ym-selected-label" id="serviceChartSelectedLabel">已選：全部</span>
+              <button class="range-btn" id="serviceChartRangeApply">套用</button>
+            </div>
+          </div>
+        </div>
+        <div class="charts-row service-charts-2col">
+          <div class="chart-card"><h3 class="chart-title">未回覆聊聊 / 月</h3><div class="chart-wrap" style="height:200px;"><canvas id="serviceUnrepliedChart"></canvas></div></div>
+          <div class="chart-card"><h3 class="chart-title">詢問率趨勢 (%)</h3><div class="chart-wrap" style="height:200px;"><canvas id="serviceInquiryChart"></canvas></div></div>
+        </div>
+        <div class="charts-row service-charts-2col" style="margin-top:16px;">
+          <div class="chart-card"><h3 class="chart-title">轉化率趨勢 — 回覆至下單 (%)</h3><div class="chart-wrap" style="height:200px;"><canvas id="serviceCvrChart"></canvas></div></div>
+          <div class="chart-card"><h3 class="chart-title">聊聊營業額趨勢 (NT$)</h3><div class="chart-wrap" style="height:200px;"><canvas id="serviceRevenueChart"></canvas></div></div>
+        </div>
+      </section>
+
+      <section class="section fade-in-up">
+        <div class="section-header">
+          <h2 class="section-title">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+            月份對比明細
+          </h2>
+          <div class="month-range-control">
+            <button class="range-trigger-btn" id="serviceTablePickerTrigger">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+              <span id="serviceTablePickerLabel">全部期間</span>
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+            </button>
+          </div>
+          <div class="ym-popover" id="serviceTablePickerPopover">
+            <div class="ym-popover-inner">
+              <div class="ym-shortcuts">
+                <button class="ym-shortcut active" data-preset="all">全部</button>
+                <button class="ym-shortcut" data-preset="1m">近 1 個月</button>
+                <button class="ym-shortcut" data-preset="3m">近 3 個月</button>
+                <button class="ym-shortcut" data-preset="6m">近 6 個月</button>
+                <button class="ym-shortcut" data-preset="12m">近 12 個月</button>
+                <button class="ym-shortcut" data-preset="Q1">Q1</button>
+                <button class="ym-shortcut" data-preset="Q2">Q2</button>
+                <button class="ym-shortcut" data-preset="Q3">Q3</button>
+                <button class="ym-shortcut" data-preset="Q4">Q4</button>
+                <button class="ym-shortcut" data-preset="custom">自訂</button>
+              </div>
+              <div class="ym-picker-area" id="serviceTablePickerArea"></div>
+            </div>
+            <div class="ym-popover-footer">
+              <span class="ym-selected-label" id="serviceTableSelectedLabel">已選：全部</span>
+              <button class="range-btn" id="serviceTableRangeApply">套用</button>
+            </div>
+          </div>
+        </div>
+        <div class="data-table-wrap">
+          <table class="data-table">
+            <thead><tr><th>月份</th><th>未回覆聊聊</th><th>詢問率</th><th>轉化率</th><th>營業額</th><th>平均客單價</th></tr></thead>
+            <tbody id="serviceTableBody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="section fade-in-up">
+        <div class="section-header">
+          <h2 class="section-title">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+            客服改善建議
+          </h2>
+        </div>
+        <div class="action-list">
+          <div class="action-item high">
+            <div class="action-priority">優先</div>
+            <div class="action-content">
+              <div class="action-title">降低未回覆聊聊數量</div>
+              <div class="action-desc">目前 33 筆未回覆聊聊，雖較上月已改善 42%，仍建議設定自動回覆或固定回覆時段，持續壓低至 20 筆以下，避免影響買家體驗與蝦皮搜尋排名。</div>
+            </div>
+          </div>
+          <div class="action-item mid">
+            <div class="action-priority">中等</div>
+            <div class="action-content">
+              <div class="action-title">提升回覆至下單轉化率</div>
+              <div class="action-desc">目前轉化率 16.56%，歷史高峰曾達 26.62%（202602）。可優化回覆話術、提供個人化商品推薦及限時優惠，拉升聊聊下單比例。</div>
+            </div>
+          </div>
+          <div class="action-item low">
+            <div class="action-priority">持續</div>
+            <div class="action-content">
+              <div class="action-title">維持聊聊滿意度</div>
+              <div class="action-desc">目前滿意度 99.38%，表現優異。建議持續維持專業、親切的回覆品質，穩定高滿意度水準。</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- ===== TAB: 銷售數據 ===== -->
+  <div class="tab-panel" id="tab-sales">
+
+    <!-- 銷售數據密碼鎖 -->
+    <div id="salesLock" class="sales-lock" aria-hidden="false">
+      <div class="sales-lock-card">
+        <div class="sales-lock-icon" aria-hidden="true">
+          <svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="10" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        </div>
+        <h2 class="sales-lock-title">銷售數據</h2>
+        <p class="sales-lock-subtitle">此頁面需輸入密碼才能瀏覽</p>
+        <form class="sales-lock-form" id="salesLockForm" autocomplete="off">
+          <input type="password" id="salesLockInput" class="sales-lock-input" placeholder="請輸入密碼" autocomplete="off" />
+          <button type="submit" class="sales-lock-submit">解鎖</button>
+        </form>
+        <div class="sales-lock-error" id="salesLockError" role="alert"></div>
+        <div class="sales-lock-warning">⚠ 此為內部機密資料，僅限授權人員瀏覽，請勿外流。</div>
+      </div>
+    </div>
+
+    <!-- Sub-panel: 總覽 -->
+    <div class="sales-sub-panel active" id="sales-overview">
+    <div class="page-subtitle">
+      <h1>銷售數據</h1>
+      <div class="accent-line"></div>
+    </div>
+    <main class="main">
+
+      <section class="section fade-in-up">
+        <div class="section-header">
+          <h2 class="section-title">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="20" x2="12" y2="10"/><line x1="18" y1="20" x2="18" y2="4"/><line x1="6" y1="20" x2="6" y2="16"/></svg>
+            2026年3月 核心指標
+          </h2>
+          <span class="section-badge" style="background:rgba(196,181,220,0.15);color:#c4b5dc;">可出貨訂單</span>
+        </div>
+        <div class="kpi-grid sales-kpi-3">
+          <div class="kpi-card"><div class="kpi-label">蝦皮粉絲增長</div><div class="kpi-value" style="color:#e05555;">-253</div><div class="kpi-sub">2026 年 3 月淨增減</div><div class="kpi-delta bad">▼ 4,965 人（較上月 +4,712）</div></div>
+          <div class="kpi-card"><div class="kpi-label">新客增長</div><div class="kpi-value">87</div><div class="kpi-sub">新買家人數</div><div class="kpi-delta bad">▼ 11.22%（較上月 98 人）</div></div>
+          <div class="kpi-card"><div class="kpi-label">複購率</div><div class="kpi-value">29.53%</div><div class="kpi-sub">可出貨訂單回購率</div><div class="kpi-delta bad">▼ 13.33%（較上月 34.07%）</div></div>
+        </div>
+        <div class="kpi-grid sales-kpi-3" style="margin-top:12px;">
+          <div class="kpi-card"><div class="kpi-label">訂單轉換率</div><div class="kpi-value">0.44%</div><div class="kpi-sub">可出貨訂單／訪客</div><div class="kpi-delta bad">▼ 32.31%（較上月 0.65%）</div></div>
+          <div class="kpi-card accent"><div class="kpi-label">平均客單價</div><div class="kpi-value">NT$3,837</div><div class="kpi-sub">可出貨訂單均價</div><div class="kpi-delta bad">▼ 5.05%（較上月 NT$4,041）</div></div>
+          <div class="kpi-card"><div class="kpi-label">淨營業額</div><div class="kpi-value" style="font-size:var(--text-xl);">NT$782,417</div><div class="kpi-sub">可出貨 $970,838 - 不成立 - 退貨</div></div>
+        </div>
+        <div class="kpi-grid sales-kpi-3" style="margin-top:12px;">
+          <div class="kpi-card"><div class="kpi-label">手機跳出率</div><div class="kpi-value">26.92%</div><div class="kpi-sub">手機版訪客跳出比率</div><div class="kpi-delta good">▲ 2.91%（較上月 26.16%，正常範圍）</div></div>
+          <div class="kpi-card"><div class="kpi-label">電腦跳出率</div><div class="kpi-value">73.80%</div><div class="kpi-sub">電腦版訪客跳出比率</div></div>
+          <div class="kpi-card"><div class="kpi-label">退貨/不成立訂單</div><div class="kpi-value">45</div><div class="kpi-sub">不成立 40 + 退貨 5</div><div class="kpi-delta bad">銷售額 NT$188,421</div></div>
+        </div>
+        <div class="info-note" style="margin-top:16px;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+          數據來源：蝦皮賣場後台匯出（可出貨訂單維度），202603 = 2026年3月
+        </div>
+      </section>
+
+      <section class="section fade-in-up">
+        <div class="section-header">
+          <h2 class="section-title">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+            歷史趨勢
+          </h2>
+          <div class="month-range-control">
+            <button class="range-trigger-btn" id="chartPickerTrigger">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+              <span id="chartPickerLabel">全部期間</span>
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+            </button>
+          </div>
+          <div class="ym-popover" id="chartPickerPopover">
+            <div class="ym-popover-inner">
+              <div class="ym-shortcuts">
+                <button class="ym-shortcut active" data-preset="all">全部</button>
+                <button class="ym-shortcut" data-preset="1m">近 1 個月</button>
+                <button class="ym-shortcut" data-preset="3m">近 3 個月</button>
+                <button class="ym-shortcut" data-preset="6m">近 6 個月</button>
+                <button class="ym-shortcut" data-preset="12m">近 12 個月</button>
+                <button class="ym-shortcut" data-preset="Q1">Q1</button>
+                <button class="ym-shortcut" data-preset="Q2">Q2</button>
+                <button class="ym-shortcut" data-preset="Q3">Q3</button>
+                <button class="ym-shortcut" data-preset="Q4">Q4</button>
+                <button class="ym-shortcut" data-preset="custom">自訂</button>
+              </div>
+              <div class="ym-picker-area" id="chartPickerArea"></div>
+            </div>
+            <div class="ym-popover-footer">
+              <span class="ym-selected-label" id="chartSelectedLabel">已選：全部</span>
+              <button class="range-btn" id="chartRangeApply">套用</button>
+            </div>
+          </div>
+        </div>
+        <div class="charts-row">
+          <div class="chart-card"><h3 class="chart-title">蝦皮粉絲增長 / 月</h3><div class="chart-wrap" style="height:200px;"><canvas id="salesFansChart"></canvas></div></div>
+          <div class="chart-card"><h3 class="chart-title">新客增長 / 月</h3><div class="chart-wrap" style="height:200px;"><canvas id="salesNewBuyerChart"></canvas></div></div>
+        </div>
+        <div class="charts-row" style="margin-top:16px;">
+          <div class="chart-card"><h3 class="chart-title">複購率趨勢 (%)</h3><div class="chart-wrap" style="height:200px;"><canvas id="salesRepurchaseChart"></canvas></div></div>
+          <div class="chart-card"><h3 class="chart-title">訂單轉換率趨勢 (%)</h3><div class="chart-wrap" style="height:200px;"><canvas id="salesCvrChart"></canvas></div></div>
+        </div>
+        <div style="margin-top:16px;">
+          <div class="chart-card"><h3 class="chart-title">平均客單價趨勢 (NT$)</h3><div class="chart-wrap" style="height:200px;"><canvas id="salesAovChart"></canvas></div></div>
+        </div>
+      </section>
+
+      <section class="section fade-in-up">
+        <div class="section-header">
+          <h2 class="section-title">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+            月份對比明細
+          </h2>
+          <div class="month-range-control">
+            <button class="range-trigger-btn" id="tablePickerTrigger">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+              <span id="tablePickerLabel">全部期間</span>
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+            </button>
+          </div>
+          <div class="ym-popover" id="tablePickerPopover">
+            <div class="ym-popover-inner">
+              <div class="ym-shortcuts">
+                <button class="ym-shortcut active" data-preset="all">全部</button>
+                <button class="ym-shortcut" data-preset="1m">近 1 個月</button>
+                <button class="ym-shortcut" data-preset="3m">近 3 個月</button>
+                <button class="ym-shortcut" data-preset="6m">近 6 個月</button>
+                <button class="ym-shortcut" data-preset="12m">近 12 個月</button>
+                <button class="ym-shortcut" data-preset="Q1">Q1</button>
+                <button class="ym-shortcut" data-preset="Q2">Q2</button>
+                <button class="ym-shortcut" data-preset="Q3">Q3</button>
+                <button class="ym-shortcut" data-preset="Q4">Q4</button>
+                <button class="ym-shortcut" data-preset="custom">自訂</button>
+              </div>
+              <div class="ym-picker-area" id="tablePickerArea"></div>
+            </div>
+            <div class="ym-popover-footer">
+              <span class="ym-selected-label" id="tableSelectedLabel">已選：全部</span>
+              <button class="range-btn" id="tableRangeApply">套用</button>
+            </div>
+          </div>
+        </div>
+        <div class="data-table-wrap">
+          <table class="data-table">
+            <thead><tr><th>月份</th><th>粉絲增長</th><th>新客</th><th>複購率</th><th>轉換率</th><th>平均客單價</th><th>手機跳出</th><th>電腦跳出</th></tr></thead>
+            <tbody id="salesTableBody"></tbody>
+          </table>
+        </div>
+        <div class="info-note" style="margin-top:12px;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+          202603 數據來源：蝦皮後台匯出（可出貨訂單）；202412–202602 來源：歷史記錄表
+        </div>
+      </section>
+
+      <section class="section fade-in-up">
+        <div class="section-header">
+          <h2 class="section-title">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+            蝦皮歷史營業額
+          </h2>
+          <span class="section-badge" style="background:rgba(196,181,220,0.15);color:#c4b5dc;">總營業額</span>
+        </div>
+        <div class="revenue-controls">
+          <div class="year-checkbox-group" id="yearCheckboxGroup">
+            <label style="--year-color:#e8a825;"><input type="checkbox" name="yearToggle" value="2024" checked /><span>2024</span></label>
+            <label style="--year-color:#3dbf7a;"><input type="checkbox" name="yearToggle" value="2025" checked /><span>2025</span></label>
+            <label style="--year-color:#c4b5dc;"><input type="checkbox" name="yearToggle" value="2026" checked /><span>2026</span></label>
+          </div>
+        </div>
+        <div class="chart-card">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+            <h3 class="chart-title" style="margin:0;">營業額走勢（每月）</h3>
+            <div class="rev-view-toggle">
+              <button class="rev-view-btn active" data-view="line">線條圖</button>
+              <button class="rev-view-btn" data-view="race">賽跑圖</button>
+            </div>
+          </div>
+          <div id="revLineView" class="chart-wrap" style="height:280px;"><canvas id="revenueHistoryChart"></canvas></div>
+          <div id="revRaceView" style="display:none;">
+            <div style="display:flex;align-items:center;justify-content:flex-end;margin-bottom:8px;">
+              <button class="pg-play-btn" id="revRacePlay">▶ 播放</button>
+            </div>
+            <div class="pg-race-container" id="revRaceChart"></div>
+            <div class="pg-race-timeline" id="revRaceTimeline"></div>
+          </div>
+        </div>
+        <div class="yoy-panel" id="yoyPanel">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+            <div class="chart-title">同比分析</div>
+            <div style="display:flex;align-items:center;gap:8px;">
+              <label style="font-size:var(--text-xs);color:var(--color-text-muted);white-space:nowrap;">同比基準季</label>
+              <select class="quarter-select" id="yoyQuarterSelect">
+                <option value="">—選擇季度—</option>
+                <option value="Q1">Q1 (Jan–Mar)</option>
+                <option value="Q2">Q2 (Apr–Jun)</option>
+                <option value="Q3">Q3 (Jul–Sep)</option>
+                <option value="Q4">Q4 (Oct–Dec)</option>
+              </select>
+            </div>
+          </div>
+          <div id="yoyContent" style="display:none;"></div>
+        </div>
+        <div style="margin-top:48px;">
+          <div style="font-size:var(--text-xs);color:var(--color-text-muted);margin-bottom:8px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;">年度營業額明細</div>
+          <div class="data-table-wrap">
+            <table class="data-table revenue-history-table">
+              <thead><tr><th>年度</th><th>Jan</th><th>Feb</th><th>Mar</th><th>Apr</th><th>May</th><th>Jun</th><th>Jul</th><th>Aug</th><th>Sep</th><th>Oct</th><th>Nov</th><th>Dec</th><th>年度合計</th></tr></thead>
+              <tbody id="revenueTableBody"></tbody>
+            </table>
+          </div>
+          <div class="info-note" style="margin-top:10px;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+            顯示原始營業額（全部訂單維度），含不成立+退貨金額。淨營業額請參考核心指標區
+          </div>
+        </div>
+      </section>
+
+      <section class="section fade-in-up">
+        <div class="section-header">
+          <h2 class="section-title">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20V10"/><path d="M18 20V4"/><path d="M6 20v-4"/></svg>
+            年度表現
+          </h2>
+          <span class="section-badge" style="background:rgba(196,181,220,0.15);color:#c4b5dc;">全年度統計</span>
+        </div>
+        <div class="data-table-wrap">
+          <table class="data-table" id="yearlyPerformanceTable">
+            <thead><tr><th>年度</th><th>營業額</th><th>訂單數</th><th>下單轉換率</th><th>平均訂單金額</th><th>不成立訂單</th><th>不成立訂單金額</th><th>退貨訂單</th><th>退貨率</th></tr></thead>
+            <tbody id="yearlyPerfBody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="section fade-in-up">
+        <div class="section-header">
+          <h2 class="section-title">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2h11"/></svg>
+            銷售行動建議
+          </h2>
+        </div>
+        <div class="action-list">
+          <div class="action-item high"><div class="action-priority">優先</div><div class="action-content"><div class="action-title">恢復粉絲增長動能，止血負成長</div><div class="action-desc">3 月粉絲流失 253 人，較上月 +4,712 人大幅衰退。建議檢視蝦皮廣告投放是否中斷或預算縮減，並搭配直播活動與社群互動（抽獎、限時優惠）重新拉回粉絲關注。歷史高峰曾達 +9,610 人（202505），目前原因需緊急排查。</div></div></div>
+          <div class="action-item high"><div class="action-priority">優先</div><div class="action-content"><div class="action-title">拉高訂單轉換率，目前僅 0.44%</div><div class="action-desc">轉換率從上月 0.65% 下降至 0.44%，歷史高峰為 1.04%（202504）。建議優化商品詳情頁資訊豐富度、加強購買誘因（限時折扣、滾動滴砂），並針對高跳出率的電腦版（73.80%）優化頁面體驗與視覺引導。</div></div></div>
+          <div class="action-item mid"><div class="action-priority">中等</div><div class="action-content"><div class="action-title">降低不成立訂單比例</div><div class="action-desc">3 月不成立 40 筆（NT$120,747）+ 退貨 5 筆（NT$67,674），合計 NT$188,421 損失，佔總營業額 19.4%。年度趨勢也顯示 2025 年不成立單量較 2024 年增加 34%。建議分析不成立主因（未付款、取消、地址問題），針對性改善付款提醒與訂單確認流程。</div></div></div>
+          <div class="action-item mid"><div class="action-priority">中等</div><div class="action-content"><div class="action-title">提升新客獲取與回購穩定性</div><div class="action-desc">新客 87 人較上月 98 人下降 11%，複購率 29.53% 也從上月 34.07% 回落。可探索首購優惠券吸引新客，同時運用會員專屬折扣、回購提醒、新品優先通知等手段穩住熟客回購。歷史複購高峰達 34.07%（202602），證明客群有回購潛力。</div></div></div>
+          <div class="action-item low"><div class="action-priority">持續</div><div class="action-content"><div class="action-title">維持營業額成長動能</div><div class="action-desc">2026 Q1 營業額 NT$3,315,914，同比 2025 Q1 成長 15.43%，年度營業額從 2024 年 NT$22.9M 成長至 2025 年 NT$30.9M（+35.1%）。但平均客單價從 NT$4,516 降至 NT$2,721（−39.7%），營收成長主要靠訂單量放大。建議在維持單量的同時，透過組合優惠、高單價商品推薦拉回客單價。</div></div></div>
+        </div>
+      </section>
+
+    </main>
+    </div><!-- /sales-overview -->
+
+    <!-- Sub-panel: 蝦皮直播 -->
+    <div class="sales-sub-panel" id="sales-shopee-live">
+    <div class="page-subtitle">
+      <h1>蝦皮直播</h1>
+      <div class="accent-line"></div>
+    </div>
+    <main class="main">
+      <section class="section fade-in-up">
+        <div class="section-header">
+          <h2 class="section-title">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20V10"/><path d="M18 20V4"/><path d="M6 20v-4"/><circle cx="12" cy="6" r="2"/></svg>
+            直播主蝦幣 vs 業績
+          </h2>
+          <div class="month-range-control">
+            <button class="range-trigger-btn" id="streamerPickerTrigger">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+              <span id="streamerPickerLabel">全部期間</span>
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+            </button>
+          </div>
+          <div class="ym-popover" id="streamerPickerPopover">
+            <div class="ym-popover-inner">
+              <div class="ym-shortcuts">
+                <button class="ym-shortcut active" data-preset="all">全部</button>
+                <button class="ym-shortcut" data-preset="1m">近 1 個月</button>
+                <button class="ym-shortcut" data-preset="3m">近 3 個月</button>
+                <button class="ym-shortcut" data-preset="6m">近 6 個月</button>
+                <button class="ym-shortcut" data-preset="12m">近 12 個月</button>
+                <button class="ym-shortcut" data-preset="Q1">Q1</button>
+                <button class="ym-shortcut" data-preset="Q2">Q2</button>
+                <button class="ym-shortcut" data-preset="Q3">Q3</button>
+                <button class="ym-shortcut" data-preset="Q4">Q4</button>
+                <button class="ym-shortcut" data-preset="custom">自訂</button>
+              </div>
+              <div class="ym-picker-area" id="streamerPickerArea"></div>
+            </div>
+            <div class="ym-popover-footer">
+              <span class="ym-selected-label" id="streamerSelectedLabel">已選：全部</span>
+              <button class="range-btn" id="streamerRangeApply">套用</button>
+            </div>
+          </div>
+        </div>
+        <div class="streamer-controls">
+          <div class="streamer-checkbox-group" id="streamerCheckboxGroup"></div>
+        </div>
+        <div class="chart-card">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px;">
+            <h3 class="chart-title" style="margin:0;">月營業額 vs 蝦幣投放走勢</h3>
+            <div class="streamer-legend" id="streamerLegend"></div>
+          </div>
+          <div class="chart-wrap" style="height:320px;"><canvas id="streamerCoinChart"></canvas></div>
+          <div class="info-note" style="margin-top:10px;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+            實線為業績（左軸），虛線為個人蝦幣（右軸），柱狀為每月總蝦幣投放。勾選可切換顯示。數據由蝦幣交易 CSV 與 Notion 業績表彙整
+          </div>
+        </div>
+        <div class="streamer-coin-table-wrap" style="margin-top:24px;">
+          <div style="font-size:var(--text-xs);color:var(--color-text-muted);margin-bottom:8px;font-weight:600;letter-spacing:0.06em;">蝦幣投放與業績明細</div>
+          <div class="data-table-wrap">
+            <table class="data-table" id="streamerCoinTable">
+              <thead><tr><th>月份</th><th>直播主</th><th>業績</th><th>蝦幣投放</th><th>ROI</th><th>蝦幣占比</th></tr></thead>
+              <tbody id="streamerCoinTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+    </main>
+    </div><!-- /sales-shopee-live -->
+
+    <!-- Sub-panel: Meta 直播 -->
+    <div class="sales-sub-panel" id="sales-meta-live">
+    <div class="page-subtitle">
+      <h1>Meta 直播</h1>
+      <div class="accent-line"></div>
+    </div>
+    <main class="main">
+      <section class="section fade-in-up">
+        <div class="section-header">
+          <h2 class="section-title">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
+            月 GMV vs 廣告投入走勢
+          </h2>
+          <div class="month-range-control">
+            <button class="range-trigger-btn" id="metaPickerTrigger">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+              <span id="metaPickerLabel">全部期間</span>
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+            </button>
+          </div>
+          <div class="ym-popover" id="metaPickerPopover">
+            <div class="ym-popover-inner">
+              <div class="ym-shortcuts">
+                <button class="ym-shortcut active" data-preset="all">全部</button>
+                <button class="ym-shortcut" data-preset="1m">近 1 個月</button>
+                <button class="ym-shortcut" data-preset="3m">近 3 個月</button>
+                <button class="ym-shortcut" data-preset="6m">近 6 個月</button>
+                <button class="ym-shortcut" data-preset="12m">近 12 個月</button>
+                <button class="ym-shortcut" data-preset="Q1">Q1</button>
+                <button class="ym-shortcut" data-preset="Q2">Q2</button>
+                <button class="ym-shortcut" data-preset="Q3">Q3</button>
+                <button class="ym-shortcut" data-preset="Q4">Q4</button>
+                <button class="ym-shortcut" data-preset="custom">自訂</button>
+              </div>
+              <div class="ym-picker-area" id="metaPickerArea"></div>
+            </div>
+            <div class="ym-popover-footer">
+              <span class="ym-selected-label" id="metaSelectedLabel">已選：全部</span>
+              <button class="range-btn" id="metaRangeApply">套用</button>
+            </div>
+          </div>
+        </div>
+        <div class="chart-card">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px;">
+            <h3 class="chart-title" style="margin:0;">Meta 直播 GMV &amp; Ads 月趨勢</h3>
+            <div style="display:flex;gap:16px;font-size:var(--text-xs);color:var(--color-text-muted);">
+              <span style="display:flex;align-items:center;gap:5px;"><span style="display:inline-block;width:28px;height:3px;background:#53406e;border-radius:2px;"></span>GMV</span>
+              <span style="display:flex;align-items:center;gap:5px;"><span style="display:inline-block;width:28px;height:2px;border-top:2px dashed #e8a825;"></span>廣告費</span>
+            </div>
+          </div>
+          <div class="chart-wrap" style="height:320px;"><canvas id="metaLiveChart"></canvas></div>
+          <div class="info-note" style="margin-top:10px;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+            柱狀為 GMV（左軸），虛線為廣告費（左軸）。數據來源：DB1 每月運營狀況（GMV/Ads）× DB2 直播排程（ADO）。
+          </div>
+        </div>
+        <div class="data-table-wrap" style="margin-top:24px;">
+          <div style="font-size:var(--text-xs);color:var(--color-text-muted);margin-bottom:8px;font-weight:600;letter-spacing:0.06em;">Meta 直播月度明細</div>
+          <div class="data-table-wrap">
+            <table class="data-table" id="metaLiveTable">
+              <thead><tr><th>月份</th><th>GMV</th><th>廣告費</th><th>ROAS</th><th>ADO</th><th>AOV</th></tr></thead>
+              <tbody id="metaLiveTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+    </main>
+    </div><!-- /sales-meta-live -->
+
+  </div>
+
+  <!-- ===== TAB: 里程碑 ===== -->
+  <div class="tab-panel" id="tab-playground">
+    <div class="page-subtitle">
+      <h1>里程碑</h1>
+      <div class="accent-line"></div>
+    </div>
+    <main class="main" style="position:relative;">
+      <canvas id="pgParticles" style="position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;opacity:0.5;"></canvas>
+      <section class="section fade-in-up" style="position:relative;z-index:1;">
+        <div class="section-header">
+          <h2 class="section-title">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+            動態數字總覽
+          </h2>
+        </div>
+        <div class="pg-counter-grid" id="pgCounterGrid"></div>
+      </section>
+    </main>
+  </div>
+
+  <!-- ===== TAB: 人資系統 ===== -->
+  <div class="tab-panel" id="tab-hr">
+
+    <!-- 人資系統密碼鎖 -->
+    <div id="hrLock" class="hr-lock" aria-hidden="false">
+      <div class="hr-lock-card">
+        <div class="hr-lock-icon" aria-hidden="true">
+          <svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="10" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        </div>
+        <h2 class="hr-lock-title">人資系統</h2>
+        <p class="hr-lock-subtitle">此頁面僅限員工存取，請輸入密碼</p>
+        <form class="hr-lock-form" id="hrLockForm" autocomplete="off">
+          <input type="password" id="hrLockInput" class="hr-lock-input" placeholder="請輸入密碼" autocomplete="off" />
+          <button type="submit" class="hr-lock-submit">解鎖</button>
+        </form>
+        <div class="hr-lock-error" id="hrLockError" role="alert"></div>
+        <div class="hr-lock-warning">⚠ 僅限聚寶水晶員工使用，請勿分享密碼。</div>
+      </div>
+    </div>
+
+    <div class="page-subtitle">
+      <h1>人資系統</h1>
+      <div class="accent-line"></div>
+    </div>
+    <main class="main">
+      <section class="section fade-in-up">
+        <div class="section-header">
+          <h2 class="section-title">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            詢問公司制度
+          </h2>
+          <span class="section-badge" style="background:rgba(196,181,220,0.15);color:#c4b5dc;">AI 助理</span>
+        </div>
+
+        <div class="hr-chat-wrapper">
+          <div class="hr-chat-intro">
+            你好，我是聚寶水晶的 AI 人資助理，可以協助你查詢公司規章、出勤、請假、薪資與福利等問題。請以「員工視角」提問，避免輸入個人機密資料。
+          </div>
+
+          <div class="hr-chat-messages" id="hrChatMessages" role="log" aria-live="polite"></div>
+
+          <form class="hr-chat-form" id="hrChatForm" autocomplete="off">
+            <textarea id="hrChatInput" class="hr-chat-input" placeholder="請輸入你的問題⋯⋯" rows="2"></textarea>
+            <div class="hr-chat-actions">
+              <span class="hr-chat-meta" id="hrChatMeta"></span>
+              <span class="hr-chat-quota" id="hrChatQuota"></span>
+              <button type="submit" class="hr-chat-submit" id="hrChatSubmit">送出</button>
+            </div>
+          </form>
+
+          <div class="hr-chat-footnote">
+            ⚠ 本 AI 回答僅供參考，若與紙本規章衝突，以紙本為準。如有爭議請聯繫人資窗口。
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- ===== TAB: 水晶知識 ===== -->
+  <div class="tab-panel" id="tab-crystal">
+
+    <!-- 水晶知識密碼鎖（與人資同密碼 opcrystal8） -->
+    <div id="crystalLock" class="hr-lock" aria-hidden="false">
+      <div class="hr-lock-card">
+        <div class="hr-lock-icon" aria-hidden="true">
+          <svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M6 3h12l4 6-10 12L2 9z"/><path d="M11 3L8 9l4 12 4-12-3-6"/><path d="M2 9h20"/></svg>
+        </div>
+        <h2 class="hr-lock-title">水晶知識庫</h2>
+        <p class="hr-lock-subtitle">此頁面僅限員工存取，請輸入密碼</p>
+        <form class="hr-lock-form" id="crystalLockForm" autocomplete="off">
+          <input type="password" id="crystalLockInput" class="hr-lock-input" placeholder="請輸入密碼" autocomplete="off" />
+          <button type="submit" class="hr-lock-submit">解鎖</button>
+        </form>
+        <div class="hr-lock-error" id="crystalLockError" role="alert"></div>
+        <div class="hr-lock-warning">⚠ 僅限聚寶水晶員工使用，請勿分享密碼。</div>
+      </div>
+    </div>
+
+    <div class="page-subtitle">
+      <h1>水晶知識庫</h1>
+      <div class="accent-line"></div>
+    </div>
+    <main class="main">
+      <section class="section fade-in-up">
+        <div class="section-header">
+          <h2 class="section-title">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M6 3h12l4 6-10 12L2 9z"/><path d="M11 3L8 9l4 12 4-12-3-6"/><path d="M2 9h20"/></svg>
+            水晶知識問答
+          </h2>
+          <span class="section-badge" style="background:rgba(196,181,220,0.15);color:#c4b5dc;">AI 助理</span>
+        </div>
+
+        <div class="hr-chat-wrapper">
+          <div class="hr-chat-intro">
+            嗨～我是聚寶水晶的水晶小妹♪ 有什麼水晶、寶石、礦石、脆輪、療癒的問題都可以問我，我會讀過公司內部的 2000+ 頁專業文獻後回答你，每個答案都會附上出處書名和頁數喔～
+          </div>
+
+          <div class="hr-chat-messages" id="crystalChatMessages" role="log" aria-live="polite"></div>
+
+          <form class="hr-chat-form" id="crystalChatForm" autocomplete="off">
+            <textarea id="crystalChatInput" class="hr-chat-input" placeholder="請輸入你的問題⋯⋯" rows="2"></textarea>
+            <div class="hr-chat-actions">
+              <button type="submit" class="hr-chat-submit" id="crystalChatSubmit">送出</button>
+            </div>
+          </form>
+
+          <div class="hr-chat-footnote">
+            ⚠ AI 回答僅供參考，如有與書中內容不符請以正式著作為準。
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <footer class="footer">
+    <div class="footer-line"></div>
+    <p>聚寶水晶 PRECIOUS CRYSTAL · 品牌儀表板</p>
+  </footer>
+
+  <div class="cursor-glow" id="cursorGlow"></div>
+
+  </div><!-- /mainApp -->
+
+  <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+  <script src="app.js"></script>
+  <script src="playground.js"></script>
+  <script src="splash.js"></script>
+</body>
+</html>

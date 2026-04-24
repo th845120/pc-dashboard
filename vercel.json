@@ -1,12 +1,23 @@
 {
   "cleanUrls": true,
   "trailingSlash": false,
+  "functions": {
+    "api/crystal-chat.js": {
+      "includeFiles": "data/crystal_kb.json",
+      "maxDuration": 30,
+      "memory": 1024
+    },
+    "api/hr-chat.js": {
+      "maxDuration": 30
+    }
+  },
   "rewrites": [
     { "source": "/brand", "destination": "/index.html" },
     { "source": "/sales", "destination": "/index.html" },
     { "source": "/sales/:path*", "destination": "/index.html" },
     { "source": "/service", "destination": "/index.html" },
     { "source": "/playground", "destination": "/index.html" },
-    { "source": "/hr", "destination": "/index.html" }
+    { "source": "/hr", "destination": "/index.html" },
+    { "source": "/crystal", "destination": "/index.html" }
   ]
 }
