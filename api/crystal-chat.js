@@ -123,23 +123,48 @@ async function retrieveTopK(openaiKey, query, topK) {
 
 // 檢測問題關鍵字是否在檢索結果中出現（判斷有沒有真匹配）
 function queryKeyTerms(query) {
-  // 抽 2-4 字的中文詞組，過濾那些像「什麼」「有什」「功效」「哪種」「最貴」的通用詞
-  const STOP = new Set([
-    '什麼','怎麼','如何','哪種','哪個','最貴','功效','作用','意思',
-    '代表','有什','有哪','因為','所以','但是','可以','請問',
-    '我要','我想','如果','的話','介紹','說明','比較',
-  ]);
+  // 策略：先用「虛詞/疑問詞/標點/空白」把問題斷成實詞片段，再從片段裡抽 2-4 字詞。
+  // 這樣「超七是什麼」會被拆成「超七」 + 「什麼」（什麼會被 STOP 濾掉），
+  // 不會產生「超七是什」「七是什麼」這種橫跨虛詞的垃圾詞。
+  const SEPARATORS = [
+    '是什麼','是不是','有沒有','怎麼樣','的時候','什麼意思',
+    '什麼','怎麼','如何','哪種','哪個','哪裡','哪些',
+    '最貴','最便','最好','最強','最多','最少','最大','最小',
+    '功效','作用','意思','代表','因為','所以','但是',
+    '可以','請問','我要','我想','如果','的話','介紹','說明','比較',
+    '一下','一點','知道','了解','查詢','搜尋','告訴',
+    '還有','或是','或者','以及','而且','而且',
+    '多少','幾個','幾種','種類','分類','價格','價錢','多貴','多少錢',
+    '什麼','怎榮','怎樣','緣由','原因',
+  ];
+  // 單字虛詞 / 疑問詞 / 代名詞 / 常見動詞
+  const SINGLE_STOP = '是的了嗎呢啊耶喔我你妳他她它有沒因而和且就都也讓別又可太很吃用看說説問答寫講跟與或並但即若而由給從們個把該此這那其中之啟誓呵阿要不在會點以同還已再在到對最最內有無裡邊另我們你們他們自己自己們來去起下上前後里外平常經常非常比較';
+  // 標點 / 非中文字符全部當分隔
+  let normalized = query;
+  for (const sep of SEPARATORS) {
+    normalized = normalized.split(sep).join('\u0000');
+  }
+  // 非中文字濾掉
+  normalized = normalized.replace(/[^\u4e00-\u9fff\u0000]/g, '\u0000');
+  // 單字停用詞當分隔
+  normalized = normalized.split('').map(ch => SINGLE_STOP.includes(ch) ? '\u0000' : ch).join('');
+
+  const segments = normalized.split('\u0000').filter(s => s.length > 0);
   const terms = [];
-  for (let n = 2; n <= 4; n++) {
-    for (let i = 0; i <= query.length - n; i++) {
-      const t = query.slice(i, i + n);
-      if (!STOP.has(t) && !/[一-龥]{2,4}/.test(t) === false) {
-        // 只要是中文就收
-        if (/[一-鿿]/.test(t)) terms.push(t);
+  for (const seg of segments) {
+    // 實詞片段：實詞本身加進去。若長度 >=2，也抽 2-4 字子串。
+    if (seg.length >= 2) terms.push(seg);  // 保留完整片段（最強力）
+    for (let n = 2; n <= 4; n++) {
+      if (seg.length < n) continue;
+      for (let i = 0; i <= seg.length - n; i++) {
+        terms.push(seg.slice(i, i + n));
       }
     }
   }
-  return Array.from(new Set(terms));
+  // 去重，優先保留長詞
+  const uniq = Array.from(new Set(terms));
+  uniq.sort((a, b) => b.length - a.length);
+  return uniq;
 }
 
 module.exports = async function handler(req, res) {
@@ -189,32 +214,38 @@ module.exports = async function handler(req, res) {
 
     // 檢測檢索置信度：用問題的關鍵詞檢查 top chunks 有沒有真的包含
     const keyTerms = queryKeyTerms(question);
-    let strongHits = 0;  // top chunks 中有多少段真的包含問題關鍵詞
+    // 只挑最長的前幾個關鍵詞當「核心詞」。2 字以上優先。
+    const coreTerms = keyTerms.filter(t => t.length >= 2).slice(0, 8);
+    let strongHits = 0;  // top chunks 中有多少段真的包含核心關鍵詞
     const hitTerms = new Set();
     topChunks.forEach(c => {
-      for (const t of keyTerms) {
-        if (t.length >= 2 && c.text && c.text.includes(t)) {
+      for (const t of coreTerms) {
+        if (c.text && c.text.includes(t)) {
           hitTerms.add(t);
           strongHits++;
           break;
         }
       }
     });
-    // 信度判斷
     const maxCos = topChunks.reduce((m, c) => Math.max(m, c.cos || 0), 0);
     const lowConfidence = (strongHits < 2) || (maxCos < 0.30);
-    // 極低信心：完全沒命中關鍵字且 cosine < 0.35 → 直接拒答，不跟 GPT 談
-    const veryLowConfidence = (strongHits === 0 && maxCos < 0.35);
+    // 極低信心：只要核心關鍵詞完全沒命中（strongHits === 0）就直接拒答。
+    // 中文短詞的 embedding 相似度不可靠（例如「超七」會被誤判高分），
+    // 必須靠字面命中才能確認書裡真的有寫到這個東西。
+    // 只有在有抽出核心關鍵詞但完全沒命中時才拒答；若問題本身沒有核心詞（例如純問候），交給 GPT 處理。
+    const veryLowConfidence = (coreTerms.length > 0 && strongHits === 0);
 
     if (veryLowConfidence) {
-      const kwList = keyTerms.length > 0 ? `「${keyTerms.slice(0, 5).join('」「')}」` : '這個';
+      const kwList = coreTerms.length > 0 ? `「${coreTerms.slice(0, 5).join('」「')}」` : '這個';
       res.status(200).json({
-        answer: `${kwList}這個問題我在 14 本書裡都沒查到欸 QQ\n\n我只會回答書裡有寫的內容，書裡沒寫的我不敢亂編讓你跟客人講錯話 (¯﹃¯)\n\n建議你直接跟老闆或資深直播主確認，或者再換個問法試試看～`,
+        answer: `${kwList} 這個我在 14 本書裡都沒查到欸 QQ\n\n我只會回答書裡實際有寫的內容，書裡沒寫的我不敢亂編讓你跟客人講錯話 (¯﹃¯)\n\n建議你直接跟老闆或資深直播主確認一下，或者換個關鍵字再問我試試～`,
         sources: [],
         diagnostic: {
           reason: 'no_keyword_hit',
+          coreTerms: coreTerms,
           keyTerms: keyTerms,
           maxCosine: maxCos,
+          strongHits: strongHits,
         },
       });
       return;
