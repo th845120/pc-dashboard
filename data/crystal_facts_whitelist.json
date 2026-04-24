@@ -1,0 +1,149 @@
+{
+  "_meta": {
+    "description": "聚寶水晶 - 常見水晶硬事實白名單（由人工校對）。AI 回答時若提及這些條目，必須與此對齊；若書裡寫的與此衝突，以此為準並拒答書上該段。",
+    "last_verified": "2026-04-24",
+    "maintainer": "opcrystal888@gmail.com"
+  },
+  "crystals": {
+    "紫水晶": {
+      "aliases": ["amethyst", "Amethyst"],
+      "etymology": "英文 Amethyst 源自希臘文 amethystos，意思是『不醉』（a- 表否定 + methyein 喝醉）。古希臘人相信配戴紫水晶可以防止醉酒。",
+      "etymology_wrong": ["深", "海洋", "優雅"],
+      "mohs": "7",
+      "chem": "SiO₂（二氧化矽，含微量鐵離子致色）",
+      "birthstone": "二月誕生石",
+      "top_origins": ["巴西", "烏拉圭", "尚比亞", "俄羅斯烏拉山", "馬達加斯加"]
+    },
+    "黃水晶": {
+      "aliases": ["citrine", "Citrine"],
+      "etymology": "英文 Citrine 源自法文 citron（檸檬），因其顏色如檸檬般明黃。",
+      "mohs": "7",
+      "chem": "SiO₂（含三價鐵致色）",
+      "birthstone": "十一月誕生石",
+      "notes": "市售黃水晶大多為紫水晶加熱處理而成，天然純黃水晶稀少。"
+    },
+    "粉晶": {
+      "aliases": ["rose quartz", "Rose Quartz", "薔薇水晶"],
+      "etymology": "英文 Rose Quartz 直譯為『玫瑰石英』，因色粉紅得名。",
+      "mohs": "7",
+      "chem": "SiO₂（含微量鈦、錳或鐵致色）",
+      "top_origins": ["巴西", "馬達加斯加"]
+    },
+    "白水晶": {
+      "aliases": ["rock crystal", "clear quartz", "Clear Quartz"],
+      "etymology": "英文 Quartz 源自中古德文 quarz（硬石），又名 Rock Crystal。希臘文 krystallos 原意為『冰』，古希臘人誤以為白水晶是永不融化的冰。",
+      "mohs": "7",
+      "chem": "SiO₂（純二氧化矽）",
+      "notes": "又稱水晶之王，是所有水晶的基礎。"
+    },
+    "黑曜石": {
+      "aliases": ["obsidian", "Obsidian"],
+      "is_crystal": false,
+      "category": "天然火山玻璃，非晶質，嚴格來說不是礦物也不是水晶",
+      "etymology": "英文 Obsidian 源自古羅馬人 Obsius 的名字，他據說最早在衣索比亞發現這種石頭。",
+      "mohs": "5-5.5",
+      "chem": "SiO₂ 為主的天然火山玻璃"
+    },
+    "月光石": {
+      "aliases": ["moonstone", "Moonstone"],
+      "etymology": "因表面有如月光般的柔和光暈（月光效應 adularescence）而得名。",
+      "mohs": "6-6.5",
+      "chem": "鉀鋁矽酸鹽（KAlSi₃O₈），屬長石族正長石",
+      "birthstone": "六月誕生石"
+    },
+    "海藍寶": {
+      "aliases": ["aquamarine", "Aquamarine", "海藍寶石"],
+      "etymology": "英文 Aquamarine 源自拉丁文 aqua marina，意思是『海水』。",
+      "mohs": "7.5-8",
+      "chem": "Be₃Al₂Si₆O₁₈（綠柱石家族，含微量鐵致色）",
+      "birthstone": "三月誕生石"
+    },
+    "碧璽": {
+      "aliases": ["tourmaline", "Tourmaline", "電氣石"],
+      "etymology": "英文 Tourmaline 源自錫蘭（斯里蘭卡）僧伽羅語 turamali，意為『混合顏色的寶石』。",
+      "mohs": "7-7.5",
+      "chem": "複雜硼矽酸鹽，顏色變化極多",
+      "birthstone": "十月誕生石",
+      "notes": "具熱電性與壓電性（受熱或受壓產生電荷）。"
+    },
+    "石榴石": {
+      "aliases": ["garnet", "Garnet"],
+      "etymology": "英文 Garnet 源自拉丁文 granatum（石榴），因顏色如石榴籽。",
+      "mohs": "6.5-7.5",
+      "birthstone": "一月誕生石"
+    },
+    "橄欖石": {
+      "aliases": ["peridot", "Peridot"],
+      "etymology": "英文 Peridot 源自阿拉伯文 faridat（寶石）。",
+      "mohs": "6.5-7",
+      "birthstone": "八月誕生石"
+    },
+    "藍寶石": {
+      "aliases": ["sapphire", "Sapphire"],
+      "etymology": "英文 Sapphire 源自希臘文 sappheiros，意為『藍色寶石』。",
+      "mohs": "9",
+      "chem": "Al₂O₃（剛玉，含鐵鈦致色）",
+      "birthstone": "九月誕生石"
+    },
+    "紅寶石": {
+      "aliases": ["ruby", "Ruby"],
+      "etymology": "英文 Ruby 源自拉丁文 ruber（紅色）。",
+      "mohs": "9",
+      "chem": "Al₂O₃（剛玉，含鉻致色）",
+      "birthstone": "七月誕生石"
+    },
+    "祖母綠": {
+      "aliases": ["emerald", "Emerald"],
+      "etymology": "英文 Emerald 源自希臘文 smaragdos，意為『綠色寶石』。",
+      "mohs": "7.5-8",
+      "chem": "Be₃Al₂Si₆O₁₈（綠柱石家族，含鉻或釩致色）",
+      "birthstone": "五月誕生石"
+    },
+    "鑽石": {
+      "aliases": ["diamond", "Diamond"],
+      "etymology": "英文 Diamond 源自希臘文 adamas，意為『不可征服的、堅硬的』。",
+      "mohs": "10",
+      "chem": "純碳（C）",
+      "birthstone": "四月誕生石"
+    },
+    "蛋白石": {
+      "aliases": ["opal", "Opal", "澳寶"],
+      "etymology": "英文 Opal 源自梵文 upala（珍貴寶石）或拉丁文 opalus。",
+      "mohs": "5.5-6.5",
+      "chem": "含水 SiO₂·nH₂O",
+      "birthstone": "十月誕生石"
+    },
+    "拓帕石": {
+      "aliases": ["topaz", "Topaz", "黃玉"],
+      "etymology": "英文 Topaz 一說源自梵文 tapas（火），一說源自紅海 Topazos 島。",
+      "mohs": "8",
+      "birthstone": "十一月誕生石"
+    },
+    "土耳其石": {
+      "aliases": ["turquoise", "Turquoise", "綠松石"],
+      "etymology": "英文 Turquoise 源自古法文 pierre turquoise（土耳其的石頭），因透過土耳其商路傳入歐洲。",
+      "mohs": "5-6",
+      "birthstone": "十二月誕生石"
+    },
+    "青金石": {
+      "aliases": ["lapis lazuli", "Lapis Lazuli"],
+      "etymology": "Lapis Lazuli 源自拉丁文 lapis（石）+ 阿拉伯文 azul（藍色）。",
+      "mohs": "5-5.5",
+      "birthstone": "十二月誕生石"
+    },
+    "髮晶": {
+      "aliases": ["rutilated quartz", "Rutilated Quartz"],
+      "etymology": "英文 Rutilated Quartz 意為『含金紅石內含物的石英』，內含的細絲狀礦物主要為金紅石（rutile）、電氣石或陽起石。",
+      "mohs": "7",
+      "notes": "髮絲是礦物內含物，非真的頭髮。"
+    },
+    "超七": {
+      "aliases": ["super seven", "Super Seven", "Melody Stone", "三輪骨幹"],
+      "full_name": "Super Seven / Melody's Stone / 三輪骨幹水晶",
+      "composition": "含七種礦物共生：白水晶（石英）、紫水晶、煙水晶、髮晶（金紅石內含物）、纖鐵礦 Goethite、針鐵礦 Lepidocrocite、紫黃磁鐵礦 Cacoxenite",
+      "composition_wrong": ["瑪瑙", "鐵礦（單講不算）", "黑瑪瑙", "方解石"],
+      "origin": "巴西米納斯吉拉斯州 Espírito Santo 礦區（已於 2005 年左右封礦）",
+      "notes": "真正原礦自 2005 年後封礦，市面流通多為舊庫存或其他含類似內含物的水晶替代品。價格依透明度、紫水晶占比、纖鐵礦髮絲豐富度而定，高等透明品克價可達數千台幣。"
+    }
+  }
+}

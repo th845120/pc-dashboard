@@ -3009,7 +3009,8 @@ setTimeout(tryInitMetaLiveChart, 600);
           var errMsg = (data && data.error) ? data.error : ('伺服器錯誤 (' + resp.status + ')');
           appendMsg('ai', errMsg, 'error');
         } else if (data && data.answer) {
-          appendMsg('ai', data.answer);
+          var aiBubble = appendMsg('ai', data.answer);
+          attachReportButton(aiBubble, q, data.answer, data.sources);
         } else {
           appendMsg('ai', '沒拿到回覆，再試一次吧', 'error');
         }
