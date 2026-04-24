@@ -3045,9 +3045,9 @@ setTimeout(tryInitMetaLiveChart, 600);
   function appendMsg(role, text, extraCls) {
     var list = document.getElementById('crystalChatMessages');
     if (!list) return null;
-    var wrap = el('div', 'hr-msg ' + role + (extraCls ? ' ' + extraCls : ''));
-    var roleLabel = el('div', 'hr-msg-role', role === 'user' ? '你' : '水晶小妹');
-    var bubble = el('div', 'hr-msg-bubble', text || '');
+    var wrap = el('div', 'crystal-msg ' + role + (extraCls ? ' ' + extraCls : ''));
+    var roleLabel = el('div', 'crystal-msg-role', role === 'user' ? '你' : '水晶小妹');
+    var bubble = el('div', 'crystal-msg-bubble', text || '');
     wrap.appendChild(roleLabel);
     wrap.appendChild(bubble);
     list.appendChild(wrap);
