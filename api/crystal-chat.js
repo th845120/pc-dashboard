@@ -281,6 +281,8 @@ module.exports = async function handler(req, res) {
 
     // 【第 3 層】白名單 facts
     let whitelistBlock = '';
+    // 判斷：完全靠白名單回答（書裡沒命中）
+    const pureWhitelistAnswer = (whitelistHits.length > 0 && strongHits === 0);
     if (whitelistHits.length > 0) {
       whitelistBlock = '\n\n===== 【第 3 層 常識事實校對表】=====\n' +
         '以下是【人工校對過的正確事實】。若上方參考資料有任何地方與此衝突，你「必須」以此為準，並在回答中明確指出書上寫錯（格式：「書裡寫 X，但實際上應該是 Y」）。\n\n';
@@ -297,6 +299,9 @@ module.exports = async function handler(req, res) {
         whitelistBlock += '\n';
       });
       whitelistBlock += '===== 校對表結束 =====\n';
+      if (pureWhitelistAnswer) {
+        whitelistBlock += '\n【★ 重要】目前參考資料中 14 本書對這個問題沒有直接答案，你只能用【校對表】的內容回答。\n回答結尾「必須」寫：「—— 來源：聚寶水晶系統內部校對表（書裡沒直接寫到）」。\n絕對不能寫《某某書》p.某某。\n';
+      }
     }
 
     const systemPrompt =
