@@ -1406,7 +1406,7 @@ html[data-theme="light"] .sales-lock-warning {
 }
 
 /* ===== 人資系統密碼鎖 ===== */
-#tab-hr { position: relative; }
+#tab-hr, #tab-crystal { position: relative; }
 .hr-lock {
   position: absolute;
   inset: 0;
