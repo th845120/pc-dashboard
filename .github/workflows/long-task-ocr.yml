@@ -1,0 +1,77 @@
+name: Long Task - OCR / Batch Processing
+
+# 用法：
+# 1. 在 GitHub repo 設好 secret：OPENROUTER_API_KEY
+# 2. 把要 OCR 的 PDF 推到 repo 的 long_tasks/input/ 目錄
+# 3. 把 OCR 腳本 + SPEC 推到 long_tasks/scripts/
+# 4. 到 Actions 頁手動觸發 "Long Task - OCR / Batch Processing"
+# 5. 跑完 KB / 結果會被 commit 回 data/ 目錄並自動部署到 Vercel
+#
+# 限制：單一 job 最多 6 小時（GitHub 規定，不是 Computer 平台限制）
+# 適用：水晶 KB OCR、批次圖片處理、大量 API 呼叫等長任務
+
+on:
+  workflow_dispatch:
+    inputs:
+      task:
+        description: 'Task type'
+        required: true
+        default: 'crystal-ocr'
+        type: choice
+        options:
+          - crystal-ocr
+          - custom
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 350  # 接近 GitHub 6 小時上限
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install poppler (for pdf2image)
+        run: sudo apt-get update && sudo apt-get install -y poppler-utils
+
+      - name: Install Python dependencies
+        run: |
+          pip install --upgrade pip
+          pip install pdf2image Pillow requests
+
+      - name: Run OCR script
+        env:
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+        run: |
+          if [ -f "long_tasks/scripts/run_ocr.py" ]; then
+            python -u long_tasks/scripts/run_ocr.py
+          else
+            echo "::warning::找不到 long_tasks/scripts/run_ocr.py，請先把腳本推上來"
+            exit 0
+          fi
+
+      - name: Build KB
+        run: |
+          if [ -f "long_tasks/scripts/build_kb.py" ]; then
+            python -u long_tasks/scripts/build_kb.py
+          fi
+
+      - name: Update timestamp
+        run: |
+          NEW_TIME=$(TZ=Asia/Taipei date '+%Y-%m-%d %H:%M')
+          sed -i "s/最後更新：[0-9-]* [0-9:]* (UTC+8)/最後更新：${NEW_TIME} (UTC+8)/" index.html
+          for f in brand/index.html sales/index.html sales/shopee/index.html sales/meta/index.html service/index.html playground/index.html hr/index.html crystal/index.html; do
+            [ -f "$f" ] && sed -i "s/最後更新：[0-9-]* [0-9:]* (UTC+8)/最後更新：${NEW_TIME} (UTC+8)/" "$f"
+          done
+
+      - name: Commit and push results
+        run: |
+          git config user.email "opcrystal888@gmail.com"
+          git config user.name "Computer Bot (Actions)"
+          git add -A
+          git diff --staged --quiet || git commit -m "data: GitHub Actions long-task 自動更新"
+          git push origin main
