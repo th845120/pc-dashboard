@@ -1,6 +1,26 @@
 // ===== TAB SWITCHING =====
 var activeSalesSub = 'sales-overview';
 
+// ===== HEADER HEIGHT WATCHER =====
+// 把實際 header 高度寫到 CSS var --site-header-h，讓密碼鎖屏 top 對齊
+(function() {
+  function updateHeaderH() {
+    var h = document.getElementById('siteHeader') || document.querySelector('.header');
+    if (!h) return;
+    var rect = h.getBoundingClientRect();
+    if (rect.height > 0) {
+      document.documentElement.style.setProperty('--site-header-h', rect.height + 'px');
+    }
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', updateHeaderH);
+  } else {
+    updateHeaderH();
+  }
+  window.addEventListener('load', updateHeaderH);
+  window.addEventListener('resize', updateHeaderH);
+})();
+
 // ===== URL ROUTING =====
 // 路徑 → tab 名稱（tab ID 為 sentiment / sales / service / playground）
 var PATH_TO_TAB = {

@@ -1296,11 +1296,15 @@ h1, h2, h3, h4, h5, h6, p, li, td, th, span, div, label, a {
 }
 
 /* ===== 銷售數據密碼鎖 ===== */
+/* 重要：z-index 必須低於 .header (z-index:100)，這樣沒密碼的訪客也能看到頂部導覽列、Logo，可切換到其他 tab 離開 */
 #tab-sales { position: relative; }
 .sales-lock {
   position: fixed;
-  inset: 0;
-  z-index: 9999;
+  top: var(--site-header-h, 90px);
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 50;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1310,6 +1314,21 @@ h1, h2, h3, h4, h5, h6, p, li, td, th, span, div, label, a {
   -webkit-backdrop-filter: blur(14px);
   transition: opacity 0.4s ease, visibility 0.4s;
   overflow: hidden;
+}
+/* 鎖屏顯示時，強制 header 加上不透明背景，避免透明背景看起來像鎖屏破口 */
+body:has(.sales-lock:not(.unlocked)) .header,
+body:has(.hr-lock:not(.unlocked)) .header,
+body:has(.crystal-lock:not(.unlocked)) .header {
+  background: rgba(26, 17, 40, 0.92);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
+  backdrop-filter: saturate(180%) blur(20px);
+  border-bottom: 0.5px solid rgba(61, 48, 88, 0.6);
+}
+[data-theme='light'] body:has(.sales-lock:not(.unlocked)) .header,
+[data-theme='light'] body:has(.hr-lock:not(.unlocked)) .header,
+[data-theme='light'] body:has(.crystal-lock:not(.unlocked)) .header {
+  background: rgba(245, 245, 247, 0.92);
+  border-bottom: 0.5px solid rgba(210, 210, 215, 0.6);
 }
 body:has(.sales-lock:not(.unlocked)),
 body:has(.hr-lock:not(.unlocked)),
