@@ -406,7 +406,7 @@ const kpiData = [
   { id: 'kpi-meta-engagement', val: 279 },
   // Google Business Profile
   { id: 'kpi-google-rating', val: 5.0, float: true },
-  { id: 'kpi-google-reviews', val: 55 },
+  { id: 'kpi-google-reviews', val: 72 },
 ].map(d => ({ ...d, el: document.getElementById(d.id) })).filter(d => d.el);
 
 const observer = new IntersectionObserver((entries) => {
