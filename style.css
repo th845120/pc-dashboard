@@ -1264,18 +1264,23 @@ h1, h2, h3, h4, h5, h6, p, li, td, th, span, div, label, a {
 /* ===== 銷售數據密碼鎖 ===== */
 #tab-sales { position: relative; }
 .sales-lock {
-  position: absolute;
+  position: fixed;
   inset: 0;
-  z-index: 50;
+  z-index: 9999;
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: center;
-  padding-top: clamp(40px, 10vh, 120px);
+  padding: 24px;
   background: linear-gradient(180deg, rgba(46,35,68,0.94) 0%, rgba(46,35,68,0.99) 60%);
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
-  border-radius: inherit;
   transition: opacity 0.4s ease, visibility 0.4s;
+  overflow: hidden;
+}
+body:has(.sales-lock:not(.unlocked)),
+body:has(.hr-lock:not(.unlocked)),
+body:has(.crystal-lock:not(.unlocked)) {
+  overflow: hidden;
 }
 html[data-theme="light"] .sales-lock {
   background: linear-gradient(180deg, rgba(250,249,247,0.94) 0%, rgba(250,249,247,0.99) 60%);
@@ -1417,18 +1422,18 @@ html[data-theme="light"] .sales-lock-warning {
 /* ===== 人資系統密碼鎖 ===== */
 #tab-hr, #tab-crystal { position: relative; }
 .hr-lock {
-  position: absolute;
+  position: fixed;
   inset: 0;
-  z-index: 50;
+  z-index: 9999;
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: center;
-  padding-top: clamp(40px, 10vh, 120px);
+  padding: 24px;
   background: linear-gradient(180deg, rgba(46,35,68,0.94) 0%, rgba(46,35,68,0.99) 60%);
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
-  border-radius: inherit;
   transition: opacity 0.4s ease, visibility 0.4s;
+  overflow: hidden;
 }
 html[data-theme="light"] .hr-lock {
   background: linear-gradient(180deg, rgba(250,249,247,0.94) 0%, rgba(250,249,247,0.99) 60%);
