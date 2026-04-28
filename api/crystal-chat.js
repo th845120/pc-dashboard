@@ -273,9 +273,46 @@ module.exports = async function handler(req, res) {
     // 白名單 fact 匹配（用合併後的 retrievalQuery）
     const whitelistHits = matchWhitelist(retrievalQuery);
 
-    // 極低信心：核心詞完全沒命中 → 拒答（但若命中白名單仍可答）
+    // ===== Option B：問題分類（在硬擋之前先分類）=====
+    // 1) 元提問（用戶在測試 KB / 要求分享內容）→ 從 topChunks 隨機抽幾塊來介紹
+    // 2) 人生情緒問題（憂鬱、失眠、感情、運勢等）→ 推對應水晶安撫，不擋
+    // 3) 完全無關（天氣、政治、寫程式、股票）→ 才禮貌擋
+    // 4) 其他（看似跟水晶有關但 KB 沒命中）→ 走原本「沒查到」的回覆
+    const META_PATTERNS = /(知識庫|資料庫|kb|你會什麼|你會啥|你能做什麼|你的專長|你能幹嘛|測試你|考你|考考你|分享一(下|段|點)|介紹一(下|點)|隨便講|隨便說|有什麼可以|你都讀過什麼|你讀過|14 ?本書)/i;
+    const LIFE_PATTERNS = /(憂鬱|沮喪|難過|焦慮|焦躁|失眠|睡不著|睡不好|壓力|心情|情緒|崩潰|哭|分手|失戀|感情|戀愛|曖昧|追求|姻緣|桃花|爛桃花|外遇|離婚|考試|面試|工作|找工作|失業|跳槽|薪水|加薪|升遷|事業|創業|生意|缺錢|沒錢|破財|負債|欠錢|健康|生病|手術|開刀|生產|懷孕|流產|身體|頭痛|肩頸|腰痛|運勢|流年|犯太歲|衰|倒楣|霉運|小人|貴人|招財|招桃花|招貴人|轉運|改運|考運|偏財|正財|安全感|自信|內向|社恐|怕生|敏感|內耗|emo|穩定情緒|平靜|放鬆)/i;
+    const OFF_TOPIC_PATTERNS = /(天氣|今天幾號|現在幾點|股票|加密貨幣|比特幣|台積電|0050|寫程式|coding|debug|javascript|python|html|css|sql|api|git|github|vercel|n8n|notion|excel|word|powerpoint|簡報|做菜|食譜|電影|追劇|韓劇|日劇|歌詞|遊戲|手遊|原神|英雄聯盟|lol|王者|c\+\+)/i;
+
+    const isMetaQ = META_PATTERNS.test(question) || META_PATTERNS.test(retrievalQuery);
+    const isLifeQ = LIFE_PATTERNS.test(question);
+    const isOffTopic = OFF_TOPIC_PATTERNS.test(question);
+
+    // 極低信心：核心詞完全沒命中 → 原本是直接拒答
     const veryLowConfidence = (coreTerms.length > 0 && strongHits === 0);
-    if (veryLowConfidence && whitelistHits.length === 0) {
+
+    // (3) 完全無關 → 直接擋（禮貌但堅定）
+    if (isOffTopic && !isMetaQ && !isLifeQ) {
+      res.status(200).json({
+        answer: `這我沒讀過欸 XD 我只看過水晶/寶石/礦石/療癒相關的書 (¯﹃¯)\n\n你要不要問我「紫水晶有什麼功效」「招財水晶怎麼搭」「失眠戴什麼好」這種？我比較拿手～`,
+        sources: [],
+        diagnostic: { reason: 'off_topic', question_type: 'off_topic' },
+      });
+      return;
+    }
+
+    // (1) 元提問 → 即使核心詞沒命中也要回（從 topChunks 隨機抽 5 塊內容介紹）
+    //     -> 不在這裡 return，往下走 LLM，由 system prompt 提示「介紹模式」
+    //     但如果 topChunks 完全空，才拒答
+    if (isMetaQ && topChunks.length === 0) {
+      res.status(200).json({
+        answer: '欸我這邊知識庫好像沒載進來 QQ 你重新整理一下再試試？',
+        sources: [],
+        diagnostic: { reason: 'meta_no_chunks' },
+      });
+      return;
+    }
+
+    // (4) 沒命中 + 不是元提問 + 不是人生問題 → 走原本拒答
+    if (veryLowConfidence && whitelistHits.length === 0 && !isMetaQ && !isLifeQ) {
       const kwList = coreTerms.length > 0 ? `「${coreTerms.slice(0, 5).join('」「')}」` : '這個';
       res.status(200).json({
         answer: `${kwList} 這個我在 14 本書裡都沒查到欸 QQ\n\n我只會回答書裡實際有寫的內容，書裡沒寫的我不敢亂編讓你跟客人講錯話 (¯﹃¯)\n\n建議你直接跟老闆或資深直播主確認一下，或者換個關鍵字再問我試試～`,
@@ -284,6 +321,10 @@ module.exports = async function handler(req, res) {
       });
       return;
     }
+
+    // (2) 人生情緒問題：往下走 LLM，由 system prompt 引導「用水晶幫忙」回答
+    // 把分類資訊存起來給後面 system prompt 用
+    const questionType = isMetaQ ? 'meta' : (isLifeQ ? 'life' : 'crystal');
 
     // 【第 2 層】多書交叉驗證
     const numBooks = bookDiversity(topChunks);
@@ -392,7 +433,11 @@ module.exports = async function handler(req, res) {
       '2. 說人話。直接進正題，不繞圈。\n' +
       '3. 適度用顏文字：´･ω･`、(˘▾˘)、(¯﹃¯)、(*´ω`)、(＞ω＜)、ᕙ(⇀‸↼‶)ᕗ、QQ、♪。一個回答 1-2 個就好，不要每段都加。\n' +
       '4. OCR 文本可能有錯字，你懂意思就好。但錯字不等於可以編內容。\n' +
-      '5. 問題跟水晶/寶石/礦石/療癒無關，幽默婉拒：「這我沒讀過欸 XD」。\n' +
+      '5. 問題分類處理：\n' +
+      '   - 若用戶是【元提問】（測試你、要求你「分享內容」、問你會什麼）：請從上方參考資料中挑 1-3 個有趣的水晶 / 礦物 / 知識點介紹給她，當成你在分享自己讀過的東西，自然推銷一下你能查的範圍。\n' +
+      '   - 若用戶是【人生情緒問題】（失眠、焦慮、感情、運勢、招財、健康、轉運、缺錢、考試壓力等）：用「閨蜜安慰 + 水晶推薦」的口氣回答。先簡短同理一下她的處境（1-2 句、不要過度安慰），然後從上方參考資料挑 1-3 種對應的水晶或礦物推薦給她，講功效時依然要忠實參考資料、不可編造。例如「失眠 → 紫水晶安神」「招財 → 黃水晶/鈦晶」「感情 → 粉晶」「壓力大 → 月光石/拉長石」這類經典推薦。如果參考資料裡剛好沒有完美對應的水晶，就老實說「書裡沒直接針對這狀況寫，但有提到 X 水晶有 Y 功效，你可以參考看看」。\n' +
+      '   - 若用戶問的是【完全跟水晶/寶石/礦石/療癒無關】（天氣、股票、寫程式等），系統會在進 LLM 之前就擋掉，輪不到你。\n' +
+      '   - 若用戶問的是【一般水晶問題】：照常用參考資料回答，附上你的閨蜜風格。\n' +
       '6. 繁體中文、台灣用語。\n' +
       '7. 回答結尾不要加任何「—— 出自...」「—— 來源...」「—— 參考...」這種句子。';
 

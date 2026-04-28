@@ -35,7 +35,7 @@
         <img src="brand-text.png" alt="聚寶水晶 Precious Crystal" class="brand-text-img" />
       </a>
       <div class="header-right">
-        <span class="update-badge">最後更新：2026-04-28 16:07 (UTC+8)</span>
+        <span class="update-badge">最後更新：2026-04-28 19:29 (UTC+8)</span>
         <button class="theme-toggle" data-theme-toggle aria-label="切換深色模式">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
         </button>
@@ -944,6 +944,16 @@
             你好，我是聚寶水晶的 AI 人資助理，可以協助你查詢公司規章、出勤、請假、薪資與福利等問題。請以「員工視角」提問，避免輸入個人機密資料。
           </div>
 
+          <div class="chat-suggestions" id="hrChatSuggestions" aria-label="建議提問">
+            <span class="chat-suggestions-label">試試這些問題：</span>
+            <button type="button" class="chat-suggestion-chip" data-q="請假規定有哪些？特休怎麼算？">請假規定？特休怎算</button>
+            <button type="button" class="chat-suggestion-chip" data-q="上下班打卡時間是幾點？遲到會怎樣？">打卡時間／遲到</button>
+            <button type="button" class="chat-suggestion-chip" data-q="員工有什麼福利？三節獎金、生日禮金有嗎？">員工福利</button>
+            <button type="button" class="chat-suggestion-chip" data-q="加班費怎麼計算？平日加班跟假日加班有差別嗎？">加班費怎算</button>
+            <button type="button" class="chat-suggestion-chip" data-q="試用期多久？轉正後薪水怎麼調整？">試用期／轉正</button>
+            <button type="button" class="chat-suggestion-chip" data-q="離職要提前幾天通知？需要交接什麼？">離職規定</button>
+          </div>
+
           <div class="hr-chat-messages" id="hrChatMessages" role="log" aria-live="polite"></div>
 
           <form class="hr-chat-form" id="hrChatForm" autocomplete="off">
@@ -1000,6 +1010,17 @@
         <div class="crystal-chat-wrapper">
           <div class="crystal-chat-intro">
             嗨～我是聚寶水晶的水晶小妹♪ 有什麼水晶、寶石、礦石、脈輪、療癒的問題都可以問我，我會讀過公司內部的 2000+ 頁專業文獻後回答你，每個答案都會附上出處書名和頁數喔～
+          </div>
+
+          <div class="chat-suggestions" id="crystalChatSuggestions" aria-label="建議提問">
+            <span class="chat-suggestions-label">試試這些問題：</span>
+            <button type="button" class="chat-suggestion-chip" data-q="紫水晶有什麼功效？適合什麼人配戴？">紫水晶功效</button>
+            <button type="button" class="chat-suggestion-chip" data-q="招財最強的水晶有哪些？怎麼搭配最有效？">招財水晶</button>
+            <button type="button" class="chat-suggestion-chip" data-q="七大脈輪分別對應哪些水晶？">七大脈輪水晶</button>
+            <button type="button" class="chat-suggestion-chip" data-q="我最近失眠又焦慮，戴什麼水晶比較好？">失眠／焦慮</button>
+            <button type="button" class="chat-suggestion-chip" data-q="水晶要怎麼淨化？多久淨化一次？">水晶淨化</button>
+            <button type="button" class="chat-suggestion-chip" data-q="超七、髮晶、鈦晶差在哪裡？">超七／髮晶／鈦晶</button>
+            <button type="button" class="chat-suggestion-chip" data-q="分享一段你知識庫裡關於水晶的內容">分享 KB 內容</button>
           </div>
 
           <div class="crystal-chat-messages" id="crystalChatMessages" role="log" aria-live="polite"></div>

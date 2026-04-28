@@ -2809,6 +2809,19 @@ setTimeout(tryInitMetaLiveChart, 600);
     var submit = document.getElementById('hrChatSubmit');
     if (!form || !input || !submit) return;
 
+    // 建議提問 chips：點一下 = 直接送出
+    var suggestions = document.getElementById('hrChatSuggestions');
+    if (suggestions) {
+      suggestions.addEventListener('click', function (e) {
+        var chip = e.target && e.target.closest && e.target.closest('.chat-suggestion-chip');
+        if (!chip || chip.disabled) return;
+        var q = chip.getAttribute('data-q') || chip.textContent.trim();
+        if (!q) return;
+        input.value = q;
+        form.requestSubmit();
+      });
+    }
+
     // 中文輸入法（IME）組字狀態追蹤：組字中按 Enter 只是確認選字，不可送出
     var isComposing = false;
     input.addEventListener('compositionstart', function () { isComposing = true; });
@@ -3060,6 +3073,19 @@ setTimeout(tryInitMetaLiveChart, 600);
     var input = document.getElementById('crystalChatInput');
     var submit = document.getElementById('crystalChatSubmit');
     if (!form || !input || !submit) return;
+
+    // 建議提問 chips：點一下 = 直接送出
+    var suggestions = document.getElementById('crystalChatSuggestions');
+    if (suggestions) {
+      suggestions.addEventListener('click', function (e) {
+        var chip = e.target && e.target.closest && e.target.closest('.chat-suggestion-chip');
+        if (!chip || chip.disabled) return;
+        var q = chip.getAttribute('data-q') || chip.textContent.trim();
+        if (!q) return;
+        input.value = q;
+        form.requestSubmit();
+      });
+    }
 
     var isComposing = false;
     input.addEventListener('compositionstart', function () { isComposing = true; });
