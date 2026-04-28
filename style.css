@@ -2060,10 +2060,10 @@ html[data-theme="light"] .crystal-chat-input {
   .hr-chat-quota { order: 2; }
 }
 
-/* ===== Chat 建議提問 chips（人資 + 水晶共用） ===== */
+/* ===== Chat 建議提問 chips（人資 + 水晶共用）—— 強制單行、超出橫向滾動 ===== */
 .chat-suggestions {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   align-items: center;
   gap: 8px;
   margin: 0 0 14px 0;
@@ -2071,7 +2071,21 @@ html[data-theme="light"] .crystal-chat-input {
   border-radius: 14px;
   background: rgba(83, 64, 110, 0.18);
   border: 1px solid rgba(196, 181, 220, 0.18);
+  /* 超出以橫向滾動代替換行 */
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(196, 181, 220, 0.35) transparent;
+  /* 右側 fade 暗示還有內容 */
+  -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 28px), transparent);
+          mask-image: linear-gradient(to right, #000 calc(100% - 28px), transparent);
 }
+.chat-suggestions::-webkit-scrollbar { height: 6px; }
+.chat-suggestions::-webkit-scrollbar-thumb {
+  background: rgba(196, 181, 220, 0.35);
+  border-radius: 999px;
+}
+.chat-suggestions::-webkit-scrollbar-track { background: transparent; }
 
 .chat-suggestions-label {
   font-size: 12.5px;
@@ -2079,6 +2093,7 @@ html[data-theme="light"] .crystal-chat-input {
   letter-spacing: 0.3px;
   margin-right: 4px;
   user-select: none;
+  flex-shrink: 0; /* 標籤不被壓縮 */
 }
 
 .chat-suggestion-chip {
@@ -2113,8 +2128,10 @@ html[data-theme="light"] .crystal-chat-input {
   box-shadow: none;
 }
 
+.chat-suggestion-chip { flex-shrink: 0; } /* chip 不被壓縮、保持原寬度才能滾動 */
+
 @media (max-width: 720px) {
   .chat-suggestions { padding: 10px 12px; gap: 6px; }
   .chat-suggestion-chip { font-size: 12.5px; padding: 5px 11px; }
-  .chat-suggestions-label { width: 100%; margin-bottom: 2px; }
+  .chat-suggestions-label { font-size: 12px; }
 }
