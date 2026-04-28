@@ -217,31 +217,42 @@ document.querySelectorAll('.tab-dropdown-item').forEach(function(item) {
   });
 });
 
-// Mobile touch support for dropdown
+// Mobile touch support for dropdown — 以 DOM class 為單一真實狀態，避免 flag 與 class 不同步
 (function() {
   var dropdown = document.querySelector('.tab-dropdown');
   if (!dropdown) return;
   var salesBtn = dropdown.querySelector('.tab-btn');
-  var touchOpened = false;
 
-  // On touch devices, tap toggles dropdown open
+  function isOpen() { return dropdown.classList.contains('open'); }
+
+  // On touch devices, tap toggles dropdown open / close
   salesBtn.addEventListener('touchstart', function(e) {
-    if (!touchOpened) {
-      e.preventDefault();
-      dropdown.classList.add('open');
-      touchOpened = true;
-    } else {
-      dropdown.classList.remove('open');
-      touchOpened = false;
-    }
+    e.preventDefault();
+    dropdown.classList.toggle('open');
   }, { passive: false });
 
   // Close dropdown when tapping outside
   document.addEventListener('touchstart', function(e) {
-    if (touchOpened && !dropdown.contains(e.target)) {
+    if (isOpen() && !dropdown.contains(e.target)) {
       dropdown.classList.remove('open');
-      touchOpened = false;
     }
+  });
+
+  // 點 dropdown item 後也明確關閉（雙保險，防止 sticky-hover）
+  dropdown.querySelectorAll('.tab-dropdown-item').forEach(function(item) {
+    item.addEventListener('click', function() {
+      dropdown.classList.remove('open');
+      // 強制 blur，消除手機 sticky :hover
+      try { item.blur(); salesBtn.blur(); } catch(e){}
+    });
+  });
+
+  // 切到非 sales tab 時也關閉 dropdown（避免殘影）
+  document.querySelectorAll('.tab-btn').forEach(function(btn) {
+    if (btn === salesBtn) return;
+    btn.addEventListener('click', function() {
+      dropdown.classList.remove('open');
+    });
   });
 })();
 

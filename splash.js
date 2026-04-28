@@ -254,8 +254,9 @@
 
   // Generate random positions avoiding center logo zone + mutual spacing
   function randomizeEmployeePositions() {
-    // Exclusion zone for center logo (ratio-based)
-    var exL = 0.28, exR = 0.72, exT = 0.20, exB = 0.70;
+    // Exclusion zone for center logo + slogan + hint pill (ratio-based)
+    // 手機縱小畫面下hint 位於 0.72-0.78，拉到 0.85 避免與員工星星重疊
+    var exL = 0.18, exR = 0.82, exT = 0.18, exB = 0.85;
     // Margin from edges
     var margin = 0.06;
     var minDist = 0.18; // minimum ratio-distance between any two employee stars

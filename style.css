@@ -171,13 +171,23 @@ h1, h2, h3, h4, h5, h6, p, li, td, th, span, div, label, a {
 }
 .splash-hint {
   font-size: var(--text-sm);
-  color: rgba(245,245,247,0.35);
+  color: rgba(245,245,247,0.95);
   margin-top: 24px;
+  display: inline-block;
+  padding: 6px 14px;
+  border-radius: 999px;
+  background: rgba(83, 64, 110, 0.55);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(196, 181, 220, 0.35);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
+  position: relative;
+  z-index: 5;
   animation: pulse-hint 2s ease-in-out infinite;
 }
 @keyframes pulse-hint {
-  0%, 100% { opacity: 0.35; }
-  50% { opacity: 0.7; }
+  0%, 100% { opacity: 0.85; transform: translateY(0); }
+  50% { opacity: 1; transform: translateY(-2px); }
 }
 
 /* ===== MAIN APP ===== */
@@ -331,7 +341,10 @@ h1, h2, h3, h4, h5, h6, p, li, td, th, span, div, label, a {
   margin-left: 2px;
   flex-shrink: 0;
 }
-.tab-dropdown:hover .tab-dropdown-arrow,
+@media (hover: hover) { .tab-dropdown:hover .tab-dropdown-arrow {
+  transform: rotate(180deg);
+} }
+.tab-dropdown:hover_old_disabled .tab-dropdown-arrow,
 .tab-dropdown.open .tab-dropdown-arrow {
   opacity: 0.8;
   transform: rotate(180deg);
@@ -355,7 +368,15 @@ h1, h2, h3, h4, h5, h6, p, li, td, th, span, div, label, a {
   box-shadow: 0 8px 32px rgba(0,0,0,0.45), 0 2px 8px rgba(0,0,0,0.25);
   backdrop-filter: blur(12px);
 }
-.tab-dropdown:hover .tab-dropdown-menu,
+/* hover-only on devices that actually have hover (desktop)；觸控裝置只靠 .open class 顯示，避免 sticky-hover 殘影 */
+@media (hover: hover) {
+  .tab-dropdown:hover .tab-dropdown-menu {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+    transform: translateX(-50%) translateY(0);
+  }
+}
 .tab-dropdown.open .tab-dropdown-menu {
   opacity: 1;
   visibility: visible;
@@ -736,10 +757,23 @@ h1, h2, h3, h4, h5, h6, p, li, td, th, span, div, label, a {
   border-radius: 16px;
   border: 1px solid var(--color-border);
   background: var(--color-surface);
+  /* 右側 fade 提示使用者可橫向滑動查看被遮欄的欄位 */
+  -webkit-mask-image: linear-gradient(to right, #000 0, #000 calc(100% - 24px), transparent 100%);
+  mask-image: linear-gradient(to right, #000 0, #000 calc(100% - 24px), transparent 100%);
+  scrollbar-width: thin;
+}
+/* 嵌套 wrap 取消重複 mask （避免雙重 fade） */
+.data-table-wrap .data-table-wrap {
+  -webkit-mask-image: none;
+  mask-image: none;
+  border: none;
+  background: transparent;
+  border-radius: 0;
 }
 .data-table {
   font-size: var(--text-xs);
   white-space: nowrap;
+  min-width: 100%;
 }
 .data-table th {
   font-weight: 600;
@@ -796,7 +830,7 @@ h1, h2, h3, h4, h5, h6, p, li, td, th, span, div, label, a {
   position: absolute;
   top: calc(100% + 8px);
   right: 0;
-  z-index: 200;
+  z-index: 9999;
   min-width: 380px;
   background: var(--color-surface);
   border: 1px solid var(--color-border);
