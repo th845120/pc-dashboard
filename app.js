@@ -649,6 +649,52 @@ function renderSalesCharts(months) {
     }
   });
 
+  // === TEMP_STREAMER_HOURLY_2026_04 START（5/6 自動下架） ===
+  (function renderStreamerHourly() {
+    var section = document.getElementById('streamerHourlySection');
+    if (!section) return;
+    var until = section.getAttribute('data-temp-until');
+    if (until && new Date() >= new Date(until + 'T00:00:00+08:00')) {
+      section.remove();
+      return;
+    }
+    var data = [
+      { name: 'Fion', code: 'OPCRF',  hours: 14.0, revenue: 22586 },
+      { name: 'Nabi', code: 'OPCRNA', hours: 8.0,  revenue: 7150  },
+      { name: 'wawa', code: 'OPCRWA', hours: 12.0, revenue: 4290  }
+    ];
+    var labels = data.map(d => d.name);
+    var hours = data.map(d => d.hours);
+    var perHr = data.map(d => Math.round(d.revenue / d.hours));
+    upsertChart('streamerHourlyChart', {
+      type: 'bar',
+      data: {
+        labels: labels,
+        datasets: [
+          { label: '時數 (h)', data: hours, backgroundColor: 'rgba(140,110,200,0.55)', borderColor: '#8c6ec8', borderWidth: 1, yAxisID: 'y', borderRadius: 6, barThickness: 28 },
+          { label: '每小時貢獻 (NT$)', data: perHr, type: 'line', borderColor: '#e0c97f', backgroundColor: 'rgba(224,201,127,0.15)', tension: 0.35, yAxisID: 'y1', borderWidth: 2.5, pointRadius: 5, pointBackgroundColor: '#e0c97f', pointBorderColor: '#fff', pointBorderWidth: 1.5, fill: false }
+        ]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: {
+          legend: { display: true, position: 'top', labels: { color: 'rgba(238,232,250,0.85)', font: { size: 12 }, usePointStyle: true } },
+          tooltip: { ...sharedTooltip, callbacks: { label: function(ctx) {
+            if (ctx.datasetIndex === 0) return ' 時數：' + ctx.parsed.y + ' h';
+            return ' 每小時：NT$' + ctx.parsed.y.toLocaleString();
+          } } }
+        },
+        scales: {
+          x: sharedScaleX,
+          y:  { type: 'linear', position: 'left',  beginAtZero: true, grid: { color: 'rgba(196,181,220,0.08)' }, ticks: { color: 'rgba(238,232,250,0.7)', callback: function(v){return v+' h';} }, title: { display: true, text: '時數 (h)', color: 'rgba(238,232,250,0.7)' } },
+          y1: { type: 'linear', position: 'right', beginAtZero: true, grid: { drawOnChartArea: false }, ticks: { color: 'rgba(224,201,127,0.85)', callback: function(v){return 'NT$'+v.toLocaleString();} }, title: { display: true, text: '每小時貢獻', color: 'rgba(224,201,127,0.85)' } }
+        },
+        animation: { duration: 700, easing: 'easeInOutQuart' }
+      }
+    });
+  })();
+  // === TEMP_STREAMER_HOURLY_2026_04 END ===
+
 }
 
 // ── 完整資料陣列（給表格用）──
