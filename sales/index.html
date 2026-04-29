@@ -35,7 +35,7 @@
         <img src="brand-text.png" alt="聚寶水晶 Precious Crystal" class="brand-text-img" />
       </a>
       <div class="header-right">
-        <span class="update-badge">最後更新：2026-04-29 01:01 (UTC+8)</span>
+        <span class="update-badge">最後更新：2026-04-29 09:34 (UTC+8)</span>
         <button class="theme-toggle" data-theme-toggle aria-label="切換深色模式">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
         </button>
@@ -507,7 +507,7 @@
         <h2 class="sales-lock-title">銷售數據</h2>
         <p class="sales-lock-subtitle">此頁面需輸入密碼才能瀏覽</p>
         <form class="sales-lock-form" id="salesLockForm" autocomplete="off">
-          <input type="password" id="salesLockInput" class="sales-lock-input" placeholder="請輸入密碼" autocomplete="off" />
+          <input type="password" id="salesLockInput" class="sales-lock-input" placeholder="請輸入密碼" autocomplete="new-password" name="lock_pwd_sales_random" data-lpignore="true" data-1p-ignore="true" data-form-type="other" readonly onfocus="this.removeAttribute(&quot;readonly&quot;);" />
           <button type="submit" class="sales-lock-submit">解鎖</button>
         </form>
         <div class="sales-lock-error" id="salesLockError" role="alert"></div>
@@ -917,7 +917,7 @@
         <h2 class="hr-lock-title">人資系統</h2>
         <p class="hr-lock-subtitle">此頁面僅限員工存取，請輸入密碼</p>
         <form class="hr-lock-form" id="hrLockForm" autocomplete="off">
-          <input type="password" id="hrLockInput" class="hr-lock-input" placeholder="請輸入密碼" autocomplete="off" />
+          <input type="password" id="hrLockInput" class="hr-lock-input" placeholder="請輸入密碼" autocomplete="new-password" name="lock_pwd_hr_random" data-lpignore="true" data-1p-ignore="true" data-form-type="other" readonly onfocus="this.removeAttribute(&quot;readonly&quot;);" />
           <button type="submit" class="hr-lock-submit">解鎖</button>
         </form>
         <div class="hr-lock-error" id="hrLockError" role="alert"></div>
@@ -975,7 +975,7 @@
         <h2 class="hr-lock-title">水晶知識庫</h2>
         <p class="hr-lock-subtitle">此頁面僅限員工存取，請輸入密碼</p>
         <form class="hr-lock-form" id="crystalLockForm" autocomplete="off">
-          <input type="password" id="crystalLockInput" class="hr-lock-input" placeholder="請輸入密碼" autocomplete="off" />
+          <input type="password" id="crystalLockInput" class="hr-lock-input" placeholder="請輸入密碼" autocomplete="new-password" name="lock_pwd_crystal_random" data-lpignore="true" data-1p-ignore="true" data-form-type="other" readonly onfocus="this.removeAttribute(&quot;readonly&quot;);" />
           <button type="submit" class="hr-lock-submit">解鎖</button>
         </form>
         <div class="hr-lock-error" id="crystalLockError" role="alert"></div>

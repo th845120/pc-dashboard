@@ -1335,6 +1335,16 @@ body:has(.hr-lock:not(.unlocked)),
 body:has(.crystal-lock:not(.unlocked)) {
   overflow: hidden;
 }
+/* 鎖屏狀態下強制 header 固定不滾動 */
+body:has(.sales-lock:not(.unlocked)) .header,
+body:has(.hr-lock:not(.unlocked)) .header,
+body:has(.crystal-lock:not(.unlocked)) .header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+}
 html[data-theme="light"] .sales-lock {
   background: linear-gradient(180deg, rgba(250,249,247,0.94) 0%, rgba(250,249,247,0.99) 60%);
 }
