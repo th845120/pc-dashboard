@@ -1315,30 +1315,30 @@ h1, h2, h3, h4, h5, h6, p, li, td, th, span, div, label, a {
   transition: opacity 0.4s ease, visibility 0.4s;
   overflow: hidden;
 }
-/* 鎖屏顯示時，強制 header 加上不透明背景，避免透明背景看起來像鎖屏破口 */
-body:has(.sales-lock:not(.unlocked)) .header,
-body:has(.hr-lock:not(.unlocked)) .header,
-body:has(.crystal-lock:not(.unlocked)) .header {
+/* 鎖屏顯示時，強制 header 加上不透明背景（僅限 active tab 下鎖屏未解除）*/
+body:has(.tab-panel.active #salesLock.sales-lock:not(.unlocked)) .header,
+body:has(.tab-panel.active #hrLock.hr-lock:not(.unlocked)) .header,
+body:has(.tab-panel.active #crystalLock.hr-lock:not(.unlocked)) .header {
   background: rgba(26, 17, 40, 0.92);
   -webkit-backdrop-filter: saturate(180%) blur(20px);
   backdrop-filter: saturate(180%) blur(20px);
   border-bottom: 0.5px solid rgba(61, 48, 88, 0.6);
 }
-[data-theme='light'] body:has(.sales-lock:not(.unlocked)) .header,
-[data-theme='light'] body:has(.hr-lock:not(.unlocked)) .header,
-[data-theme='light'] body:has(.crystal-lock:not(.unlocked)) .header {
+[data-theme='light'] body:has(.tab-panel.active #salesLock.sales-lock:not(.unlocked)) .header,
+[data-theme='light'] body:has(.tab-panel.active #hrLock.hr-lock:not(.unlocked)) .header,
+[data-theme='light'] body:has(.tab-panel.active #crystalLock.hr-lock:not(.unlocked)) .header {
   background: rgba(245, 245, 247, 0.92);
   border-bottom: 0.5px solid rgba(210, 210, 215, 0.6);
 }
-body:has(.sales-lock:not(.unlocked)),
-body:has(.hr-lock:not(.unlocked)),
-body:has(.crystal-lock:not(.unlocked)) {
+body:has(.tab-panel.active #salesLock.sales-lock:not(.unlocked)),
+body:has(.tab-panel.active #hrLock.hr-lock:not(.unlocked)),
+body:has(.tab-panel.active #crystalLock.hr-lock:not(.unlocked)) {
   overflow: hidden;
 }
-/* 鎖屏狀態下強制 header 固定不滾動 */
-body:has(.sales-lock:not(.unlocked)) .header,
-body:has(.hr-lock:not(.unlocked)) .header,
-body:has(.crystal-lock:not(.unlocked)) .header {
+/* 鎖屏狀態下強制 header 固定不滾動（僅限 active tab） */
+body:has(.tab-panel.active #salesLock.sales-lock:not(.unlocked)) .header,
+body:has(.tab-panel.active #hrLock.hr-lock:not(.unlocked)) .header,
+body:has(.tab-panel.active #crystalLock.hr-lock:not(.unlocked)) .header {
   position: fixed;
   top: 0;
   left: 0;
