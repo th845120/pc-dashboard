@@ -1,0 +1,86 @@
+name: Cleanup TEMP_STREAMER_HOURLY block (2026-04 streamer hourly section)
+
+# 2026/05/06 00:01 (UTC+8) = 2026/05/05 16:01 UTC
+on:
+  schedule:
+    - cron: '1 16 5 5 *'
+  workflow_dispatch: {}
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Remove TEMP_STREAMER_HOURLY block from sales/index.html
+        run: |
+          python3 <<'PY'
+          from pathlib import Path
+          p = Path('sales/index.html')
+          s = p.read_text(encoding='utf-8')
+          start = '      <!-- TEMP_STREAMER_HOURLY_2026_04 START'
+          end_marker = '<!-- TEMP_STREAMER_HOURLY_2026_04 END -->'
+          si = s.find(start)
+          ei = s.find(end_marker)
+          if si != -1 and ei != -1:
+              ei_end = ei + len(end_marker)
+              # also strip trailing newline + blank line
+              while ei_end < len(s) and s[ei_end] in '\n':
+                  ei_end += 1
+              s = s[:si] + s[ei_end:]
+              p.write_text(s, encoding='utf-8')
+              print('Removed TEMP_STREAMER_HOURLY block from sales/index.html')
+          else:
+              print('Block markers not found in sales/index.html — already removed?')
+          PY
+
+      - name: Remove TEMP_STREAMER_HOURLY block from app.js
+        run: |
+          python3 <<'PY'
+          from pathlib import Path
+          p = Path('app.js')
+          s = p.read_text(encoding='utf-8')
+          start = '  // === TEMP_STREAMER_HOURLY_2026_04 START'
+          end_marker = '// === TEMP_STREAMER_HOURLY_2026_04 END ==='
+          si = s.find(start)
+          ei = s.find(end_marker)
+          if si != -1 and ei != -1:
+              ei_end = ei + len(end_marker)
+              while ei_end < len(s) and s[ei_end] in '\n':
+                  ei_end += 1
+              s = s[:si] + s[ei_end:]
+              p.write_text(s, encoding='utf-8')
+              print('Removed TEMP_STREAMER_HOURLY block from app.js')
+          else:
+              print('Block markers not found in app.js — already removed?')
+          PY
+
+      - name: Update last-updated timestamps
+        run: |
+          NEW_TIME=$(TZ=Asia/Taipei date '+%Y-%m-%d %H:%M')
+          for f in index.html brand/index.html sales/index.html sales/shopee/index.html sales/meta/index.html service/index.html playground/index.html hr/index.html crystal/index.html; do
+            [ -f "$f" ] && sed -i "s/最後更新：[0-9-]* [0-9:]* (UTC+8)/最後更新：${NEW_TIME} (UTC+8)/" "$f"
+          done
+
+      - name: Commit & push
+        run: |
+          git config user.email "opcrystal888@gmail.com"
+          git config user.name "Computer Bot"
+          if git diff --quiet; then
+            echo "No changes — block already removed."
+            exit 0
+          fi
+          git add -A
+          git commit -m "chore(sales): 移除 4 月直播主時數效率臨時區塊（已過期 2026-05-06）"
+          git push origin main
+
+      - name: Disable this workflow after success
+        if: success()
+        run: |
+          gh workflow disable "Cleanup TEMP_STREAMER_HOURLY block (2026-04 streamer hourly section)" || true
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
