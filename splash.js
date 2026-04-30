@@ -13,39 +13,42 @@
   var mouseX = -999, mouseY = -999;
   var milkyWayCanvas = null; // off-screen pre-rendered galaxy band
 
-  // ===== SPLASH BGM (即刻播放 + 柔和淡出) =====
-  // 策略：利用 muted autoplay 規則—静音自動播放合法，任何第一個互動 (pointermove/scroll/key/touch)
-  // 即可 unmute，等於「一到頁就唱」。淡出延長至 4 秒且用 ease-in 曲線，感覺更柔。
+  // ===== SPLASH BGM (順暢播放 + ease-out 淡出) =====
+  // 策略：
+  //   1) 靜音 autoplay 立即開始 → 首次互動 unmute（走過瀏覽器自動播放政策）
+  //   2) 「unmute 才開始計時 6 秒」，避免用戶還沒聽到聲音就被 fade 掉
+  //   3) ease-out cubic 淡出（(1-t)^3）— 開頭快降、結尾逸出，順暢不斷崖
+  //   4) 進主頁時（keepAudio）不硬 pause，走同一個 ease-out fade
+  //   5) 返回 splash 重起時 reset 到頭 → 重新計時 6 秒才 fade
   var splashAudio = new Audio('splash-bgm.mp3');
   splashAudio.loop = false;
-  splashAudio.muted = true;        // 先静音→允許自動播放
+  splashAudio.muted = true;
   splashAudio.volume = 0.6;
   splashAudio.preload = 'auto';
   var TARGET_VOLUME = 0.6;
-  var PLAY_DURATION_MS = 6000;     // 全音量播放時長
-  var FADE_DURATION_MS = 4000;     // 淡出時長（2s→ 4s）
+  var PLAY_DURATION_MS = 6000;     // 全音量播放時長（unmute 後才起算）
+  var FADE_DURATION_MS = 2200;     // 淡出時長
   var audioFadeTimer = null;
   var audioPlayTimer = null;
   var unmuteListenersAdded = false;
+  var hasUnmuted = false;
 
   function playSplashBGM() {
     clearTimeout(audioFadeTimer);
     clearTimeout(audioPlayTimer);
-    splashAudio.currentTime = 0;
+    hasUnmuted = false;
+    try { splashAudio.currentTime = 0; } catch (e) {}
     splashAudio.volume = TARGET_VOLUME;
-    splashAudio.muted = true; // 默認静音開始（符合自動播放政策）
+    splashAudio.muted = true;
     var playPromise = splashAudio.play();
     if (playPromise && typeof playPromise.catch === 'function') {
       playPromise.catch(function() { /* autoplay 被擋就等 user gesture */ });
     }
     addUnmuteListeners();
-    // 到達預設時長後開始淡出
-    audioPlayTimer = setTimeout(function() {
-      fadeSplashBGM();
-    }, PLAY_DURATION_MS);
+    // 不在這裡設 6 秒 timer！等 unmute 才開始計時
   }
 
-  // 第一個 user interaction → unmute（毫無声音地解除静音）
+  // 第一個 user interaction → unmute 並開始計時 fade
   function addUnmuteListeners() {
     if (unmuteListenersAdded) return;
     unmuteListenersAdded = true;
@@ -53,27 +56,34 @@
     function unmute() {
       if (splashAudio.muted) {
         splashAudio.muted = false;
-        // 若 play() 先前失敗，現在有手勢了再試一次
         if (splashAudio.paused) {
           splashAudio.play().catch(function(){});
         }
       }
+      // 「unmute 才開始」計時 6 秒 → fade
+      if (!hasUnmuted) {
+        hasUnmuted = true;
+        clearTimeout(audioPlayTimer);
+        audioPlayTimer = setTimeout(fadeSplashBGM, PLAY_DURATION_MS);
+      }
       events.forEach(function(ev){ window.removeEventListener(ev, unmute, {passive:true}); });
+      unmuteListenersAdded = false; // 下次 playSplashBGM 可以重新綁定
     }
     events.forEach(function(ev){ window.addEventListener(ev, unmute, {passive:true, once:false}); });
   }
 
-  function fadeSplashBGM() {
-    // ease-in-out cubic—前段慢降、中段急降、末段再慢降，比線性柔和很多
+  function fadeSplashBGM(durationMs) {
+    // ease-out cubic — 開頭快降、結尾逸出至 0，耳朵聽到順暢送尾
     var startVolume = splashAudio.volume;
     var startTime = performance.now();
-    var duration = FADE_DURATION_MS;
+    var duration = (typeof durationMs === 'number' && durationMs > 0) ? durationMs : FADE_DURATION_MS;
     clearTimeout(audioFadeTimer);
     function tick() {
       var elapsed = performance.now() - startTime;
       var t = Math.min(1, elapsed / duration);
-      // ease-in cubic：t^3 —開始幾乎不動、最後才快速降到 0，避免生硬結尾
-      var factor = 1 - (t * t * t);
+      // ease-out cubic：(1-t)^3
+      var inv = 1 - t;
+      var factor = inv * inv * inv;
       splashAudio.volume = Math.max(0, startVolume * factor);
       if (t < 1) {
         audioFadeTimer = setTimeout(tick, 40);
@@ -86,13 +96,18 @@
   }
 
   function stopSplashBGM() {
+    // 柔和停止：不硬 pause，走 0.8 秒 ease-out fade
     clearTimeout(audioFadeTimer);
     clearTimeout(audioPlayTimer);
-    splashAudio.pause();
-    splashAudio.currentTime = 0;
+    if (splashAudio.paused || splashAudio.volume === 0) {
+      splashAudio.pause();
+      try { splashAudio.currentTime = 0; } catch (e) {}
+      return;
+    }
+    fadeSplashBGM(800);
   }
 
-  // 立即開始播放（静音 autoplay → 首次互動時 unmute）
+  // 立即開始播放（靜音 autoplay → 首次互動時 unmute、計時）
   playSplashBGM();
 
   // ===== MOBILE GYROSCOPE PARALLAX =====
@@ -703,8 +718,17 @@
 
   // --- Dismiss splash (shared logic) ---
   function dismissSplash(keepAudio) {
-    // If keepAudio is true, let the BGM 5s+2s fade-out finish naturally
-    if (!keepAudio) stopSplashBGM();
+    // 不管 keepAudio 是 true/false，都走 ease-out 柔和淡出。
+    // keepAudio=true │ 進主頁：1.6 秒 fade，讓音樂順順送尾
+    // keepAudio=false │ 硬切：0.5 秒 快速但仍順暢 fade
+    clearTimeout(audioFadeTimer);
+    clearTimeout(audioPlayTimer);
+    if (!splashAudio.paused && splashAudio.volume > 0) {
+      fadeSplashBGM(keepAudio ? 1600 : 500);
+    } else {
+      splashAudio.pause();
+      try { splashAudio.currentTime = 0; } catch (e) {}
+    }
     splash.classList.add('fade-out');
     mainApp.classList.remove('hidden');
     // 通知 app.js：splash 已關，可以套用路由 + 重繪圖表
