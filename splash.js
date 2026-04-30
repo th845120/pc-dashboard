@@ -23,11 +23,11 @@
   var splashAudio = new Audio('splash-bgm.mp3');
   splashAudio.loop = false;
   splashAudio.muted = true;
-  splashAudio.volume = 0.6;
+  splashAudio.volume = 1.0;
   splashAudio.preload = 'auto';
-  var TARGET_VOLUME = 0.6;
-  var PLAY_DURATION_MS = 6000;     // 全音量播放時長（unmute 後才起算）
-  var FADE_DURATION_MS = 2200;     // 淡出時長
+  var TARGET_VOLUME = 1.0;          // 100% 音量
+  var PLAY_DURATION_MS = 5000;      // 全音量播放時長
+  var FADE_DURATION_MS = 4000;      // 淡出時長 — 完整 4 秒從 100% → 0%
   var audioFadeTimer = null;
   var audioPlayTimer = null;
   var unmuteListenersAdded = false;
@@ -51,7 +51,8 @@
   // (已移除 addUnmuteListeners — 改用 user gesture 觸發 playSplashBGM)
 
   function fadeSplashBGM(durationMs) {
-    // ease-out cubic — 開頭快降、結尾逸出至 0，耳朵聽到順暢送尾
+    // ease-in cubic — 開頭幾乎不掉、中段慢慢降、最後才收到 0
+    // 這樣整段 fade 都聽得清楚，最後才自然消失，不會「倉促」
     var startVolume = splashAudio.volume;
     var startTime = performance.now();
     var duration = (typeof durationMs === 'number' && durationMs > 0) ? durationMs : FADE_DURATION_MS;
@@ -59,9 +60,14 @@
     function tick() {
       var elapsed = performance.now() - startTime;
       var t = Math.min(1, elapsed / duration);
-      // ease-out cubic：(1-t)^3
-      var inv = 1 - t;
-      var factor = inv * inv * inv;
+      // ease-in cubic：1 - t^3
+      // t=0.0 → 1.00 (100%)
+      // t=0.3 → 0.97
+      // t=0.5 → 0.875
+      // t=0.7 → 0.66
+      // t=0.9 → 0.27
+      // t=1.0 → 0.00
+      var factor = 1 - (t * t * t);
       splashAudio.volume = Math.max(0, startVolume * factor);
       if (t < 1) {
         audioFadeTimer = setTimeout(tick, 40);
@@ -74,7 +80,7 @@
   }
 
   function stopSplashBGM() {
-    // 柔和停止：不硬 pause，走 0.8 秒 ease-out fade
+    // 柔和停止（點 logo 回 splash 時觸發）：1.2 秒 ease-in fade
     clearTimeout(audioFadeTimer);
     clearTimeout(audioPlayTimer);
     if (splashAudio.paused || splashAudio.volume === 0) {
@@ -82,7 +88,7 @@
       try { splashAudio.currentTime = 0; } catch (e) {}
       return;
     }
-    fadeSplashBGM(800);
+    fadeSplashBGM(1200);
   }
 
   // 不自動播放 — 等用戶點擊 splash 才播。
