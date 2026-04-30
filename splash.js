@@ -34,43 +34,21 @@
   var hasUnmuted = false;
 
   function playSplashBGM() {
+    // 由 user gesture 觸發 — 不需要 muted 把戲
     clearTimeout(audioFadeTimer);
     clearTimeout(audioPlayTimer);
-    hasUnmuted = false;
     try { splashAudio.currentTime = 0; } catch (e) {}
     splashAudio.volume = TARGET_VOLUME;
-    splashAudio.muted = true;
+    splashAudio.muted = false;
     var playPromise = splashAudio.play();
     if (playPromise && typeof playPromise.catch === 'function') {
-      playPromise.catch(function() { /* autoplay 被擋就等 user gesture */ });
+      playPromise.catch(function() { /* 萬一被擋就靜默 */ });
     }
-    addUnmuteListeners();
-    // 不在這裡設 6 秒 timer！等 unmute 才開始計時
+    // 立即開始計時 6 秒 → fade
+    audioPlayTimer = setTimeout(fadeSplashBGM, PLAY_DURATION_MS);
   }
 
-  // 第一個 user interaction → unmute 並開始計時 fade
-  function addUnmuteListeners() {
-    if (unmuteListenersAdded) return;
-    unmuteListenersAdded = true;
-    var events = ['pointerdown','pointermove','keydown','scroll','touchstart','wheel'];
-    function unmute() {
-      if (splashAudio.muted) {
-        splashAudio.muted = false;
-        if (splashAudio.paused) {
-          splashAudio.play().catch(function(){});
-        }
-      }
-      // 「unmute 才開始」計時 6 秒 → fade
-      if (!hasUnmuted) {
-        hasUnmuted = true;
-        clearTimeout(audioPlayTimer);
-        audioPlayTimer = setTimeout(fadeSplashBGM, PLAY_DURATION_MS);
-      }
-      events.forEach(function(ev){ window.removeEventListener(ev, unmute, {passive:true}); });
-      unmuteListenersAdded = false; // 下次 playSplashBGM 可以重新綁定
-    }
-    events.forEach(function(ev){ window.addEventListener(ev, unmute, {passive:true, once:false}); });
-  }
+  // (已移除 addUnmuteListeners — 改用 user gesture 觸發 playSplashBGM)
 
   function fadeSplashBGM(durationMs) {
     // ease-out cubic — 開頭快降、結尾逸出至 0，耳朵聽到順暢送尾
@@ -107,8 +85,8 @@
     fadeSplashBGM(800);
   }
 
-  // 立即開始播放（靜音 autoplay → 首次互動時 unmute、計時）
-  playSplashBGM();
+  // 不自動播放 — 等用戶點擊 splash 才播。
+  // 這樣 100% 可靠（user gesture 永遠不會被瀏覽器 block）。
 
   // ===== MOBILE GYROSCOPE PARALLAX =====
   var gyroOffsetX = 0, gyroOffsetY = 0;
@@ -718,16 +696,18 @@
 
   // --- Dismiss splash (shared logic) ---
   function dismissSplash(keepAudio) {
-    // 不管 keepAudio 是 true/false，都走 ease-out 柔和淡出。
-    // keepAudio=true │ 進主頁：1.6 秒 fade，讓音樂順順送尾
-    // keepAudio=false │ 硬切：0.5 秒 快速但仍順暢 fade
-    clearTimeout(audioFadeTimer);
-    clearTimeout(audioPlayTimer);
-    if (!splashAudio.paused && splashAudio.volume > 0) {
-      fadeSplashBGM(keepAudio ? 1600 : 500);
-    } else {
-      splashAudio.pause();
-      try { splashAudio.currentTime = 0; } catch (e) {}
+    // click-to-play 模式：
+    // keepAudio=true │ 用戶點擊 splash 進主頁：完全不碰 BGM，讓 6 秒全音量 + 2.2 秒 ease-out fade 自己跑完
+    // keepAudio=false │ 程式硬切（如點 logo 回 splash 再切）：0.5 秒快速 fade 收尾
+    if (!keepAudio) {
+      clearTimeout(audioFadeTimer);
+      clearTimeout(audioPlayTimer);
+      if (!splashAudio.paused && splashAudio.volume > 0) {
+        fadeSplashBGM(500);
+      } else {
+        splashAudio.pause();
+        try { splashAudio.currentTime = 0; } catch (e) {}
+      }
     }
     splash.classList.add('fade-out');
     mainApp.classList.remove('hidden');
@@ -743,12 +723,16 @@
   }
 
   // --- Click to dismiss ---
+  // 第一次點擊 → 播 BGM + 等 1.5 秒讓用戶聽到開頭 → fade out 進主頁
+  // 之後若返回 splash 再點擊 → 同樣行為
+  var splashClicked = false;
   splash.addEventListener('click', function() {
-    // 點擊也算手勢—立即 unmute（如果還静音）
-    if (splashAudio.muted) {
-      splashAudio.muted = false;
-      if (splashAudio.paused) splashAudio.play().catch(function(){});
-    }
+    if (splashClicked) return; // 防止 fade 期間重複點
+    splashClicked = true;
+
+    // 點擊瞬間就播 BGM（user gesture，100% 可靠）
+    playSplashBGM();
+
     if (needsIOSGyroPermission && !gyroPermissionRequested) {
       // iOS 13+: first click requests gyro permission, THEN dismisses
       gyroPermissionRequested = true;
@@ -775,7 +759,10 @@
     resize();
     initField();
     if (!animId) draw();
-    playSplashBGM();
+    // 重置點擊鎖 — 用戶可以再次點擊 splash 觸發 BGM
+    splashClicked = false;
+    // 停止舊 BGM（不自動重播，等用戶點擊）
+    stopSplashBGM();
     // 回到首頁 → URL 重設為 /（避免停留在 /brand /sales 等子路徑）
     try {
       if (location.pathname !== '/') {
